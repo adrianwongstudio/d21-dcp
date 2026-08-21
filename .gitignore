@@ -7,3 +7,6 @@ data/rows.json
 __pycache__/
 *.pyc
 .DS_Store
+
+# local preview helper
+.claude/

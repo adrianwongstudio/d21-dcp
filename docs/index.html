@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>District 21 — Club Health Board</title>
+<meta name="description" content="Five years of Distinguished Club Program results for every club in Toastmasters District 21.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1F4; --sunk:#E3E9ED; --card:#FFFFFF; --line:#CBD6DE;
+  --ink:#00263A; --ink2:#33505F; --muted:#6E828F;
+  --maroon:#8A2432;
+  --green:#2E7D4F; --amber:#C8860B; --red:#AE3227; --dead:#9FB0BB;
+  --lampoff:#D3DCE2;
+  --shadow:0 1px 2px rgba(0,38,58,.08),0 8px 24px rgba(0,38,58,.06);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0B1A23; --sunk:#0F2029; --card:#14262F; --line:#27414E;
+  --ink:#E7EFF4; --ink2:#B4C6D1; --muted:#89A0AD;
+  --maroon:#D9737F;
+  --green:#4FBE7C; --amber:#E8AE3A; --red:#E2685B; --dead:#4A6472;
+  --lampoff:#1E3540;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Public Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.08;margin:0}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* ---------- masthead ---------- */
+.mast{border-bottom:1px solid var(--line);background:var(--card)}
+.mast .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:18px;flex-wrap:wrap}
+.brandmark{display:flex;align-items:center;gap:12px;min-width:0}
+.gav{width:30px;height:30px;flex:none}
+.brandtext{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.brandtext b{display:block;font-size:15px;letter-spacing:.02em;text-transform:none;color:var(--ink);font-weight:700}
+.mastlinks{display:flex;gap:20px;font-size:13px;font-weight:600}
+.mastlinks a{color:var(--ink2);text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px}
+.mastlinks a:hover,.mastlinks a:focus-visible{color:var(--maroon);border-bottom-color:var(--maroon)}
+
+/* ---------- hero ---------- */
+.hero{padding-block:56px 34px}
+.eyebrow{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--maroon);margin-bottom:18px}
+.hero h1{font-size:clamp(38px,6.4vw,74px);letter-spacing:-.022em;max-width:15ch}
+.hero h1 em{font-style:italic;color:var(--maroon)}
+.lede{margin-top:20px;max-width:60ch;font-size:17.5px;color:var(--ink2)}
+
+/* ---------- board ---------- */
+.board{padding-bottom:22px}
+.boardhead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:20px}
+.scrub{display:flex;gap:6px;flex-wrap:wrap}
+.yr{font:600 13px/1 "Public Sans",sans-serif;padding:9px 13px;border-radius:999px;cursor:pointer;
+  background:transparent;color:var(--ink2);border:1px solid var(--line);transition:background .15s,color .15s,border-color .15s}
+.yr:hover{border-color:var(--maroon);color:var(--maroon)}
+.yr[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:7px;white-space:nowrap}
+.chip{width:11px;height:11px;border-radius:50%;flex:none}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:9px;
+  background:var(--sunk);border:1px solid var(--line);border-radius:14px;padding:18px}
+.lamp{aspect-ratio:1;border-radius:50%;border:none;padding:0;cursor:pointer;position:relative;
+  background:var(--lampoff);transition:transform .16s cubic-bezier(.2,.8,.3,1),box-shadow .16s;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.16)}
+.lamp:hover,.lamp:focus-visible{transform:scale(1.28);z-index:3;outline:none;
+  box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink),0 6px 14px rgba(0,38,58,.28)}
+.lamp[data-sig="g"]{background:var(--green)}
+.lamp[data-sig="a"]{background:var(--amber)}
+.lamp[data-sig="r"]{background:var(--red)}
+.lamp[data-sig="x"]{background:var(--lampoff);opacity:.5}
+.lamp[data-top="1"]::after{content:"";position:absolute;inset:26%;border-radius:50%;
+  background:var(--card);opacity:.85}
+.lamp.on{animation:pop .34s cubic-bezier(.2,.9,.3,1) both}
+@keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+
+.tally{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.tallyitem{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.tallyn{font-family:Fraunces,serif;font-size:32px;font-weight:600;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tallyl{font-size:12px;color:var(--muted);margin-top:6px;letter-spacing:.02em}
+
+/* ---------- sections ---------- */
+.sec{padding-block:52px;border-top:1px solid var(--line);margin-top:44px}
+.sechead{max-width:66ch;margin-bottom:26px}
+.sechead h2{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.015em}
+.sechead p{color:var(--ink2);margin:12px 0 0;font-size:16px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media (max-width:860px){.pair{grid-template-columns:1fr}}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.panelhead{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:10px}
+.panelhead h3{font-size:19px}
+.panelhead .cnt{font:500 12px/1 "IBM Plex Mono",monospace;color:var(--muted);margin-left:auto}
+.rule{height:3px}
+.rule.up{background:var(--green)} .rule.down{background:var(--red)}
+.scroller{max-height:430px;overflow-y:auto;overflow-x:auto}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{position:sticky;top:0;background:var(--card);text-align:left;font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);font-weight:700;padding:10px 14px;border-bottom:1px solid var(--line);white-space:nowrap;z-index:1}
+td{padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--sunk)}
+.cname{font-weight:600;min-width:190px}
+.cmeta{font:400 11px/1.3 "IBM Plex Mono",monospace;color:var(--muted);display:block;margin-top:2px}
+.num{font-variant-numeric:tabular-nums;font-family:"IBM Plex Mono",monospace;font-size:12.5px;white-space:nowrap}
+.delta{font-weight:700;font-variant-numeric:tabular-nums;font-family:"IBM Plex Mono",monospace;white-space:nowrap}
+.delta.up{color:var(--green)} .delta.down{color:var(--red)}
+.arc{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink2);white-space:nowrap}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:999px;
+  background:var(--sunk);color:var(--ink2);white-space:nowrap}
+.badge[data-t="p"]{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green)}
+.badge[data-t="s"]{background:color-mix(in srgb,var(--amber) 22%,transparent);color:var(--amber)}
+.badge[data-t="d"]{background:color-mix(in srgb,var(--ink2) 14%,transparent);color:var(--ink2)}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+input[type=search],select{font:500 13.5px/1 "Public Sans",sans-serif;padding:10px 13px;border-radius:9px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);min-width:0}
+input[type=search]{flex:1 1 250px}
+input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-offset:1px}
+
+/* ---------- charts ---------- */
+const TARGETS=[4,2,2,2,1,1,4,4,4,4,1,1];
+const SHORT=["Level 1 awards","Level 2 awards","More Level 2 awards","Level 3 awards",
+"Level 4 / Path Completion / DTM","A second Level 4 / PC / DTM","New members (4)","More new members (4)",
+"Officers trained, Jun–Aug","Officers trained, Nov–Feb","Renewal dues on time","Officer list on time"];
+function drawGoalGap(){
+  const Y=S.d.years,y=Y[Y.length-1];$('ggYear').textContent=y;
+  const rows=S.d.clubs.map(c=>c.y[y]).filter(v=>v&&v.g);
+  const pct=SHORT.map((_,j)=>{
+    const met=rows.filter(r=>r.g[j]!=null&&r.g[j]>=TARGETS[j]).length;
+    return {j,p:rows.length?met/rows.length*100:0,met,n:rows.length};});
+  pct.sort((a,b)=>a.p-b.p);
+  $('goalgap').innerHTML=pct.map(g=>{
+    const col=g.p>=60?'var(--green)':g.p>=35?'var(--amber)':'var(--red)';
+    return `<div class="barrow"><div class="barlab">${esc(SHORT[g.j])}</div>
+      <div class="bartrack"><div class="barfill" style="width:${g.p.toFixed(1)}%;background:${col}"></div></div>
+      <div class="barval" style="color:${col}">${Math.round(g.p)}%</div></div>`;}).join('');
+}
+function drawTrend(){
+  const Y=S.d.years;
+  const cnt=Y.map(y=>{const o={g:0,a:0,r:0};
+    S.d.clubs.forEach(c=>{const f=(c.y[y]||{}).f;if(f==null)return;o[sig(f)]++;});return o;});
+  const max=Math.max(...cnt.map(o=>o.g+o.a+o.r));
+  $('trend').innerHTML=cnt.map(o=>{
+    const tot=o.g+o.a+o.r,h=tot/max*100;
+    const seg=(v,c)=>v?`<div class="seg" style="height:${v/tot*100}%;background:${c}">${v>=7?`<span class="segn">${v}</span>`:''}</div>`:'';
+    return `<div class="stackcol" style="height:${h}%">${seg(o.g,'var(--green)')}${seg(o.a,'var(--amber)')}${seg(o.r,'var(--red)')}</div>`;
+  }).join('');
+  $('trendlabs').innerHTML=Y.map(y=>`<div class="stacklab" style="flex:1">${shortYr(y)}</div>`).join('');
+}
+function drawDivisions(){
+  const Y=S.d.years,y=Y[Y.length-1],prev=Y[Y.length-2];$('dvYear').textContent=y;
+  const agg={};
+  S.d.clubs.forEach(c=>{if(!c.d)return;(agg[c.d]=agg[c.d]||{cur:[],pre:[]});
+    const a=(c.y[y]||{}).f,b=(c.y[prev]||{}).f;
+    if(a!=null)agg[c.d].cur.push(a);if(b!=null)agg[c.d].pre.push(b);});
+  const avg=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:null;
+  const list=Object.keys(agg).sort().map(d=>({d,cur:avg(agg[d].cur),pre:avg(agg[d].pre),n:agg[d].cur.length}))
+    .filter(r=>r.cur!=null).sort((a,b)=>b.cur-a.cur);
+  $('divbars').innerHTML=list.map(r=>{
+    const w=r.cur/10*100,col=r.cur>=5?'var(--green)':r.cur>=3?'var(--amber)':'var(--red)';
+    const gh=r.pre!=null?`<div class="ghost" style="left:${(r.pre/10*100).toFixed(1)}%" title="${prev}: ${r.pre.toFixed(1)}"></div>`:'';
+    const dir=r.pre!=null?(r.cur-r.pre):null;
+    return `<div class="barrow"><div class="barlab"><b>Division ${esc(r.d)}</b>
+        <span style="color:var(--muted)">· ${r.n} clubs</span></div>
+      <div class="bartrack" style="height:20px"><div class="barfill" style="width:${w.toFixed(1)}%;background:${col}"></div>${gh}</div>
+      <div class="barval" style="color:${col}">${r.cur.toFixed(1)}${dir==null?'':
+        `<span style="color:${dir>=0?'var(--green)':'var(--red)'};font-size:11px"> ${dir>=0?'▲':'▼'}</span>`}</div></div>`;
+  }).join('');
+}
+
+/* ---------- detail ---------- */
+.detail{position:fixed;inset:auto 0 0 0;max-height:82vh;overflow-y:auto;background:var(--card);
+  border-top:2px solid var(--maroon);box-shadow:0 -14px 44px rgba(0,38,58,.24);
+  transform:translateY(101%);transition:transform .26s cubic-bezier(.2,.8,.3,1);z-index:40;padding-bottom:22px}
+.detail.open{transform:none}
+.dclose{position:absolute;top:14px;right:18px;border:1px solid var(--line);background:var(--card);color:var(--ink2);
+  border-radius:999px;width:32px;height:32px;cursor:pointer;font-size:17px;line-height:1}
+.dclose:hover{border-color:var(--maroon);color:var(--maroon)}
+.dtop{padding:22px 24px 0}
+.dtop h3{font-size:26px;letter-spacing:-.015em;padding-right:44px}
+.dsub{font:400 12px/1 "IBM Plex Mono",monospace;color:var(--muted);margin-top:8px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;padding:20px 24px 0}
+.dcard{background:var(--sunk);border-radius:11px;padding:13px 15px}
+.dcard .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.dcard .v{font-family:Fraunces,serif;font-size:26px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+.goalwrap{padding:20px 24px 0}
+.goalrow{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.goalrow:last-child{border-bottom:none}
+.gname{flex:1;min-width:0}
+.gtick{width:19px;height:19px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}
+.gtick[data-m="1"]{background:var(--green)} .gtick[data-m="0"]{background:var(--dead)}
+
+
+/* ---------- charts ---------- */
+.charts{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:start}
+@media (max-width:940px){.charts{grid-template-columns:1fr}}
+.chartcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px 18px;box-shadow:var(--shadow)}
+.chartcard h3{font-size:18px;letter-spacing:-.01em}
+.chartcard .cap{font-size:13px;color:var(--ink2);margin:8px 0 18px;max-width:56ch}
+.chartcard.span2{grid-column:1/-1}
+.bars{display:flex;flex-direction:column;gap:9px}
+.barrow{display:grid;grid-template-columns:minmax(150px,1.35fr) 1fr auto;gap:12px;align-items:center;font-size:13px}
+.barlab{color:var(--ink2);line-height:1.25}
+.bartrack{background:var(--sunk);border-radius:5px;height:16px;position:relative;overflow:hidden}
+.barfill{position:absolute;inset:0 auto 0 0;border-radius:5px;transition:width .5s cubic-bezier(.2,.8,.3,1)}
+.barval{font:600 12.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;min-width:42px;text-align:right}
+.ghost{position:absolute;top:50%;transform:translateY(-50%);width:2px;height:22px;background:var(--ink2);opacity:.55;border-radius:1px}
+.stack{display:flex;gap:14px;align-items:flex-end;justify-content:space-between;height:210px;margin-top:6px}
+.stackcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:0;min-width:0}
+.seg{width:100%;transition:height .5s cubic-bezier(.2,.8,.3,1);position:relative}
+.seg:first-child{border-radius:5px 5px 0 0}
+.seg:last-child{border-radius:0 0 5px 5px}
+.segn{font:600 11px/1 "IBM Plex Mono",monospace;color:#fff;position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.stacklab{text-align:center;font:600 11.5px/1.3 "IBM Plex Mono",monospace;color:var(--muted);margin-top:10px}
+.chartkey{display:flex;gap:15px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:16px}
+.chartkey span{display:flex;align-items:center;gap:6px}
+
+.foot{border-top:1px solid var(--line);margin-top:44px;padding-block:34px;font-size:13px;color:var(--muted)}
+.foot .wrap{display:flex;gap:18px;justify-content:space-between;flex-wrap:wrap}
+.foot a{color:var(--ink2)}
+.note{font-size:12.5px;color:var(--muted);margin-top:14px;max-width:74ch}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--maroon);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="mast"><div class="wrap">
+  <div class="brandmark">
+    <svg class="gav" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <rect x="3" y="20" width="26" height="4.4" rx="2.2" fill="currentColor" opacity=".28"/>
+      <rect x="14.4" y="6" width="3.4" height="13" rx="1.7" fill="currentColor" transform="rotate(38 16 12.5)"/>
+      <rect x="6.5" y="3.4" width="10.5" height="7.4" rx="2.2" fill="currentColor" transform="rotate(38 11.75 7.1)"/>
+    </svg>
+    <div class="brandtext">Toastmasters<b>District&nbsp;21 · Club Health</b></div>
+  </div>
+  <nav class="mastlinks">
+    <a href="#board">Board</a><a href="#movement">Movement</a><a href="#clubs">Clubs</a>
+    <a href="https://github.com/adrianwongstudio/d21-dcp">Data</a>
+  </nav>
+</div></header>
+
+<main>
+<section class="wrap hero">
+  <p class="eyebrow">Distinguished Club Program · 2021&ndash;22 to 2025&ndash;26</p>
+  <h1>Every club in the district, <em>lit by how far it got</em>.</h1>
+  <p class="lede">Meetings run on a green, amber and red light. So does this page. Each lamp below is one club's
+  Distinguished Club Program score at the close of the year &mdash; green cleared five goals or more, amber stalled at
+  three or four, red never got past two. Move through the years and a split appears: more clubs are reaching
+  Distinguished than five years ago &mdash; and more are falling under three goals.</p>
+</section>
+
+<section class="wrap board" id="board">
+  <div class="boardhead">
+    <div class="scrub" id="scrub" role="group" aria-label="Program year"></div>
+    <div class="legend">
+      <span><i class="chip" style="background:var(--green)"></i>5&ndash;10 goals · Distinguished</span>
+      <span><i class="chip" style="background:var(--amber)"></i>3&ndash;4 goals</span>
+      <span><i class="chip" style="background:var(--red)"></i>0&ndash;2 goals</span>
+      <span><i class="chip" style="background:var(--lampoff)"></i>Not yet chartered</span>
+    </div>
+  </div>
+  <div class="grid" id="grid" role="list" aria-label="Clubs by year-end DCP score"></div>
+  <div class="tally" id="tally"></div>
+  <p class="note">A lamp with a pale centre reached all ten goals. Select any lamp for that club's full record.</p>
+</section>
+
+<section class="wrap sec" id="signals">
+  <div class="sechead">
+    <h2>Where the goals are going missing</h2>
+    <p>The Distinguished Club Program is ten goals. Knowing <em>which</em> ones the district keeps failing is the
+    difference between a pep talk and a plan &mdash; training and officer paperwork are fixed at district level,
+    education awards are fixed club by club.</p>
+  </div>
+  <div class="charts">
+    <div class="chartcard">
+      <h3>Goal completion across the district</h3>
+      <p class="cap">Share of clubs that met each goal in <b id="ggYear"></b>. Sorted worst first &mdash; the top of
+      this list is where district support buys the most goals.</p>
+      <div class="bars" id="goalgap"></div>
+    </div>
+    <div class="chartcard">
+      <h3>Five-year trajectory</h3>
+      <p class="cap">Clubs by year-end band. Green and red have both grown since 2021&ndash;22. The district is
+      pulling apart, not lifting evenly &mdash; which is why the two lists below matter more than the average.</p>
+      <div class="stack" id="trend"></div>
+      <div id="trendlabs" style="display:flex;gap:14px"></div>
+      <div class="chartkey">
+        <span><i class="chip" style="background:var(--green)"></i>5+</span>
+        <span><i class="chip" style="background:var(--amber)"></i>3&ndash;4</span>
+        <span><i class="chip" style="background:var(--red)"></i>0&ndash;2</span>
+      </div>
+    </div>
+    <div class="chartcard span2">
+      <h3>Division standings</h3>
+      <p class="cap">Average year-end goals per club by division, <b id="dvYear"></b>. The marker shows where the
+      division sat the year before &mdash; bars past it gained ground, bars short of it lost ground.</p>
+      <div class="bars" id="divbars"></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap sec" id="movement">
+  <div class="sechead">
+    <h2>Who climbed, and who slipped</h2>
+    <p>Two questions worth acting on: which clubs were under five goals and pulled themselves up, and which were
+    above five and fell back. The first group has something to teach; the second could use a hand.</p>
+  </div>
+  <div class="toolbar">
+    <label class="sr" for="mvyear">Transition</label>
+    <select id="mvyear"></select>
+  </div>
+  <div class="pair">
+    <div class="panel"><div class="rule up"></div>
+      <div class="panelhead"><h3>Climbed</h3><span class="cnt" id="impcnt"></span></div>
+      <div class="scroller"><table><thead><tr><th>Club</th><th>Arc</th><th>Change</th><th>Finished</th></tr></thead>
+      <tbody id="imptb"></tbody></table></div>
+    </div>
+    <div class="panel"><div class="rule down"></div>
+      <div class="panelhead"><h3>Slipped</h3><span class="cnt" id="deccnt"></span></div>
+      <div class="scroller"><table><thead><tr><th>Club</th><th>Arc</th><th>Change</th><th>Finished</th></tr></thead>
+      <tbody id="dectb"></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap sec" id="clubs">
+  <div class="sechead">
+    <h2>Every club, year by year</h2>
+    <p>Five years of year-end scores. The trace shows the shape of each club's run &mdash; steady, spiking or sliding.</p>
+  </div>
+  <div class="toolbar">
+    <label class="sr" for="q">Search clubs</label>
+    <input type="search" id="q" placeholder="Search by club name or number">
+    <label class="sr" for="fdiv">Division</label><select id="fdiv"></select>
+    <label class="sr" for="fsort">Sort</label>
+    <select id="fsort">
+      <option value="name">Name (A–Z)</option>
+      <option value="last">Latest score (high–low)</option>
+      <option value="lastasc">Latest score (low–high)</option>
+      <option value="swing">Biggest 5-year swing</option>
+    </select>
+  </div>
+  <div class="panel"><div class="scroller" style="max-height:640px">
+    <table><thead><tr><th>Club</th><th>Div</th><th id="yh1"></th><th id="yh2"></th><th id="yh3"></th>
+    <th id="yh4"></th><th id="yh5"></th><th>Trace</th></tr></thead><tbody id="clubtb"></tbody></table>
+  </div></div>
+  <p class="note" id="clubnote"></p>
+</section>
+</main>
+
+<div class="detail" id="detail" role="dialog" aria-modal="false" aria-labelledby="dname">
+  <button class="dclose" id="dclose" aria-label="Close club detail">&times;</button>
+  <div class="dtop"><h3 id="dname"></h3><div class="dsub" id="dsub"></div></div>
+  <div class="dgrid" id="dgrid"></div>
+  <div class="goalwrap"><div id="dgoals"></div></div>
+</div>
+
+<footer class="foot"><div class="wrap">
+  <div>Built from <a href="https://dashboards.toastmasters.org/District.aspx?id=21">dashboards.toastmasters.org</a>,
+  District 21 club reports. Figures are year-end (30 June).</div>
+  <div><a href="https://github.com/adrianwongstudio/d21-dcp">Source &amp; spreadsheet</a></div>
+</div></footer>
+
+<script>
+const S={d:null,year:null,mv:null};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sig=v=>v==null?'x':v>=5?'g':v>=3?'a':'r';
+const shortYr=y=>y.slice(2,4)+'–'+y.slice(7,9);
+function badge(st){
+  if(!st) return '<span class="badge">—</span>';
+  const t=/President/.test(st)?'p':/Select|Smedley/.test(st)?'s':'d';
+  const lbl=st.replace(/ Distinguished$/,'').replace(/^Distinguished$/,'Distinguished');
+  return `<span class="badge" data-t="${t}">${esc(lbl==='Distinguished'?'Distinguished':lbl)}</span>`;
+}
+function spark(vals){
+  const w=94,h=24,pts=[],n=vals.length;
+  vals.forEach((v,i)=>{if(v==null)return;
+    pts.push([4+i*((w-8)/(n-1)),h-3-(v/10)*(h-7)]);});
+  if(pts.length<2) return `<svg width="${w}" height="${h}" aria-hidden="true"></svg>`;
+  const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const last=vals.filter(v=>v!=null).pop();
+  const c=sig(last)==='g'?'var(--green)':sig(last)==='a'?'var(--amber)':'var(--red)';
+  return `<svg width="${w}" height="${h}" aria-hidden="true" style="overflow:visible">
+    <line x1="4" y1="${(h-3-(5/10)*(h-7)).toFixed(1)}" x2="${w-4}" y2="${(h-3-(5/10)*(h-7)).toFixed(1)}"
+      stroke="var(--line)" stroke-width="1" stroke-dasharray="2 2"/>
+    <path d="${d}" fill="none" stroke="${c}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${pts[pts.length-1][0].toFixed(1)}" cy="${pts[pts.length-1][1].toFixed(1)}" r="2.6" fill="${c}"/></svg>`;
+}
+
+/* ---------- board ---------- */
+function drawScrub(){
+  $('scrub').innerHTML=S.d.years.map(y=>
+    `<button class="yr" data-y="${y}" aria-pressed="${y===S.year}">${esc(y)}</button>`).join('');
+  $('scrub').querySelectorAll('.yr').forEach(b=>b.onclick=()=>{S.year=b.dataset.y;drawScrub();drawBoard();});
+}
+function drawBoard(){
+  const g=$('grid'),n={g:0,a:0,r:0,x:0,ten:0};
+  g.innerHTML=S.d.clubs.map((c,i)=>{
+    const f=(c.y[S.year]||{}).f??null,s=sig(f);n[s]++;if(f===10)n.ten++;
+    const lbl=`${c.m} — ${f==null?'no data':f+' of 10 goals'} in ${S.year}`;
+    return `<button class="lamp on" role="listitem" data-sig="${s}" data-top="${f===10?1:0}"
+      data-i="${i}" style="animation-delay:${Math.min(i*5,700)}ms" title="${esc(lbl)}" aria-label="${esc(lbl)}"></button>`;
+  }).join('');
+  g.querySelectorAll('.lamp').forEach(b=>b.onclick=()=>openDetail(+b.dataset.i));
+  $('tally').innerHTML=[
+    ['Distinguished or better',n.g,'var(--green)'],['Stalled at 3–4',n.a,'var(--amber)'],
+    ['Under 3 goals',n.r,'var(--red)'],['Perfect 10',n.ten,'var(--ink)']
+  ].map(([l,v,c])=>`<div class="tallyitem"><div class="tallyn" style="color:${c}">${v}</div>
+     <div class="tallyl">${l}</div></div>`).join('');
+}
+
+/* ---------- movement ---------- */
+function drawMv(){
+  const [fy,ty]=S.mv.split('|');
+  const f=r=>r.fy===fy&&r.ty===ty;
+  const imp=S.d.imp.filter(f),dec=S.d.dec.filter(f);
+  const row=r=>`<tr><td class="cname">${esc(r.m)}<span class="cmeta">${esc(r.n)} · Div ${esc(r.d)}/${esc(r.a)}</span></td>
+    <td class="arc">${r.fd} → ${r.td}</td>
+    <td class="delta ${r.ch>0?'up':'down'}">${r.ch>0?'+':''}${r.ch}</td><td>${badge(r.st)}</td></tr>`;
+  $('imptb').innerHTML=imp.length?imp.map(row).join(''):'<tr><td colspan="4" style="color:var(--muted)">No clubs.</td></tr>';
+  $('dectb').innerHTML=dec.length?dec.map(row).join(''):'<tr><td colspan="4" style="color:var(--muted)">No clubs.</td></tr>';
+  $('impcnt').textContent=imp.length+' clubs';$('deccnt').textContent=dec.length+' clubs';
+}
+
+/* ---------- explorer ---------- */
+function drawClubs(){
+  const q=$('q').value.trim().toLowerCase(),dv=$('fdiv').value,so=$('fsort').value,Y=S.d.years;
+  let list=S.d.clubs.filter(c=>(!dv||c.d===dv)&&(!q||c.m.toLowerCase().includes(q)||c.n.includes(q)));
+  const last=c=>(c.y[Y[Y.length-1]]||{}).f??-1;
+  const swing=c=>{const v=Y.map(y=>(c.y[y]||{}).f).filter(x=>x!=null);return v.length<2?-1:Math.max(...v)-Math.min(...v);};
+  list.sort(so==='name'?(a,b)=>a.m.localeCompare(b.m):so==='last'?(a,b)=>last(b)-last(a)
+    :so==='lastasc'?(a,b)=>last(a)-last(b):(a,b)=>swing(b)-swing(a));
+  $('clubtb').innerHTML=list.map(c=>{
+    const cells=Y.map(y=>{const f=(c.y[y]||{}).f;
+      if(f==null) return '<td class="num" style="color:var(--muted)">—</td>';
+      const col=sig(f)==='g'?'var(--green)':sig(f)==='a'?'var(--amber)':'var(--red)';
+      return `<td class="num" style="color:${col};font-weight:600">${f}</td>`;}).join('');
+    const i=S.d.clubs.indexOf(c);
+    return `<tr data-i="${i}" tabindex="0" role="button" style="cursor:pointer">
+      <td class="cname">${esc(c.m)}<span class="cmeta">${esc(c.n)}</span></td>
+      <td class="num">${esc(c.d)}/${esc(c.a)}</td>${cells}
+      <td>${spark(Y.map(y=>(c.y[y]||{}).f??null))}</td></tr>`;}).join('');
+  $('clubtb').querySelectorAll('tr').forEach(tr=>{
+    const go=()=>openDetail(+tr.dataset.i);
+    tr.onclick=go;tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};});
+  $('clubnote').textContent=`Showing ${list.length} of ${S.d.clubs.length} clubs. Dashes mark years before the club chartered.`;
+}
+
+/* ---------- charts ---------- */
+const TARGETS=[4,2,2,2,1,1,4,4,4,4,1,1];
+const SHORT=["Level 1 awards","Level 2 awards","More Level 2 awards","Level 3 awards",
+"Level 4 / Path Completion / DTM","A second Level 4 / PC / DTM","New members (4)","More new members (4)",
+"Officers trained, Jun–Aug","Officers trained, Nov–Feb","Renewal dues on time","Officer list on time"];
+function drawGoalGap(){
+  const Y=S.d.years,y=Y[Y.length-1];$('ggYear').textContent=y;
+  const rows=S.d.clubs.map(c=>c.y[y]).filter(v=>v&&v.g);
+  const pct=SHORT.map((_,j)=>{
+    const met=rows.filter(r=>r.g[j]!=null&&r.g[j]>=TARGETS[j]).length;
+    return {j,p:rows.length?met/rows.length*100:0,met,n:rows.length};});
+  pct.sort((a,b)=>a.p-b.p);
+  $('goalgap').innerHTML=pct.map(g=>{
+    const col=g.p>=60?'var(--green)':g.p>=35?'var(--amber)':'var(--red)';
+    return `<div class="barrow"><div class="barlab">${esc(SHORT[g.j])}</div>
+      <div class="bartrack"><div class="barfill" style="width:${g.p.toFixed(1)}%;background:${col}"></div></div>
+      <div class="barval" style="color:${col}">${Math.round(g.p)}%</div></div>`;}).join('');
+}
+function drawTrend(){
+  const Y=S.d.years;
+  const cnt=Y.map(y=>{const o={g:0,a:0,r:0};
+    S.d.clubs.forEach(c=>{const f=(c.y[y]||{}).f;if(f==null)return;o[sig(f)]++;});return o;});
+  const max=Math.max(...cnt.map(o=>o.g+o.a+o.r));
+  $('trend').innerHTML=cnt.map(o=>{
+    const tot=o.g+o.a+o.r,h=tot/max*100;
+    const seg=(v,c)=>v?`<div class="seg" style="height:${v/tot*100}%;background:${c}">${v>=7?`<span class="segn">${v}</span>`:''}</div>`:'';
+    return `<div class="stackcol" style="height:${h}%">${seg(o.g,'var(--green)')}${seg(o.a,'var(--amber)')}${seg(o.r,'var(--red)')}</div>`;
+  }).join('');
+  $('trendlabs').innerHTML=Y.map(y=>`<div class="stacklab" style="flex:1">${shortYr(y)}</div>`).join('');
+}
+function drawDivisions(){
+  const Y=S.d.years,y=Y[Y.length-1],prev=Y[Y.length-2];$('dvYear').textContent=y;
+  const agg={};
+  S.d.clubs.forEach(c=>{if(!c.d)return;(agg[c.d]=agg[c.d]||{cur:[],pre:[]});
+    const a=(c.y[y]||{}).f,b=(c.y[prev]||{}).f;
+    if(a!=null)agg[c.d].cur.push(a);if(b!=null)agg[c.d].pre.push(b);});
+  const avg=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:null;
+  const list=Object.keys(agg).sort().map(d=>({d,cur:avg(agg[d].cur),pre:avg(agg[d].pre),n:agg[d].cur.length}))
+    .filter(r=>r.cur!=null).sort((a,b)=>b.cur-a.cur);
+  $('divbars').innerHTML=list.map(r=>{
+    const w=r.cur/10*100,col=r.cur>=5?'var(--green)':r.cur>=3?'var(--amber)':'var(--red)';
+    const gh=r.pre!=null?`<div class="ghost" style="left:${(r.pre/10*100).toFixed(1)}%" title="${prev}: ${r.pre.toFixed(1)}"></div>`:'';
+    const dir=r.pre!=null?(r.cur-r.pre):null;
+    return `<div class="barrow"><div class="barlab"><b>Division ${esc(r.d)}</b>
+        <span style="color:var(--muted)">· ${r.n} clubs</span></div>
+      <div class="bartrack" style="height:20px"><div class="barfill" style="width:${w.toFixed(1)}%;background:${col}"></div>${gh}</div>
+      <div class="barval" style="color:${col}">${r.cur.toFixed(1)}${dir==null?'':
+        `<span style="color:${dir>=0?'var(--green)':'var(--red)'};font-size:11px"> ${dir>=0?'▲':'▼'}</span>`}</div></div>`;
+  }).join('');
+}
+
+/* ---------- detail ---------- */
+function openDetail(i){
+  const c=S.d.clubs[i],Y=S.d.years,y=c.y[S.year]||c.y[Y.filter(k=>c.y[k]).pop()]||{};
+  const yr=c.y[S.year]?S.year:(Y.filter(k=>c.y[k]).pop()||S.year);
+  $('dname').textContent=c.m;
+  $('dsub').textContent=`${c.n} · Division ${c.d} / Area ${c.a} · year-end ${yr}`;
+  const net=(y.md!=null&&y.mb!=null)?y.md-y.mb:null;
+  $('dgrid').innerHTML=[
+    ['Goals met',y.f??'—',y.f==null?'var(--muted)':sig(y.f)==='g'?'var(--green)':sig(y.f)==='a'?'var(--amber)':'var(--red)'],
+    ['Members',y.md??'—','var(--ink)'],['Membership base',y.mb??'—','var(--ink)'],
+    ['Net growth',net==null?'—':(net>0?'+':'')+net,net==null?'var(--muted)':net>0?'var(--green)':net<0?'var(--red)':'var(--ink)'],
+  ].map(([k,v,col])=>`<div class="dcard"><div class="k">${k}</div><div class="v" style="color:${col}">${v}</div></div>`).join('')
+   +`<div class="dcard"><div class="k">Status</div><div style="margin-top:8px">${badge(y.st)}</div></div>`
+   +`<div class="dcard"><div class="k">Five-year trace</div><div style="margin-top:8px">${spark(Y.map(k=>(c.y[k]||{}).f??null))}</div></div>`;
+  $('dgoals').innerHTML=y.g?S.d.goals.map((g,j)=>{
+    const v=y.g[j],met=v!=null&&v>0;
+    return `<div class="goalrow"><span class="gtick" data-m="${met?1:0}">${met?'✓':''}</span>
+      <span class="gname">${esc(g)}</span><span class="num">${v??'—'}</span></div>`;}).join('')
+    :'<p style="color:var(--muted);font-size:13.5px">No goal detail for this year.</p>';
+  $('detail').classList.add('open');$('dclose').focus();
+}
+$('dclose').onclick=()=>$('detail').classList.remove('open');
+addEventListener('keydown',e=>{if(e.key==='Escape')$('detail').classList.remove('open');});
+
+/* ---------- boot ---------- */
+fetch('data.json').then(r=>r.json()).then(d=>{
+  S.d=d;S.year=d.years[d.years.length-1];
+  const pairs=d.years.slice(1).map((y,i)=>[d.years[i],y]);
+  S.mv=pairs[pairs.length-1].join('|');
+  $('mvyear').innerHTML=pairs.map(([a,b])=>
+    `<option value="${a}|${b}">${shortYr(a)} → ${shortYr(b)}</option>`).join('');
+  $('mvyear').value=S.mv;
+  $('mvyear').onchange=e=>{S.mv=e.target.value;drawMv();};
+  const divs=[...new Set(d.clubs.map(c=>c.d).filter(Boolean))].sort();
+  $('fdiv').innerHTML='<option value="">All divisions</option>'+divs.map(x=>`<option value="${x}">Division ${x}</option>`).join('');
+  d.years.forEach((y,i)=>{const el=$('yh'+(i+1));if(el)el.textContent=shortYr(y);});
+  $('q').oninput=drawClubs;$('fdiv').onchange=drawClubs;$('fsort').onchange=drawClubs;
+  drawScrub();drawBoard();drawGoalGap();drawTrend();drawDivisions();drawMv();drawClubs();
+}).catch(e=>{
+  document.querySelector('main').insertAdjacentHTML('afterbegin',
+   '<div class="wrap"><p style="color:var(--red);padding:20px 0">Could not load data.json. '+esc(e.message)+'</p></div>');
+});
+</script>
+</body>
+</html>
