@@ -78,6 +78,9 @@ a{color:inherit}
 .lamp[data-top="1"]::after{content:"";position:absolute;inset:26%;border-radius:50%;
   background:var(--card);opacity:.85}
 
+@media (max-width:600px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(24px,1fr));gap:7px;padding:14px;border-radius:12px}
+}
 .tally{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .tallyitem{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
 .tallyn{font-family:Fraunces,serif;font-size:32px;font-weight:600;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
