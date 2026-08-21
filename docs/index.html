@@ -77,8 +77,6 @@ a{color:inherit}
 .lamp[data-sig="x"]{background:var(--lampoff);opacity:.5}
 .lamp[data-top="1"]::after{content:"";position:absolute;inset:26%;border-radius:50%;
   background:var(--card);opacity:.85}
-.lamp.on{animation:pop .34s cubic-bezier(.2,.9,.3,1)}
-@keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
 
 .tally{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .tallyitem{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
@@ -409,8 +407,8 @@ function drawBoard(){
   g.innerHTML=S.d.clubs.map((c,i)=>{
     const f=(c.y[S.year]||{}).f??null,s=sig(f);n[s]++;if(f===10)n.ten++;
     const lbl=`${c.m} — ${f==null?'no data':f+' of 10 goals'} in ${S.year}`;
-    return `<button class="lamp on" role="listitem" data-sig="${s}" data-top="${f===10?1:0}"
-      data-i="${i}" style="animation-delay:${Math.min(i*5,700)}ms" title="${esc(lbl)}" aria-label="${esc(lbl)}"></button>`;
+    return `<button class="lamp" role="listitem" data-sig="${s}" data-top="${f===10?1:0}"
+      data-i="${i}" title="${esc(lbl)}" aria-label="${esc(lbl)}"></button>`;
   }).join('');
   g.querySelectorAll('.lamp').forEach(b=>b.onclick=()=>openDetail(+b.dataset.i));
   $('tally').innerHTML=[
