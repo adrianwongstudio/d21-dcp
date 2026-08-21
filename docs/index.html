@@ -77,7 +77,7 @@ a{color:inherit}
 .lamp[data-sig="x"]{background:var(--lampoff);opacity:.5}
 .lamp[data-top="1"]::after{content:"";position:absolute;inset:26%;border-radius:50%;
   background:var(--card);opacity:.85}
-.lamp.on{animation:pop .34s cubic-bezier(.2,.9,.3,1) both}
+.lamp.on{animation:pop .34s cubic-bezier(.2,.9,.3,1) backwards}
 @keyframes pop{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
 
 .tally{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
