@@ -435,7 +435,8 @@ function drawBoard(){
     }));
     const avg=v=>v.length?v.reduce((s,x)=>s+x,0)/v.length:null;
     const ca=avg(cur),pa=avg(pre),trend=(ca!=null&&pa!=null)?ca-pa:null;
-    const tcol=trend==null?'var(--muted)':trend>=0?'var(--green)':'var(--red)';
+    const level=trend!=null&&Math.abs(trend)<0.05;
+    const tcol=(trend==null||level)?'var(--muted)':trend>0?'var(--green)':'var(--red)';
     const acol=ca==null?'var(--muted)':ca>=5?'var(--green)':ca>=3?'var(--amber)':'var(--red)';
     const body=areas.map(a=>{
       const lamps=divs[dv][a].map(({c,i})=>{
@@ -447,7 +448,7 @@ function drawBoard(){
     }).join('');
     return `<section class="divblock"><div class="divhead">
         <span class="divname">Division ${esc(dv)}</span>
-        <span class="divstat">${cur.length} clubs · avg <span class="divavg" style="color:${acol}">${ca==null?'—':ca.toFixed(1)}</span>${trend==null?'':` <span style="color:${tcol}">${trend>=0?'▲':'▼'} ${Math.abs(trend).toFixed(1)}</span>`}</span>
+        <span class="divstat">${cur.length} clubs · avg <span class="divavg" style="color:${acol}">${ca==null?'—':ca.toFixed(1)}</span>${trend==null?'':` <span style="color:${tcol}">${level?'level':(trend>0?'▲':'▼')+' '+Math.abs(trend).toFixed(1)}</span>`}</span>
       </div><div class="areas">${body}</div></section>`;
   }).join('');
   g.querySelectorAll('.lamp').forEach(b=>b.onclick=()=>openDetail(+b.dataset.i));
