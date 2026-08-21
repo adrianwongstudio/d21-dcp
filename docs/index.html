@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>District 21 — Club Health Board</title>
 <meta name="description" content="Five years of Distinguished Club Program results for every club in Toastmasters District 21.">
+<script>(function(){try{var t=localStorage.getItem('d21-theme');
+if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -25,6 +27,14 @@
   --lampoff:#1E3540;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
 }}
+:root[data-theme="dark"]{
+  --paper:#0B1A23; --sunk:#0F2029; --card:#14262F; --line:#27414E;
+  --ink:#E7EFF4; --ink2:#B4C6D1; --muted:#89A0AD;
+  --maroon:#D9737F;
+  --green:#4FBE7C; --amber:#E8AE3A; --red:#E2685B; --dead:#4A6472;
+  --lampoff:#1E3540;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);
@@ -44,6 +54,19 @@ a{color:inherit}
 .mastlinks{display:flex;gap:20px;font-size:13px;font-weight:600}
 .mastlinks a{color:var(--ink2);text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px}
 .mastlinks a:hover,.mastlinks a:focus-visible{color:var(--maroon);border-bottom-color:var(--maroon)}
+.mastright{display:flex;align-items:center;gap:18px;margin-left:auto}
+.themetoggle{display:grid;place-items:center;width:36px;height:36px;flex:none;cursor:pointer;
+  border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink2);
+  transition:color .15s,border-color .15s,background .15s}
+.themetoggle:hover{color:var(--maroon);border-color:var(--maroon)}
+.themetoggle svg{width:17px;height:17px;display:block}
+.themetoggle .moon{display:none}
+:root[data-theme="dark"] .themetoggle .moon{display:block}
+:root[data-theme="dark"] .themetoggle .sun{display:none}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .themetoggle .moon{display:block}
+  :root:not([data-theme="light"]) .themetoggle .sun{display:none}
+}
 
 /* ---------- hero ---------- */
 .hero{padding-block:56px 34px}
@@ -256,10 +279,20 @@ function drawDivisions(){
     </svg>
     <div class="brandtext">Toastmasters<b>District&nbsp;21 · Club Health</b></div>
   </div>
-  <nav class="mastlinks">
-    <a href="#board">Board</a><a href="#movement">Movement</a><a href="#clubs">Clubs</a>
-    <a href="https://github.com/adrianwongstudio/d21-dcp">Data</a>
-  </nav>
+  <div class="mastright">
+    <nav class="mastlinks">
+      <a href="#board">Board</a><a href="#movement">Movement</a><a href="#clubs">Clubs</a>
+      <a href="https://github.com/adrianwongstudio/d21-dcp">Data</a>
+    </nav>
+    <button class="themetoggle" id="themetoggle" type="button" aria-label="Switch to dark theme">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/>
+        <path d="M12 2.4v2.3M12 19.3v2.3M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.3M19.3 12h2.3M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.5 14.3A8.6 8.6 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8Z"/></svg>
+    </button>
+  </div>
 </div></header>
 
 <main>
@@ -570,6 +603,22 @@ function openDetail(i){
 }
 $('dclose').onclick=()=>$('detail').classList.remove('open');
 addEventListener('keydown',e=>{if(e.key==='Escape')$('detail').classList.remove('open');});
+
+/* ---------- theme ---------- */
+(function(){
+  const root=document.documentElement,btn=$('themetoggle');
+  const isDark=()=>root.getAttribute('data-theme')==='dark'||
+    (!root.hasAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const label=()=>btn.setAttribute('aria-label',isDark()?'Switch to light theme':'Switch to dark theme');
+  btn.onclick=()=>{
+    const next=isDark()?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('d21-theme',next);}catch(e){}
+    label();
+  };
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',label);
+  label();
+})();
 
 /* ---------- boot ---------- */
 fetch('data.json').then(r=>r.json()).then(d=>{
