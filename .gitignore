@@ -1,0 +1,9 @@
+# Scraped page cache — 10,860 files / ~125 MB, fully regenerable via scripts/scrape.py
+data/cache/
+
+# Parsed intermediate — regenerable via scripts/build.py
+data/rows.json
+
+__pycache__/
+*.pyc
+.DS_Store
