@@ -88,33 +88,33 @@ a{color:inherit}
 .chip{width:11px;height:11px;border-radius:50%;flex:none}
 
 .grid{background:var(--sunk);border:1px solid var(--line);border-radius:14px;padding:18px;
-  display:flex;flex-direction:column;gap:20px}
+  display:flex;flex-direction:column;gap:22px}
 .divhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
   padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:12px}
 .divname{font-family:Fraunces,Georgia,serif;font-size:18px;font-weight:600;letter-spacing:-.01em}
 .divstat{font:500 12px/1 "IBM Plex Mono",monospace;color:var(--muted);margin-left:auto;white-space:nowrap}
 .divavg{font-weight:600}
-.areas{display:flex;flex-wrap:wrap;gap:10px}
-.areagrp{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:9px 11px 10px}
+.areas{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:10px;align-items:start}
+.areagrp{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:10px 6px 7px 11px}
 .arealab{font:500 10px/1 "IBM Plex Mono",monospace;letter-spacing:.11em;text-transform:uppercase;
   color:var(--muted);margin-bottom:7px}
-.arealamps{display:flex;gap:6px;flex-wrap:wrap}
-.lamp{width:30px;height:30px;border-radius:50%;border:none;padding:0;cursor:pointer;display:grid;
-  place-items:center;font:700 11.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
-  background:var(--lampoff);color:#fff;
-  transition:transform .16s cubic-bezier(.2,.8,.3,1),box-shadow .16s;
-  box-shadow:inset 0 1px 2px rgba(0,0,0,.16)}
-.lamp:hover,.lamp:focus-visible{transform:scale(1.22);z-index:3;outline:none;
-  box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink),0 6px 14px rgba(0,38,58,.28)}
+.clubrow{display:flex;align-items:center;gap:9px;width:100%;padding:3px 5px 3px 0;margin:1px 0;
+  background:none;border:none;border-radius:7px;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.clubrow:hover,.clubrow:focus-visible{background:var(--sunk);outline:none}
+.clubrow:focus-visible{box-shadow:0 0 0 2px var(--maroon)}
+.lamp{width:25px;height:25px;flex:none;border-radius:50%;display:grid;place-items:center;
+  font:700 10.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  background:var(--lampoff);color:#fff;box-shadow:inset 0 1px 2px rgba(0,0,0,.16)}
 .lamp[data-sig="g"]{background:var(--green)}
 .lamp[data-sig="a"]{background:var(--amber);color:#28210A}
 .lamp[data-sig="r"]{background:var(--red)}
 .lamp[data-sig="x"]{background:var(--lampoff);opacity:.55;color:var(--muted)}
+.cn{font-size:12.5px;line-height:1.28;color:var(--ink2);overflow-wrap:anywhere}
+.clubrow:hover .cn{color:var(--ink)}
 @media (max-width:600px){
-  .grid{padding:14px;border-radius:12px;gap:16px}
-  .areagrp{padding:8px 9px 9px}
-  .lamp{width:27px;height:27px;font-size:11px}
-  .areas{gap:8px}
+  .grid{padding:14px;border-radius:12px;gap:18px}
+  .areas{grid-template-columns:1fr;gap:8px}
+  .cn{font-size:12.5px}
 }
 .tally{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .tallyitem{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
@@ -317,8 +317,8 @@ function drawDivisions(){
   </div>
   <div class="grid" id="grid" aria-label="Clubs by division and area, year-end DCP score"></div>
   <div class="tally" id="tally"></div>
-  <p class="note">Each lamp is one club, grouped by the division and area that supports it, and numbered with the
-  goals it met out of ten. Select any lamp for that club's full record.</p>
+  <p class="note">Clubs sit under the division and area that supports them, ranked within each area from most
+  goals to fewest &mdash; so the clubs needing help sit at the bottom of each list. Select any club for its full record.</p>
 </section>
 
 <section class="wrap sec" id="signals">
@@ -472,19 +472,27 @@ function drawBoard(){
     const tcol=(trend==null||level)?'var(--muted)':trend>0?'var(--green)':'var(--red)';
     const acol=ca==null?'var(--muted)':ca>=5?'var(--green)':ca>=3?'var(--amber)':'var(--red)';
     const body=areas.map(a=>{
-      const lamps=divs[dv][a].map(({c,i})=>{
+      const sorted=divs[dv][a].slice().sort((x,y)=>{
+        const fx=(x.c.y[S.year]||{}).f,fy=(y.c.y[S.year]||{}).f;
+        if(fx==null&&fy==null) return x.c.m.localeCompare(y.c.m);
+        if(fx==null) return 1; if(fy==null) return -1;
+        return fy-fx || x.c.m.localeCompare(y.c.m);
+      });
+      const rows=sorted.map(({c,i})=>{
         const f=(c.y[S.year]||{}).f??null,sg=sig(f);n[sg]++;if(f===10)n.ten++;
         const lbl=`${c.m} — ${f==null?'no data for '+S.year:f+' of 10 goals in '+S.year}`;
-        return `<button class="lamp" data-sig="${sg}" data-i="${i}" title="${esc(lbl)}" aria-label="${esc(lbl)}">${f==null?'\u00b7':f}</button>`;
+        return `<button class="clubrow" data-i="${i}" title="${esc(lbl)}" aria-label="${esc(lbl)}">
+          <span class="lamp" data-sig="${sg}" aria-hidden="true">${f==null?'\u00b7':f}</span>
+          <span class="cn">${esc(c.m)}</span></button>`;
       }).join('');
-      return `<div class="areagrp"><div class="arealab">Area ${esc(a)}</div><div class="arealamps">${lamps}</div></div>`;
+      return `<div class="areagrp"><div class="arealab">Area ${esc(a)}</div>${rows}</div>`;
     }).join('');
     return `<section class="divblock"><div class="divhead">
         <span class="divname">Division ${esc(dv)}</span>
         <span class="divstat">${cur.length} clubs · avg <span class="divavg" style="color:${acol}">${ca==null?'—':ca.toFixed(1)}</span>${trend==null?'':` <span style="color:${tcol}">${level?'level':(trend>0?'▲':'▼')+' '+Math.abs(trend).toFixed(1)}</span>`}</span>
       </div><div class="areas">${body}</div></section>`;
   }).join('');
-  g.querySelectorAll('.lamp').forEach(b=>b.onclick=()=>openDetail(+b.dataset.i));
+  g.querySelectorAll('.clubrow').forEach(b=>b.onclick=()=>openDetail(+b.dataset.i));
   $('tally').innerHTML=[
     ['Distinguished or better',n.g,'var(--green)'],['Stalled at 3–4',n.a,'var(--amber)'],
     ['Under 3 goals',n.r,'var(--red)'],['Perfect 10',n.ten,'var(--ink)']
