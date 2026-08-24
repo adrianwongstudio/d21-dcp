@@ -44,8 +44,10 @@ so a club's ceiling can drop below Distinguished long before June.
 
 `docs/inyear.xlsx` is the same data as a workbook — one row per club with the
 twelve goal counts, membership, ceiling and next deadline, filterable by division
-and area, for an area director to open alongside a club officer. The page also
-exports the currently filtered table as CSV.
+and area, for an area director to open alongside a club officer. The club table
+also exports the current filtered view as CSV, and each club's detail panel has
+an **Excel** button that downloads just that club: the open year, every goal with
+its target and act-by date, and the five closed years behind it.
 
 ## Notes
 

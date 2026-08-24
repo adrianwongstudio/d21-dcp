@@ -217,11 +217,18 @@ function drawDivisions(){
   border-top:2px solid var(--maroon);box-shadow:0 -14px 44px rgba(0,38,58,.24);
   transform:translateY(101%);transition:transform .26s cubic-bezier(.2,.8,.3,1);z-index:40;padding-bottom:22px}
 .detail.open{transform:none}
-.dclose{position:absolute;top:14px;right:18px;border:1px solid var(--line);background:var(--card);color:var(--ink2);
+.dactions{position:absolute;top:14px;right:18px;display:flex;gap:9px;align-items:center;z-index:2}
+.dxbtn{display:inline-flex;align-items:center;gap:7px;font:600 12.5px/1 "Public Sans",sans-serif;
+  padding:9px 13px;border-radius:8px;border:1px solid var(--maroon);background:var(--maroon);
+  color:#fff;cursor:pointer;white-space:nowrap}
+.dxbtn:hover{filter:brightness(1.08)}
+.dxbtn svg{width:14px;height:14px;flex:none}
+@media (max-width:560px){.dxbtn span{display:none}}
+.dclose{position:static;border:1px solid var(--line);background:var(--card);color:var(--ink2);
   border-radius:999px;width:32px;height:32px;cursor:pointer;font-size:17px;line-height:1}
 .dclose:hover{border-color:var(--maroon);color:var(--maroon)}
 .dtop{padding:22px 24px 0}
-.dtop h3{font-size:26px;letter-spacing:-.015em;padding-right:44px}
+.dtop h3{font-size:26px;letter-spacing:-.015em;padding-right:150px}
 .dsub{font:400 12px/1 "IBM Plex Mono",monospace;color:var(--muted);margin-top:8px}
 .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;padding:20px 24px 0}
 .dcard{background:var(--sunk);border-radius:11px;padding:13px 15px}
@@ -537,7 +544,13 @@ function drawDivisions(){
 </main>
 
 <div class="detail" id="detail" role="dialog" aria-modal="false" aria-labelledby="dname">
-  <button class="dclose" id="dclose" aria-label="Close club detail">&times;</button>
+  <div class="dactions">
+    <button class="dxbtn" id="ddl" type="button" aria-label="Download this club as an Excel workbook">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+        stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
+      Excel</button>
+    <button class="dclose" id="dclose" aria-label="Close club detail">&times;</button>
+  </div>
   <div class="dtop"><h3 id="dname"></h3><div class="dsub" id="dsub"></div></div>
   <div class="dgrid" id="dgrid"></div>
   <div class="goalwrap"><div id="dgoals"></div></div>
@@ -735,10 +748,14 @@ function openDetail(i){
    +`<div class="dcard"><div class="k">Status</div><div style="margin-top:8px">${badge(y.st)}</div></div>`
    +`<div class="dcard"><div class="k">Five-year trace</div><div style="margin-top:8px">${spark(Y.map(k=>(c.y[k]||{}).f??null))}</div></div>`;
   $('dgoals').innerHTML=y.g?S.d.goals.map((g,j)=>{
-    const v=y.g[j],met=v!=null&&v>0;
+    const v=y.g[j],met=v!=null&&v>=TARGETS[j];
     return `<div class="goalrow"><span class="gtick" data-m="${met?1:0}">${met?'✓':''}</span>
-      <span class="gname">${esc(g)}</span><span class="num">${v??'—'}</span></div>`;}).join('')
+      <span class="gname">${esc(g)}</span><span class="num">${v??'—'}<span
+        style="color:var(--muted)"> / ${TARGETS[j]}</span></span></div>`;}).join('')
     :'<p style="color:var(--muted);font-size:13.5px">No goal detail for this year.</p>';
+  $('ddl').onclick=()=>saveBlob(clubXlsx(c),
+    `${c.m.replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'')}_DCP.xlsx`,
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   $('detail').classList.add('open');$('dclose').focus();
 }
 $('dclose').onclick=()=>$('detail').classList.remove('open');
@@ -858,6 +875,189 @@ function liveCsv(){
   a.download=`District21_InYear_${L.py}_${tag}.csv`;
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+
+/* ---------- a very small .xlsx writer ----------
+   Enough of the OOXML package to emit a genuine workbook from the browser
+   with no library: a ZIP of stored (uncompressed) parts. The rest of this
+   page has no external JS and no build step; this keeps it that way. */
+const CRCT=(()=>{const t=new Uint32Array(256);
+  for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}
+  return t;})();
+const crc32=u8=>{let c=0xFFFFFFFF;
+  for(let i=0;i<u8.length;i++)c=CRCT[(c^u8[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;};
+const U8=s=>new TextEncoder().encode(s);
+
+function zipStore(files){
+  const chunks=[],cd=[];let off=0;
+  files.forEach(f=>{
+    const nm=U8(f.name),crc=crc32(f.data),sz=f.data.length;
+    const lh=new Uint8Array(30+nm.length),lv=new DataView(lh.buffer);
+    lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0,true);
+    lv.setUint16(8,0,true);lv.setUint16(10,0,true);lv.setUint16(12,0x2821,true);
+    lv.setUint32(14,crc,true);lv.setUint32(18,sz,true);lv.setUint32(22,sz,true);
+    lv.setUint16(26,nm.length,true);lv.setUint16(28,0,true);lh.set(nm,30);
+    chunks.push(lh,f.data);
+    const ch=new Uint8Array(46+nm.length),cv=new DataView(ch.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);
+    cv.setUint16(8,0,true);cv.setUint16(10,0,true);cv.setUint16(12,0,true);
+    cv.setUint16(14,0x2821,true);cv.setUint32(16,crc,true);cv.setUint32(20,sz,true);
+    cv.setUint32(24,sz,true);cv.setUint16(28,nm.length,true);cv.setUint16(30,0,true);
+    cv.setUint16(32,0,true);cv.setUint16(34,0,true);cv.setUint16(36,0,true);
+    cv.setUint32(38,0,true);cv.setUint32(42,off,true);ch.set(nm,46);
+    cd.push(ch); off+=lh.length+sz;
+  });
+  const cdSize=cd.reduce((n,b)=>n+b.length,0);
+  const end=new Uint8Array(22),ev=new DataView(end.buffer);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(4,0,true);ev.setUint16(6,0,true);
+  ev.setUint16(8,files.length,true);ev.setUint16(10,files.length,true);
+  ev.setUint32(12,cdSize,true);ev.setUint32(16,off,true);ev.setUint16(20,0,true);
+  const all=[...chunks,...cd,end];
+  const out=new Uint8Array(all.reduce((n,b)=>n+b.length,0));
+  let q=0; all.forEach(b=>{out.set(b,q);q+=b.length;});
+  return out;
+}
+
+const xe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+const colName=n=>{let s='';n++;while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=(n-m-1)/26;}return s;};
+// styles: 0 plain, 1 bold, 2 met(green), 3 short(pink), 4 closed(grey), 5 header, 6 title
+function sheetXml(rows,widths){
+  const cols=widths&&widths.length?'<cols>'+widths.map((w,i)=>
+    `<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')+'</cols>':'';
+  const body=rows.map((r,ri)=>{
+    const cells=r.map((c,ci)=>{
+      if(c==null||c==='')return '';
+      const o=(typeof c==='object'&&c!==null&&'v' in c)?c:{v:c};
+      const ref=colName(ci)+(ri+1), st=o.s?` s="${o.s}"`:'';
+      return (typeof o.v==='number'&&isFinite(o.v))
+        ? `<c r="${ref}"${st}><v>${o.v}</v></c>`
+        : `<c r="${ref}"${st} t="inlineStr"><is><t xml:space="preserve">${xe(o.v)}</t></is></c>`;
+    }).join('');
+    return `<row r="${ri+1}">${cells}</row>`;
+  }).join('');
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${cols}<sheetData>${body}</sheetData></worksheet>`;
+}
+
+function buildXlsx(sheets){
+  const STYLES=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<fonts count="4"><font><sz val="11"/><name val="Calibri"/></font>
+<font><b/><sz val="11"/><name val="Calibri"/></font>
+<font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font>
+<font><b/><sz val="14"/><name val="Calibri"/></font></fonts>
+<fills count="6"><fill><patternFill patternType="none"/></fill>
+<fill><patternFill patternType="gray125"/></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFD6EBDA"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFFBE0DD"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFE4E9ED"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FF1F3864"/><bgColor indexed="64"/></patternFill></fill></fills>
+<borders count="1"><border/></borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="7">
+<xf xfId="0"/>
+<xf xfId="0" fontId="1" applyFont="1"/>
+<xf xfId="0" fillId="2" applyFill="1"/>
+<xf xfId="0" fillId="3" applyFill="1"/>
+<xf xfId="0" fillId="4" applyFill="1"/>
+<xf xfId="0" fontId="2" fillId="5" applyFont="1" applyFill="1"/>
+<xf xfId="0" fontId="3" applyFont="1"/>
+</cellXfs>
+<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  const ct=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+${sheets.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}
+<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
+  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
+  const wb=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<sheets>${sheets.map((s,i)=>`<sheet name="${xe(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets></workbook>`;
+  const wbr=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+${sheets.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}
+<Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+  const files=[{name:'[Content_Types].xml',data:U8(ct)},{name:'_rels/.rels',data:U8(rels)},
+    {name:'xl/workbook.xml',data:U8(wb)},{name:'xl/_rels/workbook.xml.rels',data:U8(wbr)},
+    {name:'xl/styles.xml',data:U8(STYLES)}];
+  sheets.forEach((s,i)=>files.push({name:`xl/worksheets/sheet${i+1}.xml`,
+    data:U8(sheetXml(s.rows,s.widths))}));
+  return zipStore(files);
+}
+
+function saveBlob(bytes,name,mime){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([bytes],{type:mime}));
+  a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+
+/* ---------- one club, as a workbook ----------
+   What an area director opens next to a club officer: where the club stands
+   in the open year, which goals are still reachable, and the five closed
+   years behind it. */
+function clubXlsx(c){
+  const L=S.l, Y=S.d.years, G12=S.d.goals, live=L?L.clubs.find(x=>x.n===c.n):null;
+  const H=v=>({v,s:5}), B=v=>({v,s:1}), T=v=>({v,s:6});
+  const rows=[];
+  rows.push([T(c.m)]);
+  rows.push([`Club ${Number(c.n)}`,`Division ${c.d||'—'}`,`Area ${c.a||'—'}`]);
+  rows.push([]);
+
+  if(live){
+    rows.push([B(`Open year ${L.py} — dashboard snapshot ${L.asof||'—'}`)]);
+    rows.push([`${L.days} days remain until 30 June ${L.py.slice(-4)}, when this becomes final.`]);
+    rows.push([]);
+    rows.push([H('Goals met'),H('Of'),H('Ceiling'),H('Best still possible'),
+               H('Members'),H('Base'),H('Net growth'),H('Meets membership rule')]);
+    rows.push([live.met,10,live.ceil,live.best||'none',live.md,live.mb,live.ng,
+               live.memok?'yes':'no']);
+    rows.push([]);
+    rows.push([H('Goal'),H('Needs'),H('To date'),H('Status'),H('Act by')]);
+    // the twelve printed rows, mapped onto the ten goals they earn
+    const OWNER=[0,1,2,3,4,5,6,7,8,8,9,9];
+    G12.forEach((g,j)=>{
+      const need=(L.targets||TARGETS)[j], v=live.v[j], st=live.st[OWNER[j]];
+      const met=v!=null&&v>=need;
+      const style=met?2:(st==='d'?4:3);
+      rows.push([{v:g,s:style},{v:need,s:style},{v:v==null?'—':v,s:style},
+        {v:met?'met':(st==='d'?'window closed':'still reachable'),s:style},
+        {v:met?'':fmtDate(L.acts[j]),s:style}]);
+    });
+    rows.push([]);
+    rows.push(['Rows 9 and 10 together earn one goal, and so do rows 11 and 12.']);
+    rows.push([`That is why "goals met" is ${live.met} of 10, not a count of ticks above.`]);
+    rows.push([]);
+  }
+
+  rows.push([B('Closed years')]);
+  rows.push([H('Year'),H('Goals met'),H('Status'),H('Members'),H('Base'),H('Net growth')]);
+  Y.forEach(y=>{
+    const d=c.y[y]; if(!d)return;
+    const net=(d.md!=null&&d.mb!=null)?d.md-d.mb:null;
+    rows.push([y,d.f==null?'—':d.f,d.st||'—',d.md==null?'—':d.md,
+               d.mb==null?'—':d.mb,net==null?'—':net]);
+  });
+  rows.push([]);
+  rows.push([B('Goal detail by closed year')]);
+  rows.push([H('Goal'),H('Needs'),...Y.map(y=>H(shortYr(y)))]);
+  G12.forEach((g,j)=>{
+    const need=TARGETS[j];
+    rows.push([g,need,...Y.map(y=>{
+      const d=c.y[y]; if(!d||!d.g)return '';
+      const v=d.g[j];
+      return {v:v==null?'—':v,s:(v!=null&&v>=need)?2:3};
+    })]);
+  });
+  rows.push([]);
+  rows.push(['Source: dashboards.toastmasters.org · '+(L?L.generated:'')]);
+
+  const widths=[46,9,11,17,12,10,13,22];
+  return buildXlsx([{name:'Club',rows,widths}]);
 }
 
 /* ---------- theme ---------- */

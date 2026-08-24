@@ -166,6 +166,10 @@ position 1–12, never by label.** The order is stable:
 
 Targets, used to decide whether a goal was met: `[4,2,2,2,1,1,4,4,4,4,1,1]`.
 
+**A goal is met at its target, not above zero.** The detail panel used to tick
+any non-zero count, which showed 288 goals as met that were short in 2025-26
+alone. Compare against `TARGETS`.
+
 **Twelve rows, ten goals.** The page prints twelve rows but the DCP awards ten.
 Rows 9 and 10 (the two officer-training windows) together earn a single goal,
 and so do rows 11 and 12 (dues, officer list). Counting achieved rows instead
@@ -229,6 +233,29 @@ closed-year pages carry on.
   have not met them. A window that has not opened yet (Nov–Feb training, seen
   from August) is labelled as such rather than counted as a shortfall, or every
   club looks behind on something it cannot have started.
+
+### Downloads
+
+Three, in rising order of narrowness:
+
+- `docs/inyear.xlsx` — every club, built by `gen_inyear_xlsx.py` (openpyxl).
+- **This view as CSV** — the club table as currently filtered, so an area
+  director can take just their own area. UTF-8 BOM, or Excel mangles the
+  accented club names.
+- **Excel**, in the club detail panel — one club: the open year, per-goal
+  status with act-by dates, and the closed years behind it.
+
+The last one is generated in the browser by a small OOXML writer in
+`index.html` (`zipStore`/`buildXlsx`) rather than by shipping 181 pre-built
+files that would churn on every refresh. It writes a ZIP of *stored*
+(uncompressed) parts, so it needs a CRC32 and no deflate. If you extend it,
+validate the output by actually opening it — `openpyxl` under
+`-W error::UserWarning` catches the missing-default-style class of fault that
+otherwise surfaces as Excel's repair prompt.
+
+`live.json` carries `acts`, `targets` and `rows` so the client never has to
+infer a deadline by matching label text; the wording differs between
+`data.json` and the live feed and will not match.
 
 Reachability windows are in `windows()` in `gen_live_data.py`. Each row has an
 *act-by* date (the real deadline) and a later *dead-from* date, because the

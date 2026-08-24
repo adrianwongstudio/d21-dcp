@@ -159,6 +159,8 @@ def main():
 
     doc={"py":PY,"asof":asof,"today":today.isoformat(),"end":END.isoformat(),
       "days":days_left,"months":[MN[m] for m,_ in elapsed],
+      "acts":[WIN[i][0].isoformat() for i in range(12)],
+      "targets":TARGETS,"rows":ROWNAMES,
       "goals":[g['n'] for g in GOALS],"clubs":out,"agg":agg,
       "generated":datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
       "source":"dashboards.toastmasters.org - District 21"}
