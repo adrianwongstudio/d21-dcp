@@ -236,14 +236,24 @@ closed-year pages carry on.
 
 ### Downloads
 
-Three, in rising order of narrowness:
+Five, in rising order of narrowness:
 
 - `docs/inyear.xlsx` — every club, built by `gen_inyear_xlsx.py` (openpyxl).
 - **This view as CSV** — the club table as currently filtered, so an area
   director can take just their own area. UTF-8 BOM, or Excel mangles the
   accented club names.
+- **Excel**, on each division header — every club in that division, plus a
+  sheet naming who is short on each closing window and by how much.
+- **The icon on each area card** — the same, for one area.
 - **Excel**, in the club detail panel — one club: the open year, per-goal
   status with act-by dates, and the closed years behind it.
+
+**Clubs move between areas at the year boundary, and 75 of 181 moved for
+2026-27.** The board groups by the alignment of the *year on screen*, so
+scoping a director's download off it would hand them last year's roster. The
+scope comes from `live.json` instead, and the workbook names any club that
+sat elsewhere last year. If you add another scoped export, take the roster
+from the live feed, not from `data.json`.
 
 The last one is generated in the browser by a small OOXML writer in
 `index.html` (`zipStore`/`buildXlsx`) rather than by shipping 181 pre-built

@@ -89,14 +89,23 @@ a{color:inherit}
 
 .grid{background:var(--sunk);border:1px solid var(--line);border-radius:14px;padding:18px;
   display:flex;flex-direction:column;gap:22px}
-.divhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+.divhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:12px}
 .divname{font-family:Fraunces,Georgia,serif;font-size:18px;font-weight:600;letter-spacing:-.01em}
 .divstat{font:500 12px/1 "IBM Plex Mono",monospace;color:var(--muted);margin-left:auto;white-space:nowrap}
 .divavg{font-weight:600}
+.scopedl{display:inline-flex;align-items:center;gap:6px;font:600 11.5px/1 "Public Sans",sans-serif;
+  padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:var(--card);
+  color:var(--ink2);cursor:pointer;white-space:nowrap;margin-left:12px}
+.scopedl:hover{border-color:var(--maroon);color:var(--maroon)}
+.scopedl svg{width:13px;height:13px;flex:none}
+.scopedl.mini{padding:4px;margin-left:auto;border-color:transparent;background:transparent}
+.scopedl.mini svg{width:14px;height:14px}
+.scopedl.mini:hover{border-color:var(--maroon);background:var(--card)}
 .areas{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:10px;align-items:start}
 .areagrp{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:10px 6px 7px 11px}
-.arealab{font:500 10px/1 "IBM Plex Mono",monospace;letter-spacing:.11em;text-transform:uppercase;
+.arealab{display:flex;align-items:center;gap:6px;min-height:22px;
+  font:500 10px/1 "IBM Plex Mono",monospace;letter-spacing:.11em;text-transform:uppercase;
   color:var(--muted);margin-bottom:7px}
 .clubrow{display:flex;align-items:center;gap:9px;width:100%;padding:3px 5px 3px 0;margin:1px 0;
   background:none;border:none;border-radius:7px;cursor:pointer;text-align:left;color:inherit;font:inherit}
@@ -630,14 +639,39 @@ function drawBoard(){
           <span class="lamp" data-sig="${sg}" aria-hidden="true">${f==null?'\u00b7':f}</span>
           <span class="cn">${esc(c.m)}</span></button>`;
       }).join('');
-      return `<div class="areagrp"><div class="arealab">Area ${esc(a)}</div>${rows}</div>`;
+      return `<div class="areagrp"><div class="arealab">Area ${esc(a)}
+        <button class="scopedl mini" data-kind="Area" data-label="${esc(a)}" data-div="${esc(dv)}"
+          title="Download Area ${esc(a)} — current roster — as an Excel workbook"
+          aria-label="Download Area ${esc(a)} as an Excel workbook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
+        </button></div>${rows}</div>`;
     }).join('');
     return `<section class="divblock"><div class="divhead">
         <span class="divname">Division ${esc(dv)}</span>
         <span class="divstat">${cur.length} clubs · avg <span class="divavg" style="color:${acol}">${ca==null?'—':ca.toFixed(1)}</span>${trend==null?'':` <span style="color:${tcol}">${level?'level':(trend>0?'▲':'▼')+' '+Math.abs(trend).toFixed(1)}</span>`}</span>
+        <button class="scopedl" data-kind="Division" data-label="${esc(dv)}"
+          title="Download Division ${esc(dv)} — current roster — as an Excel workbook"
+          aria-label="Download Division ${esc(dv)} as an Excel workbook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
+          Excel</button>
       </div><div class="areas">${body}</div></section>`;
   }).join('');
   g.querySelectorAll('.clubrow').forEach(b=>b.onclick=()=>openDetail(+b.dataset.i));
+  g.querySelectorAll('.scopedl').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    const {kind,label,div}=b.dataset;
+    // The board groups clubs by the alignment of the year on screen. A
+    // director's patch is whatever it is NOW, and 75 clubs moved this year,
+    // so the roster comes from the live feed when we have it.
+    const match=(d,a)=>kind==='Division'?d===label:(d===div&&a===label);
+    const cur=S.l?new Set(S.l.clubs.filter(c=>match(c.d||'—',c.a||'—')).map(c=>c.n)):null;
+    const list=cur&&cur.size
+      ? S.d.clubs.filter(c=>cur.has(c.n))
+      : S.d.clubs.filter(c=>match(c.d||'—',c.a||'—'));
+    scopeDownload(kind,kind==='Area'?`${div}${label}`:label,list);
+  });
   $('tally').innerHTML=[
     ['Distinguished or better',n.g,'var(--green)'],['Stalled at 3–4',n.a,'var(--amber)'],
     ['Under 3 goals',n.r,'var(--red)'],['Perfect 10',n.ten,'var(--ink)']
@@ -1058,6 +1092,116 @@ function clubXlsx(c){
 
   const widths=[46,9,11,17,12,10,13,22];
   return buildXlsx([{name:'Club',rows,widths}]);
+}
+
+/* ---------- an area or a division, as a workbook ----------
+   The district file is too wide for one conversation and a single club is too
+   narrow for a director's patch. This is the middle: every club they are
+   responsible for, and the windows about to shut on them. */
+function scopeXlsx(kind,label,clubs){
+  const L=S.l, Y=S.d.years, G12=S.d.goals, TG=(L&&L.targets)||TARGETS;
+  const H=v=>({v,s:5}), B=v=>({v,s:1}), T=v=>({v,s:6});
+  const live=c=>L?L.clubs.find(x=>x.n===c.n):null;
+  const inScope=clubs.slice().sort((a,b)=>
+    (a.a||'').localeCompare(b.a||'')||a.m.localeCompare(b.m));
+  const lv=inScope.map(live).filter(Boolean);
+  const sheets=[];
+
+  /* --- clubs --- */
+  const r1=[];
+  r1.push([T(`${kind} ${label}`)]);
+  r1.push([`${inScope.length} clubs`,
+           L?`open year ${L.py}`:'',
+           L?`dashboard snapshot ${L.asof||'—'}`:'',
+           L?`${L.days} days to 30 June`:'']);
+  // clubs realign between program years; a director wants the current list,
+  // but should be told when it differs from the board they clicked from
+  if(L){
+    const yr=Y[Y.length-1];
+    const moved=inScope.filter(c=>{
+      const l=live(c); if(!l)return false;
+      return kind==='Division' ? (c.d||'—')!==(l.d||'—')
+                               : (c.d||'—')+(c.a||'—')!==(l.d||'—')+(l.a||'—');
+    });
+    r1.push([`Roster as it stands in ${L.py}.`]);
+    if(moved.length) r1.push([`${moved.length} of these were listed elsewhere in ${yr}: `+
+      moved.map(c=>`${c.m} (was ${c.d||'—'}/${c.a||'—'})`).join('; ')]);
+  }
+  if(lv.length){
+    const avg=(lv.reduce((n,c)=>n+c.met,0)/lv.length).toFixed(2);
+    r1.push([`Average goals met ${avg}`,
+      `Distinguished now ${lv.filter(c=>c.met>=5).length}`,
+      `Can still reach it ${lv.filter(c=>c.met<5&&c.ceil>=5).length}`,
+      `No longer able to ${lv.filter(c=>c.ceil<5).length}`]);
+  }
+  r1.push([]);
+  r1.push([H('Area'),H('Club No'),H('Club'),H('Goals met'),H('Of'),H('Ceiling'),
+    H('Best still possible'),H('Members'),H('Base'),H('Net growth'),
+    H('Meets membership rule'),H('Next deadline'),H('What closes then'),
+    ...G12.map((g,j)=>H(`${g} (need ${TG[j]})`))]);
+  inScope.forEach(c=>{
+    const l=live(c);
+    if(!l){ r1.push([c.a,Number(c.n),c.m,'no current data']); return; }
+    const OWNER=[0,1,2,3,4,5,6,7,8,8,9,9];
+    r1.push([l.a||c.a,Number(c.n),c.m,{v:l.met,s:1},10,
+      {v:l.ceil,s:l.ceil<5?3:0},l.best||'none',l.md,l.mb,l.ng,
+      {v:l.memok?'yes':'no',s:l.memok?0:3},
+      l.nd?fmtDate(l.nd):'',l.ndl||'',
+      ...G12.map((g,j)=>{
+        const v=l.v[j],need=TG[j],met=v!=null&&v>=need;
+        const st=l.st[OWNER[j]];
+        return {v:v==null?'—':v,s:met?2:(st==='d'?4:3)};
+      })]);
+  });
+  sheets.push({name:'Clubs',rows:r1,
+    widths:[7,10,36,10,6,9,17,10,8,11,20,14,26,...G12.map(()=>13)]});
+
+  /* --- the windows about to shut, and who is short --- */
+  if(L&&L.agg.close&&L.agg.close.length){
+    const ROWIDX={'Officers trained Jun-Aug':8,'Officers trained Nov-Feb':9,
+                  'Renewal dues on time':10,'Officer list on time':11};
+    const r2=[];
+    r2.push([T('What shuts next')]);
+    r2.push(['A goal here cannot be recovered once its window closes.']);
+    r2.push([]);
+    L.agg.close.forEach(w=>{
+      const j=ROWIDX[w.lbl]; if(j==null)return;
+      const short=lv.filter(c=>c.v[j]!=null&&c.v[j]<TG[j]);
+      r2.push([B(w.lbl),
+        w.open?`closes ${fmtDate(w.date)} — ${w.days} days`
+              :`opens ${fmtDate(w.opens)}, closes ${fmtDate(w.date)}`,
+        `${short.length} of ${lv.length} clubs short`]);
+      if(!w.open){ r2.push(['','This window has not opened yet.']); r2.push([]); return; }
+      if(!short.length){ r2.push(['','Every club here has met it.']); r2.push([]); return; }
+      r2.push([H('Area'),H('Club'),H('Has'),H('Needs'),H('Short by')]);
+      short.sort((a,b)=>(a.a||'').localeCompare(b.a||'')||a.m.localeCompare(b.m))
+        .forEach(c=>r2.push([c.a,c.m,{v:c.v[j],s:3},TG[j],{v:TG[j]-c.v[j],s:3}]));
+      r2.push([]);
+    });
+    sheets.push({name:'What shuts next',rows:r2,widths:[8,38,10,10,11]});
+  }
+
+  /* --- the closed years behind them --- */
+  const r3=[];
+  r3.push([T('Year-end goals met')]);
+  r3.push([]);
+  r3.push([H('Area'),H('Club'),...Y.map(y=>H(shortYr(y))),H(`Status ${shortYr(Y[Y.length-1])}`)]);
+  inScope.forEach(c=>{
+    const l=live(c);
+    r3.push([(l&&l.a)||c.a,c.m,...Y.map(y=>{
+      const f=(c.y[y]||{}).f;
+      return f==null?'—':{v:f,s:f>=5?2:3};
+    }),(c.y[Y[Y.length-1]]||{}).st||'—']);
+  });
+  sheets.push({name:'Five years',rows:r3,widths:[8,38,...Y.map(()=>9),26]});
+
+  return buildXlsx(sheets);
+}
+
+function scopeDownload(kind,label,clubs){
+  saveBlob(scopeXlsx(kind,label,clubs),
+    `District21_${kind}_${String(label).replace(/[^A-Za-z0-9]+/g,'')}_DCP.xlsx`,
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 }
 
 /* ---------- theme ---------- */
