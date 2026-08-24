@@ -54,8 +54,16 @@ years are reliable; see "Current year" below.
 ### 3. Run the pipeline
 
 ```bash
+# closed years (slow, cached, rarely needs re-running)
 python3 scripts/scrape.py && python3 scripts/build.py && python3 scripts/analyze.py && python3 scripts/gen_site_data.py
+
+# the open year — safe and cheap to re-run as often as you like
+python3 scripts/scrape_live.py && python3 scripts/gen_live_data.py && python3 scripts/gen_inyear_xlsx.py
 ```
+
+The second line is what keeps the in-year view current; run it, then commit
+`docs/live.json` and `docs/inyear.xlsx`. Nothing refreshes by itself — the site
+is static, and the page shows its snapshot date so it cannot pose as live.
 
 Scripts resolve paths from their own location, so the working directory does
 not matter.
@@ -78,7 +86,14 @@ build.py          → data/rows.json      (parses the cache; uses parse.py)
 analyze.py        → output/*.xlsx, *.csv
 gen_site_data.py  → docs/data.json      (compact extract for the dashboard)
 parse.py          → shared HTML parser, imported by build.py
+
+scrape_live.py    → data/live/<club>_<month>.html.gz   (the OPEN year only)
+gen_live_data.py  → docs/live.json     (in-year state, ceilings, deadlines)
+gen_inyear_xlsx.py→ docs/inyear.xlsx   (area-director workbook)
 ```
+
+`data/live/` is gitignored. `docs/live.json` and `docs/inyear.xlsx` are
+committed, because GitHub Pages serves them.
 
 `data/cache/` and `data/rows.json` are gitignored. Both regenerate.
 
@@ -107,8 +122,18 @@ typically 1–2 weeks later — asking for 31 Jul 2023 yields "As of 11-Aug-2023
 The parser records this as the `As Of` column. It is expected, not a bug.
 
 **Current year.** `/{current-program-year}/ClubReport.aspx` returns HTTP 500 —
-the archive path only exists once a year closes. Scope to closed years, or
-handle the unprefixed path separately.
+the archive path only exists once a year closes. The **unprefixed** path serves
+the open year instead, and it still honours `month`:
+
+```
+https://dashboards.toastmasters.org/ClubReport.aspx?id={8-digit}                     # newest snapshot
+https://dashboards.toastmasters.org/ClubReport.aspx?id={8-digit}&month={M}&day=...   # a past month of the open year
+```
+
+`scrape_live.py` uses this for the in-year view. Omit `month` entirely for the
+current month, or the response can lag behind the newest snapshot. The open
+year is `clubs × months-elapsed` requests, not `clubs × 60` — about 25 seconds
+in August, under three minutes by June.
 
 **Scale.** `clubs × 60` requests. District 21 was 10,860 fetches ≈ 8 minutes at
 8 threads, producing a 125 MB cache. `scrape.py` skips anything already cached,
@@ -140,6 +165,18 @@ position 1–12, never by label.** The order is stable:
 ```
 
 Targets, used to decide whether a goal was met: `[4,2,2,2,1,1,4,4,4,4,1,1]`.
+
+**Twelve rows, ten goals.** The page prints twelve rows but the DCP awards ten.
+Rows 9 and 10 (the two officer-training windows) together earn a single goal,
+and so do rows 11 and 12 (dues, officer list). Counting achieved rows instead
+of goals matches the dashboard's own `Goals Met` figure on **1.8%** of rows;
+the pairing rule matches **99.7%** of 10,170. Prefer the header figure where
+it is present, and use the pairing only to derive per-goal state.
+
+The residual 0.3% are all newly chartered clubs whose Jun–Aug training window
+predates the charter: Toastmasters waives it and credits the goal, so the
+header reads one higher than the rows justify. `gen_live_data.py` reconciles
+towards the header rather than overriding it.
 
 **The "to date" cell has two classes** — `clubReportGoal` when unmet and
 `clubReportGoalAchieved` when met. A regex matching only the latter will
@@ -179,6 +216,26 @@ worth surfacing, not a bug.
 - **Clubs** — searchable table with five-year sparklines.
 
 Signal thresholds: green `≥5`, amber `3–4`, red `0–2`.
+
+### The in-year view
+
+`docs/index.html` also fetches `docs/live.json` for the open year. It fails
+soft: if `live.json` is missing the section replaces itself with a note and the
+closed-year pages carry on.
+
+- **Ceiling** — goals met plus goals whose window is still open. It only ever
+  falls. A ceiling below 5 means Distinguished is gone for the year.
+- **What shuts next** — the windows that close mid-year, and how many clubs
+  have not met them. A window that has not opened yet (Nov–Feb training, seen
+  from August) is labelled as such rather than counted as a shortfall, or every
+  club looks behind on something it cannot have started.
+
+Reachability windows are in `windows()` in `gen_live_data.py`. Each row has an
+*act-by* date (the real deadline) and a later *dead-from* date, because the
+dashboard keeps accepting late entries for a while. Those lag allowances came
+from measuring the last month each row was ever seen to increase across the
+10,170 historical rows — Jun–Aug training still moved in October, dues in
+April. Never call a goal dead while the source still moves it.
 
 ### Deploying
 

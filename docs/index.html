@@ -259,6 +259,53 @@ function drawDivisions(){
 .chartkey{display:flex;gap:15px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:16px}
 .chartkey span{display:flex;align-items:center;gap:6px}
 
+/* ---------- in-year / live ---------- */
+.live{padding-block:46px;border-top:1px solid var(--line);margin-top:8px}
+.liveband{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap;margin-bottom:26px}
+.clock{display:flex;align-items:baseline;gap:14px}
+.clockn{font-family:Fraunces,serif;font-size:66px;font-weight:600;line-height:.86;
+  letter-spacing:-.035em;color:var(--maroon);font-variant-numeric:tabular-nums}
+.clockl{font-size:13.5px;color:var(--ink2);max-width:20ch;line-height:1.4}
+.clockl b{color:var(--ink);display:block}
+.asof{margin-left:auto;font:400 11.5px/1.6 "IBM Plex Mono",monospace;color:var(--muted);text-align:right}
+.livegrid{display:grid;grid-template-columns:1.02fr .98fr;gap:22px;align-items:start}
+@media (max-width:940px){.livegrid{grid-template-columns:1fr}}
+
+.dl{display:flex;flex-direction:column}
+.dlrow{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
+  padding:13px 0;border-bottom:1px solid var(--line)}
+.dlrow:last-child{border-bottom:none}
+.dldays{font:700 12px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  padding:7px 9px;border-radius:7px;background:var(--sunk);color:var(--ink2);white-space:nowrap}
+.dlrow[data-u="1"] .dldays{background:var(--red);color:#fff}
+.dlrow[data-u="2"] .dldays{background:color-mix(in srgb,var(--amber) 26%,transparent);color:var(--amber)}
+.dlname{font-size:13.5px;color:var(--ink);line-height:1.3}
+.dlname small{display:block;font:400 11.5px/1.4 "IBM Plex Mono",monospace;color:var(--muted);margin-top:3px}
+.dlcnt{font:500 11.5px/1.3 "IBM Plex Mono",monospace;text-align:right;white-space:nowrap;color:var(--muted)}
+.dlcnt b{font-family:Fraunces,serif;font-size:19px;font-weight:600;color:var(--ink);display:block}
+
+.pips{display:inline-flex;gap:3px}
+.pip{width:11px;height:11px;border-radius:3px;background:var(--lampoff)}
+.pip[data-s="m"]{background:var(--green)}
+.pip[data-s="o"]{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line)}
+.pip[data-s="d"]{background:var(--dead);opacity:.8;
+  background-image:linear-gradient(135deg,transparent 42%,var(--card) 42%,var(--card) 58%,transparent 58%)}
+.ceil{font:600 12.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ceil.out{color:var(--red)} .ceil.ok{color:var(--ink2)}
+.nowg{font-family:Fraunces,serif;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.livekey{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:16px;align-items:center}
+.livekey span{display:flex;align-items:center;gap:6px}
+
+.dlbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:26px 0 0;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 18px;box-shadow:var(--shadow)}
+.dlbtn{display:inline-flex;align-items:center;gap:9px;font:600 13.5px/1 "Public Sans",sans-serif;
+  padding:11px 16px;border-radius:9px;border:1px solid var(--maroon);background:var(--maroon);
+  color:#fff;text-decoration:none;cursor:pointer;white-space:nowrap}
+.dlbtn:hover{filter:brightness(1.08)}
+.dlbtn.alt{background:transparent;color:var(--maroon)}
+.dlbtn svg{width:15px;height:15px;flex:none}
+.dlwhy{font-size:13px;color:var(--ink2);line-height:1.45;min-width:220px;flex:1 1 260px}
+
 .foot{border-top:1px solid var(--line);margin-top:44px;padding-block:34px;font-size:13px;color:var(--muted)}
 .foot .wrap{display:flex;gap:18px;justify-content:space-between;flex-wrap:wrap}
 .foot a{color:var(--ink2)}
@@ -281,7 +328,7 @@ function drawDivisions(){
   </div>
   <div class="mastright">
     <nav class="mastlinks">
-      <a href="#board">Board</a><a href="#movement">Movement</a><a href="#clubs">Clubs</a>
+      <a href="#inyear">In&#8209;year</a><a href="#board">Board</a><a href="#movement">Movement</a><a href="#clubs">Clubs</a>
       <a href="https://docs.google.com/spreadsheets/d/17Mz3T2skAokBOqEmiFIVnL2EV9Z5TNYI/edit?usp=sharing&amp;rtpof=true&amp;sd=true" rel="noopener">Data</a>
     </nav>
     <button class="themetoggle" id="themetoggle" type="button" aria-label="Switch to dark theme">
@@ -297,12 +344,96 @@ function drawDivisions(){
 
 <main>
 <section class="wrap hero">
-  <p class="eyebrow">Distinguished Club Program · 2021&ndash;22 to 2025&ndash;26</p>
+  <p class="eyebrow">Distinguished Club Program · 2021&ndash;22 to 2025&ndash;26 · 2026&ndash;27 in progress</p>
   <h1>Every club in the district, <em>lit by how far it got</em>.</h1>
   <p class="lede">Meetings run on a green, amber and red light. So does this page. Each lamp below is one club's
   Distinguished Club Program score at the close of the year &mdash; green cleared five goals or more, amber stalled at
   three or four, red never got past two. Move through the years and a split appears: more clubs are reaching
   Distinguished than five years ago &mdash; and more are falling under three goals.</p>
+</section>
+
+<section class="wrap live" id="inyear">
+  <div class="sechead" style="margin-bottom:26px">
+    <h2>The year in progress</h2>
+    <p>Everything below this section is finished history. This part is not &mdash; it is the open program year,
+    <b id="lvPy"></b>, as the dashboard reports it today. A goal shown as unreachable cannot be recovered:
+    the window it lived in has shut.</p>
+  </div>
+
+  <div class="liveband">
+    <div class="clock">
+      <div class="clockn" id="lvDays">&mdash;</div>
+      <div class="clockl"><b>days left</b>to 30 June, when the year closes and these scores become permanent</div>
+    </div>
+    <div class="asof" id="lvAsof"></div>
+  </div>
+
+  <div class="tally" id="lvTally" style="margin-bottom:26px"></div>
+
+  <div class="livegrid">
+    <div class="chartcard">
+      <h3>What shuts next</h3>
+      <p class="cap">Most goals stay open until 30 June, but the officer-training and administrative windows close
+      during the year. Each row is a door about to shut, and the count is how many clubs have not yet walked
+      through it.</p>
+      <div class="dl" id="lvDl"></div>
+    </div>
+    <div class="chartcard">
+      <h3>Where the district stands</h3>
+      <p class="cap">Goals achieved so far this year, across all clubs. Five goals is Distinguished. Early in the
+      year most clubs sit at zero &mdash; that is normal, and the ceiling matters more than the count.</p>
+      <div class="bars" id="lvBars"></div>
+    </div>
+  </div>
+
+  <div class="dlbar">
+    <a class="dlbtn" id="lvXlsx" href="inyear.xlsx">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+        stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
+      Download the workbook</a>
+    <button class="dlbtn alt" id="lvCsv" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+        stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
+      This view as CSV</button>
+    <p class="dlwhy">One row per club with the twelve goal counts, membership, ceiling and next
+    deadline, filterable by division and area &mdash; built for an area director to open alongside a
+    club officer. <span id="lvXlsxMeta" class="cmeta" style="display:block;margin-top:4px"></span></p>
+  </div>
+
+  <div class="sechead" style="margin:44px 0 0"><h2 style="font-size:24px">Club by club</h2>
+    <p>Ten squares per club, one per DCP goal. Filled means achieved, outlined means still reachable,
+    struck through means the window has closed for good.</p></div>
+  <div class="toolbar" style="margin-top:18px">
+    <label class="sr" for="lq">Search clubs</label>
+    <input type="search" id="lq" placeholder="Search by club name or number">
+    <label class="sr" for="lfdiv">Division</label><select id="lfdiv"></select>
+    <label class="sr" for="lfilt">Show</label>
+    <select id="lfilt">
+      <option value="">All clubs</option>
+      <option value="risk">Missing a window that closes soon</option>
+      <option value="out">Can no longer reach Distinguished</option>
+      <option value="zero">Nothing achieved yet</option>
+      <option value="dist">Already Distinguished</option>
+    </select>
+    <label class="sr" for="lsort">Sort</label>
+    <select id="lsort">
+      <option value="ceil">Lowest ceiling first</option>
+      <option value="met">Fewest goals met first</option>
+      <option value="metd">Most goals met first</option>
+      <option value="name">Club name</option>
+      <option value="next">Nearest deadline</option>
+    </select>
+  </div>
+  <div class="panel"><div class="scroller" style="max-height:640px">
+    <table><thead><tr><th>Club</th><th>Div</th><th>Now</th><th>Goals &mdash; achieved, open, closed</th>
+      <th>Ceiling</th><th>Next deadline</th></tr></thead><tbody id="lvtb"></tbody></table>
+  </div></div>
+  <div class="livekey">
+    <span><span class="pip" data-s="m"></span> achieved</span>
+    <span><span class="pip" data-s="o"></span> still reachable</span>
+    <span><span class="pip" data-s="d"></span> window closed</span>
+  </div>
+  <p class="note" id="lvNote"></p>
 </section>
 
 <section class="wrap board" id="board">
@@ -420,7 +551,7 @@ function drawDivisions(){
 </div></footer>
 
 <script>
-const S={d:null,year:null,mv:null};
+const S={d:null,year:null,mv:null,l:null};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sig=v=>v==null?'x':v>=5?'g':v>=3?'a':'r';
@@ -613,6 +744,122 @@ function openDetail(i){
 $('dclose').onclick=()=>$('detail').classList.remove('open');
 addEventListener('keydown',e=>{if(e.key==='Escape')$('detail').classList.remove('open');});
 
+/* ---------- in-year / live ---------- */
+const LVL=[[10,"Smedley"],[9,"President's"],[7,"Select"],[5,"Distinguished"]];
+const fmtDate=iso=>{if(!iso)return'—';const [y,m,d]=iso.split('-').map(Number);
+  return d+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]+' '+y;};
+const daysTo=iso=>{if(!iso)return null;
+  return Math.round((new Date(iso+'T00:00:00')-new Date(S.l.today+'T00:00:00'))/864e5);};
+
+function drawLive(){
+  const L=S.l,a=L.agg;
+  $('lvDays').textContent=L.days;
+  $('lvPy').textContent=L.py.replace('-','–');
+  $('lvAsof').innerHTML='dashboard snapshot '+esc(L.asof||'—')+'<br>'+a.clubs+
+    ' clubs · built '+esc(L.generated);
+
+  $('lvTally').innerHTML=[
+    ['Distinguished already',a.dist_now,a.dist_now?'var(--green)':'var(--muted)'],
+    ['Can still get there',a.dist_live,'var(--ink)'],
+    ['No longer able to',a.dist_out,a.dist_out?'var(--red)':'var(--muted)'],
+    ['Average goals met',a.avg_met.toFixed(2),'var(--ink)'],
+    ['Meet the membership rule',a.memok+'/'+a.clubs,'var(--ink)']
+  ].map(([k,v,c])=>`<div class="tallyitem"><div class="tallyn" style="color:${c}">${v}</div>
+    <div class="tallyl">${k}</div></div>`).join('');
+
+  $('lvDl').innerHTML=(a.close||[]).map(c=>{
+    const u=!c.open?0:c.days<=14?1:c.days<=60?2:0;
+    return `<div class="dlrow" data-u="${u}">
+      <span class="dldays">${c.days}d</span>
+      <span class="dlname">${esc(c.lbl)}<small>closes ${esc(fmtDate(c.date))}${
+        c.open?'':' · opens '+esc(fmtDate(c.opens))}</small></span>
+      <span class="dlcnt">${c.open?`<b>${c.clubs}</b>clubs short`
+        :'<span style="opacity:.7">not open<br>yet</span>'}</span></div>`;}).join('')
+    ||'<p style="color:var(--muted);font-size:13.5px">Nothing else closes before 30 June.</p>';
+
+  // how many clubs sit at each goal count, worst first
+  const cnt={};L.clubs.forEach(c=>{cnt[c.met]=(cnt[c.met]||0)+1;});
+  const max=Math.max(...Object.values(cnt));
+  $('lvBars').innerHTML=Object.keys(cnt).map(Number).sort((x,y)=>x-y).map(k=>{
+    const col=k>=5?'var(--green)':k>=3?'var(--amber)':'var(--red)';
+    return `<div class="barrow"><div class="barlab">${k} goal${k===1?'':'s'} met</div>
+      <div class="bartrack"><div class="barfill" style="width:${(cnt[k]/max*100).toFixed(1)}%;background:${col}"></div></div>
+      <div class="barval" style="color:${col}">${cnt[k]}</div></div>`;}).join('');
+
+  $('lvXlsx').setAttribute('download',`District21_InYear_${L.py}.xlsx`);
+  $('lvXlsxMeta').textContent=`Excel workbook · ${a.clubs} clubs · snapshot ${L.asof||'—'}`;
+  $('lvCsv').onclick=liveCsv;
+  drawLiveTable();
+}
+
+function drawLiveTable(){
+  const L=S.l,q=$('lq').value.trim().toLowerCase(),dv=$('lfdiv').value,
+        f=$('lfilt').value,so=$('lsort').value;
+  let list=L.clubs.filter(c=>{
+    if(dv&&c.d!==dv) return false;
+    if(q&&!(c.m.toLowerCase().includes(q)||String(Number(c.n)).includes(q))) return false;
+    if(f==='out'&&c.ceil>=5) return false;
+    if(f==='dist'&&c.met<5) return false;
+    if(f==='zero'&&c.met!==0) return false;
+    if(f==='risk'){const d=daysTo(c.nd);if(d==null||d>45) return false;}
+    return true;});
+  const byName=(x,y)=>x.m.localeCompare(y.m);
+  ({ceil:()=>list.sort((x,y)=>x.ceil-y.ceil||x.met-y.met||byName(x,y)),
+    met:()=>list.sort((x,y)=>x.met-y.met||x.ceil-y.ceil||byName(x,y)),
+    metd:()=>list.sort((x,y)=>y.met-x.met||y.ceil-x.ceil||byName(x,y)),
+    name:()=>list.sort(byName),
+    next:()=>list.sort((x,y)=>(x.nd||'9').localeCompare(y.nd||'9')||byName(x,y))}[so]||(()=>{}))();
+
+  S.lvView=list;
+  $('lvtb').innerHTML=list.map(c=>{
+    const pips=c.st.map((v,i)=>`<span class="pip" data-s="${v}" title="${esc(L.goals[i])}: ${
+      v==='m'?'achieved':v==='o'?'still reachable':'window closed'}"></span>`).join('');
+    const col=c.met>=5?'var(--green)':c.met>=3?'var(--amber)':c.met>0?'var(--red)':'var(--muted)';
+    const out=c.ceil<5, d=daysTo(c.nd);
+    const urg=d!=null&&d<=14?'color:var(--red);font-weight:700':d!=null&&d<=45?'color:var(--amber)':'';
+    return `<tr><td>${esc(c.m)}<span class="cmeta">${esc(String(Number(c.n)))}${
+        c.memok?'':' · membership rule not met'}</span></td>
+      <td class="num">${esc(c.d||'—')}</td>
+      <td><span class="nowg" style="color:${col}">${c.met}</span><span class="num" style="color:var(--muted)">/10</span></td>
+      <td><span class="pips">${pips}</span></td>
+      <td class="ceil ${out?'out':'ok'}">${c.ceil}${c.best?' · '+esc(c.best):' · none'}</td>
+      <td class="num" style="${urg}">${c.nd?esc(fmtDate(c.nd))+(d!=null?' ('+d+'d)':''):'—'}
+        <span class="cmeta">${esc(c.ndl||'')}</span></td></tr>`;}).join('')
+    ||'<tr><td colspan="6" style="color:var(--muted);padding:18px 14px">No clubs match.</td></tr>';
+
+  const outn=list.filter(c=>c.ceil<5).length;
+  $('lvNote').textContent=`Showing ${list.length} of ${L.clubs.length} clubs. `+
+    (outn?`${outn} can no longer reach Distinguished this year. `:'')+
+    `Ceiling is goals already met plus those whose window is still open, so it only ever falls. `+
+    `Figures follow the dashboard's own count, in which the two officer-training rows earn a single goal, as do the two administrative rows.`;
+}
+
+/* Export whatever the table is currently showing, so an area director can
+   filter to their area and hand the officer just that. */
+function liveCsv(){
+  const L=S.l,rows=S.lvView||[];
+  const head=['Division','Area','Club No','Club Name','Goals met','Of','Ceiling',
+    'Best still possible','Members','Base','Net growth','Meets membership rule',
+    'Next deadline','What closes then']
+    .concat(L.goals)
+    .concat(['Snapshot']);
+  const body=rows.map(c=>[c.d,c.a,String(Number(c.n)),c.m,c.met,10,c.ceil,c.best||'none',
+    c.md,c.mb,c.ng,c.memok?'yes':'no',c.nd||'',c.ndl||'']
+    .concat(c.st.map(v=>v==='m'?'met':v==='o'?'open':'closed'))
+    .concat([L.asof||'']));
+  const q=v=>{const t=v==null?'':String(v);
+    return /[",\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t;};
+  const csv=[head,...body].map(r=>r.map(q).join(',')).join('\r\n');
+  // BOM so Excel reads the accents and dashes correctly
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const dv=$('lfdiv').value,tag=dv?'Division'+dv:'AllDivisions';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`District21_InYear_${L.py}_${tag}.csv`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+
 /* ---------- theme ---------- */
 (function(){
   const root=document.documentElement,btn=$('themetoggle');
@@ -630,6 +877,19 @@ addEventListener('keydown',e=>{if(e.key==='Escape')$('detail').classList.remove(
 })();
 
 /* ---------- boot ---------- */
+fetch('live.json').then(r=>r.ok?r.json():Promise.reject(new Error(r.status))).then(L=>{
+  S.l=L;
+  const divs=[...new Set(L.clubs.map(c=>c.d).filter(Boolean))].sort();
+  $('lfdiv').innerHTML='<option value="">All divisions</option>'+
+    divs.map(x=>`<option value="${x}">Division ${x}</option>`).join('');
+  $('lq').oninput=drawLiveTable;$('lfdiv').onchange=drawLiveTable;
+  $('lfilt').onchange=drawLiveTable;$('lsort').onchange=drawLiveTable;
+  drawLive();
+}).catch(e=>{
+  $('inyear').innerHTML='<p style="color:var(--muted);padding:20px 0">The in-year view could not load '+
+    '(live.json: '+esc(e.message)+'). The finished years below are unaffected.</p>';
+});
+
 fetch('data.json').then(r=>r.json()).then(d=>{
   S.d=d;S.year=d.years[d.years.length-1];
   const pairs=d.years.slice(1).map((y,i)=>[d.years[i],y]);

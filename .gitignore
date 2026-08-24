@@ -4,6 +4,9 @@ data/cache/
 # Parsed intermediate — regenerable via scripts/build.py
 data/rows.json
 
+# Open-year page cache — refetched every run via scripts/scrape_live.py
+data/live/
+
 __pycache__/
 *.pyc
 .DS_Store
