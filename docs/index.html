@@ -128,6 +128,8 @@ a{color:inherit}
 .clubrow{display:flex;align-items:center;gap:9px;width:100%;padding:3px 5px 3px 0;margin:1px 0;
   background:none;border:none;border-radius:7px;cursor:pointer;text-align:left;color:inherit;font:inherit}
 .clubrow:hover,.clubrow:focus-visible{background:var(--sunk);outline:none}
+.lvrow{cursor:pointer}
+.lvrow:focus-visible{outline:2px solid var(--maroon);outline-offset:-2px}
 .clubrow:focus-visible{box-shadow:0 0 0 2px var(--maroon)}
 .lamp{width:25px;height:25px;flex:none;border-radius:50%;display:grid;place-items:center;
   font:700 10.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
@@ -218,6 +220,11 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
 .gname{flex:1;min-width:0}
 .gtick{width:19px;height:19px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}
 .gtick[data-m="1"]{background:var(--green)} .gtick[data-m="0"]{background:var(--dead)}
+.gtick[data-m="o"]{background:transparent;box-shadow:inset 0 0 0 1.6px var(--line);color:var(--muted)}
+.gtick[data-m="d"]{background:var(--dead);opacity:.85}
+.goalrow.shut .gname{text-decoration:line-through;text-decoration-thickness:1px;color:var(--muted)}
+.gwhen{font:500 11px/1 "IBM Plex Mono",monospace;color:var(--muted);white-space:nowrap;margin-left:10px}
+.gsub{display:block;font:400 11px/1.35 "IBM Plex Mono",monospace;color:var(--muted);margin-top:3px}
 
 
 /* ---------- charts ---------- */
@@ -786,6 +793,53 @@ function drawDivisions(){
 }
 
 /* ---------- detail ---------- */
+function fmtDay(iso){
+  if(!iso) return '';
+  const d=new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+// Rows 9+10 earn one goal, and so do rows 11+12, so ten goals cover twelve rows.
+const GOALROWS=[[0],[1],[2],[3],[4],[5],[6],[7],[8,9],[10,11]];
+
+function openLiveDetail(n){
+  const L=S.l, c=L.clubs.find(x=>x.n===n); if(!c) return;
+  const net=c.ng, memcol=c.memok?'var(--green)':'var(--red)';
+  $('dname').textContent=c.m;
+  $('dsub').innerHTML=`${esc(c.n)} · Division ${esc(c.d)} / Area ${esc(c.a)} · `+
+    `<b style="color:var(--maroon)">${esc(L.py)} in progress</b> · as of ${esc(L.asof||'')}`;
+  const card=(k,v,col,extra)=>`<div class="dcard"><div class="k">${k}</div>`+
+    (extra?`<div style="margin-top:9px">${v}</div>`:`<div class="v" style="color:${col||'var(--ink)'}">${v}</div>`)+`</div>`;
+  $('dgrid').innerHTML=
+     card('Goals met so far',`${c.met}<span style="font-size:15px;color:var(--muted)">/10</span>`,
+          c.met>=5?'var(--green)':c.met>=3?'var(--amber)':'var(--red)')
+   + card('Members',c.md??'—',memcol)
+   + card('Membership base',c.mb??'—')
+   + card('Net growth',net==null?'—':(net>0?'+':'')+net,
+          net==null?'var(--muted)':net>0?'var(--green)':net<0?'var(--red)':'var(--ink)')
+   + card('Where it stands',c.now?badge(c.now+' Distinguished'):'<span class="badge">Not yet Distinguished</span>',null,true)
+   + card('Best still possible',c.best?badge(c.best+' Distinguished'):'<span class="badge">Distinguished out of reach</span>',null,true)
+   + card('Club Success Plan',cspMark(c.csp),null,true)
+   + card('Days to 30 June',L.days,'var(--maroon)');
+
+  $('dgoals').innerHTML=L.goals.map((g,j)=>{
+    const st=c.st[j], rows=GOALROWS[j];
+    const icon=st==='m'?'\u2713':st==='d'?'\u2715':'';
+    // a single-row goal already carries its name above, so only pairs need labelling
+    const detail=rows.map(r=>{
+      const v=c.v[r], t=(L.targets||TARGETS)[r], n=v==null?'—':v;
+      return rows.length>1?`${esc(L.rows[r])} ${n} / ${t}`:`${n} of ${t}`;
+    }).join('  ·  ');
+    const when=st==='m'?'<span class="gwhen" style="color:var(--green)">done</span>'
+      :st==='d'?`<span class="gwhen" style="color:var(--red)">closed ${esc(fmtDay(c.why[j]))}</span>`
+      :`<span class="gwhen">by ${esc(fmtDay(c.why[j]))}</span>`;
+    return `<div class="goalrow${st==='d'?' shut':''}">
+      <span class="gtick" data-m="${st==='m'?1:st}">${icon}</span>
+      <span class="gname">${esc(g)}<span class="gsub">${detail}</span></span>${when}</div>`;
+  }).join('');
+  $('ddl').style.display='none';           // per-club export is a finished-year feature
+  $('detail').classList.add('open');$('dclose').focus();
+}
+
 function openDetail(i){
   const c=S.d.clubs[i],Y=S.d.years,y=c.y[S.year]||c.y[Y.filter(k=>c.y[k]).pop()]||{};
   const yr=c.y[S.year]?S.year:(Y.filter(k=>c.y[k]).pop()||S.year);
@@ -813,6 +867,7 @@ function openDetail(i){
       <span class="gname">${esc(g)}</span><span class="num">${v??'—'}<span
         style="color:var(--muted)"> / ${TARGETS[j]}</span></span></div>`;}).join('')
     :'<p style="color:var(--muted);font-size:13.5px">No goal detail for this year.</p>';
+  $('ddl').style.display='';
   $('ddl').onclick=()=>saveBlob(clubXlsx(c),
     `${c.m.replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'')}_DCP.xlsx`,
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -923,7 +978,7 @@ function drawLiveTable(){
     const col=c.met>=5?'var(--green)':c.met>=3?'var(--amber)':c.met>0?'var(--red)':'var(--muted)';
     const out=c.ceil<5, d=daysTo(c.nd);
     const urg=d!=null&&d<=14?'color:var(--red);font-weight:700':d!=null&&d<=45?'color:var(--amber)':'';
-    return `<tr><td>${esc(c.m)}<span class="cmeta">${esc(String(Number(c.n)))}${
+    return `<tr class="lvrow" tabindex="0" role="button" data-n="${esc(c.n)}"><td>${esc(c.m)}<span class="cmeta">${esc(String(Number(c.n)))}${
         c.memok?'':' · membership rule not met'}</span></td>
       <td class="num">${esc(c.d||'—')}</td>
       <td>${memCell(c)}</td>
@@ -935,6 +990,11 @@ function drawLiveTable(){
         <span class="cmeta">${esc(c.ndl||'')}</span></td></tr>`;}).join('')
     ||`<tr><td colspan="${SAMECEIL?7:8}" style="color:var(--muted);padding:18px 14px">No clubs match.</td></tr>`;
 
+  $('lvtb').querySelectorAll('.lvrow').forEach(tr=>{
+    const go=()=>openLiveDetail(tr.dataset.n);
+    tr.onclick=go;
+    tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};
+  });
   const outn=list.filter(c=>c.ceil<5).length;
   $('lvNote').textContent=`Showing ${list.length} of ${L.clubs.length} clubs. `+
     (outn?`${outn} can no longer reach Distinguished this year. `:'')+
