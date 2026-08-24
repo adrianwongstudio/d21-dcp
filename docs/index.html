@@ -278,6 +278,10 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
 .ceil{font:600 12.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ceil.out{color:var(--red)} .ceil.ok{color:var(--ink2)}
 .nowg{font-family:Fraunces,serif;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.mem{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+.memn{font:700 13.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.memg{font:500 11.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.memr{font:500 10px/1 "Public Sans",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .csp{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 "Public Sans",sans-serif;white-space:nowrap}
 .cspd{width:15px;height:15px;border-radius:50%;flex:none;display:grid;place-items:center;
   font-size:9.5px;font-weight:700;color:#fff}
@@ -438,12 +442,13 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
       <option value="metd">Most goals met first</option>
       <option value="met">Fewest goals met first</option>
       <option value="ceil" data-needsceil>Lowest ceiling first</option>
+      <option value="mem">Fewest members first</option>
       <option value="name">Club name</option>
       <option value="next">Nearest deadline</option>
     </select>
   </div>
   <div class="panel"><div class="scroller" style="max-height:640px">
-    <table><thead><tr><th>Club</th><th>Div</th><th>Now</th><th>Goals &mdash; achieved, open, closed</th>
+    <table><thead><tr><th>Club</th><th>Div</th><th>Members</th><th>Now</th><th>Goals &mdash; achieved, open, closed</th>
       <th id="lvThCeil">Ceiling</th><th>Success plan</th><th>Next deadline</th></tr></thead><tbody id="lvtb"></tbody></table>
   </div></div>
   <div class="livekey">
@@ -864,6 +869,19 @@ function drawLive(){
   drawLiveTable();
 }
 
+function memCell(c){
+  if(c.md==null) return '<span class="num" style="color:var(--muted)">—</span>';
+  // the DCP membership rule: 20 members, or a net gain of 5 over the base
+  const col=c.memok?'var(--green)':'var(--red)';
+  // a zero net change must render as nothing, or "23" and "0" read as "230"
+  const g=(c.ng==null||c.ng===0)?'':(c.ng>0?'+'+c.ng:String(c.ng));
+  const gcol=c.ng>0?'var(--green)':c.ng<0?'var(--red)':'var(--muted)';
+  return `<span class="mem" title="${c.md} members now, base ${c.mb}${
+      c.memok?' — meets the membership rule':' — short of 20 members and of +5 net growth'}">`+
+    `<span class="memn" style="color:${col}">${c.md}</span>`+
+    (g?`<span class="memg" style="color:${gcol}">${g}</span>`:'')+
+    `</span>`;
+}
 function cspMark(v,closed){
   const y=/Met/i.test(v||'')&&!/Not/i.test(v||'');
   if(!v) return `<span class="csp" data-v="u" title="Not tracked this year"><span class="cspd">?</span>—</span>`;
@@ -886,6 +904,7 @@ function drawLiveTable(){
   const byName=(x,y)=>x.m.localeCompare(y.m);
   ({ceil:()=>list.sort((x,y)=>x.ceil-y.ceil||x.met-y.met||byName(x,y)),
     met:()=>list.sort((x,y)=>x.met-y.met||x.ceil-y.ceil||byName(x,y)),
+    mem:()=>list.sort((x,y)=>(x.md??1e9)-(y.md??1e9)||byName(x,y)),
     metd:()=>list.sort((x,y)=>y.met-x.met||y.ceil-x.ceil||byName(x,y)),
     name:()=>list.sort(byName),
     next:()=>list.sort((x,y)=>(x.nd||'9').localeCompare(y.nd||'9')||byName(x,y))}[so]||(()=>{}))();
@@ -907,13 +926,14 @@ function drawLiveTable(){
     return `<tr><td>${esc(c.m)}<span class="cmeta">${esc(String(Number(c.n)))}${
         c.memok?'':' · membership rule not met'}</span></td>
       <td class="num">${esc(c.d||'—')}</td>
+      <td>${memCell(c)}</td>
       <td><span class="nowg" style="color:${col}">${c.met}</span><span class="num" style="color:var(--muted)">/10</span></td>
       <td><span class="pips">${pips}</span></td>
       ${SAMECEIL?'':`<td class="ceil ${out?'out':'ok'}">${c.ceil}${c.best?' · '+esc(c.best):' · none'}</td>`}
       <td>${cspMark(c.csp)}</td>
       <td class="num" style="${urg}">${c.nd?esc(fmtDate(c.nd))+(d!=null?' ('+d+'d)':''):'—'}
         <span class="cmeta">${esc(c.ndl||'')}</span></td></tr>`;}).join('')
-    ||`<tr><td colspan="${SAMECEIL?6:7}" style="color:var(--muted);padding:18px 14px">No clubs match.</td></tr>`;
+    ||`<tr><td colspan="${SAMECEIL?7:8}" style="color:var(--muted);padding:18px 14px">No clubs match.</td></tr>`;
 
   const outn=list.filter(c=>c.ceil<5).length;
   $('lvNote').textContent=`Showing ${list.length} of ${L.clubs.length} clubs. `+

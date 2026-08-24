@@ -1,0 +1,60 @@
+name: Refresh in-year data
+
+# The finished years never change, so only the open program year is refreshed here.
+# Runs on the 1st of each month; the dashboard posts its snapshots a week or two
+# behind, so the 1st picks up everything settled from the month just gone.
+on:
+  schedule:
+    - cron: "0 16 1 * *"     # 16:00 UTC = 09:00 Pacific on the 1st
+  workflow_dispatch:          # and on demand, from the Actions tab
+
+concurrency:
+  group: refresh-inyear
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install --quiet openpyxl
+
+      - name: Pull the open year from the dashboard
+        run: python3 scripts/scrape_live.py
+
+      - name: Rebuild live.json and the workbook
+        run: |
+          python3 scripts/gen_live_data.py
+          python3 scripts/gen_inyear_xlsx.py
+
+      - name: Fail if the refresh produced nothing usable
+        run: |
+          python3 - <<'PY'
+          import json,sys
+          L=json.load(open('docs/live.json'))
+          n=len(L['clubs'])
+          if n < 50:
+              sys.exit(f"only {n} clubs in live.json - refusing to commit a broken refresh")
+          print(f"{n} clubs, snapshot {L.get('asof')}, {L.get('days')} days left")
+          PY
+
+      - name: Commit if anything moved
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/live.json docs/inyear.xlsx
+          if git diff --cached --quiet; then
+            echo "dashboard has not moved since the last run; nothing to commit"
+            exit 0
+          fi
+          git commit -m "Refresh in-year data for $(date -u +'%B %Y')"
+          git push
