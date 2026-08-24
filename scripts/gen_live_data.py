@@ -14,6 +14,24 @@ import os,sys,gzip,json,calendar,datetime,collections
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import parse as P
 
+DISTRICT="21"
+
+def _current_roster(S):
+    """Club numbers the district dashboard lists for the open program year."""
+    import csv,io,urllib.request
+    url=(f"https://dashboards.toastmasters.org/export.aspx?type=CSV"
+         f"&report=clubperformance~{DISTRICT}~~~{S}-{S+1}")
+    try:
+        raw=urllib.request.urlopen(urllib.request.Request(url,
+            headers={'User-Agent':'Mozilla/5.0 (D21 DCP report)'}),timeout=45).read().decode('utf-8-sig','replace')
+        ids={(r.get('Club Number') or '').strip() for r in csv.DictReader(io.StringIO(raw))}
+        ids={i for i in ids if i}
+        return ids if len(ids)>20 else None      # too few to be a real roster; don't filter on it
+    except Exception as e:
+        print(f"  roster unavailable ({e}); keeping every club in clubs.tsv")
+        return None
+
+
 _ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def _p(*a): return os.path.join(_ROOT,*a)
 LIVE=_p("data","live")
@@ -85,6 +103,14 @@ def main():
              if (S if m>=7 else S+1,m)<=(today.year,today.month)]
 
     clubs=[l.rstrip('\n').split('\t') for l in open(_p('scripts','clubs.tsv')) if l.strip()]
+    # clubs.tsv spans every year we hold history for, so it includes clubs that have
+    # since closed or left. Their pages still resolve with stale alignment, which would
+    # put them in the in-year view. The district's own roster is what counts today.
+    roster=_current_roster(S)
+    if roster:
+        before=len(clubs)
+        clubs=[c for c in clubs if c[0].zfill(8) in roster]
+        print(f"  roster: {len(clubs)} clubs currently in the district ({before-len(clubs)} no longer listed)")
     clubs=[(n.zfill(8),nm) for n,nm in clubs]
 
     out=[];asofs=[];recon=0;nodata=[]
@@ -120,7 +146,8 @@ def main():
         out.append({"n":cid,"m":nm,"d":cur.get('division',''),"a":cur.get('area',''),
           "met":met,"ceil":ceil,"st":st,"why":why,"v":vals,
           "mb":mb,"md":md,"ng":ng,"memok":memok,
-          "best":best,"now":now,"s":series,"asof":cur.get('asof') or ""})
+          "best":best,"now":now,"s":series,"asof":cur.get('asof') or "",
+          "csp":cur.get('csp') or ""})
 
     out.sort(key=lambda c:(c['ceil'],c['met'],-len(c['m'])))
     def asof_key(a):

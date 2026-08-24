@@ -278,6 +278,12 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
 .ceil{font:600 12.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ceil.out{color:var(--red)} .ceil.ok{color:var(--ink2)}
 .nowg{font-family:Fraunces,serif;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.csp{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 "Public Sans",sans-serif;white-space:nowrap}
+.cspd{width:15px;height:15px;border-radius:50%;flex:none;display:grid;place-items:center;
+  font-size:9.5px;font-weight:700;color:#fff}
+.csp[data-v="y"] .cspd{background:var(--green)} .csp[data-v="y"]{color:var(--green)}
+.csp[data-v="n"] .cspd{background:var(--red)} .csp[data-v="n"]{color:var(--red)}
+.csp[data-v="u"] .cspd{background:var(--dead)} .csp[data-v="u"]{color:var(--muted)}
 .livekey{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:16px;align-items:center}
 .livekey span{display:flex;align-items:center;gap:6px}
 
@@ -423,21 +429,22 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
       <option value="">All clubs</option>
       <option value="risk">Missing a window that closes soon</option>
       <option value="out" data-needsceil>Can no longer reach Distinguished</option>
+      <option value="nocsp">No Club Success Plan yet</option>
       <option value="zero">Nothing achieved yet</option>
       <option value="dist">Already Distinguished</option>
     </select>
     <label class="sr" for="lsort">Sort</label>
     <select id="lsort">
-      <option value="ceil" data-needsceil>Lowest ceiling first</option>
-      <option value="met">Fewest goals met first</option>
       <option value="metd">Most goals met first</option>
+      <option value="met">Fewest goals met first</option>
+      <option value="ceil" data-needsceil>Lowest ceiling first</option>
       <option value="name">Club name</option>
       <option value="next">Nearest deadline</option>
     </select>
   </div>
   <div class="panel"><div class="scroller" style="max-height:640px">
     <table><thead><tr><th>Club</th><th>Div</th><th>Now</th><th>Goals &mdash; achieved, open, closed</th>
-      <th id="lvThCeil">Ceiling</th><th>Next deadline</th></tr></thead><tbody id="lvtb"></tbody></table>
+      <th id="lvThCeil">Ceiling</th><th>Success plan</th><th>Next deadline</th></tr></thead><tbody id="lvtb"></tbody></table>
   </div></div>
   <div class="livekey">
     <span><span class="pip" data-s="m"></span> achieved</span>
@@ -451,8 +458,9 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
   <div class="sechead">
     <h2>The finished years</h2>
     <p><b>Use this to compare divisions and areas.</b> Every club's score at the close of a chosen year, nested
-    under the division and area that supports it and ranked worst-last within each area. Pick a year to see how
-    the district changed.</p>
+    under the division and area that supported it <em>in that year</em>, ranked worst-last within each area.
+    Toastmasters realigns divisions and areas each July, so a club may sit somewhere else on today's dashboard
+    &mdash; open any club to see where it is now.</p>
   </div>
   <div class="boardhead">
     <div class="scrub" id="scrub" role="group" aria-label="Program year"></div>
@@ -460,7 +468,6 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
       <span><i class="chip" style="background:var(--green)"></i>5&ndash;10 goals · Distinguished</span>
       <span><i class="chip" style="background:var(--amber)"></i>3&ndash;4 goals</span>
       <span><i class="chip" style="background:var(--red)"></i>0&ndash;2 goals</span>
-      <span><i class="chip" style="background:var(--lampoff)"></i>Not yet chartered</span>
     </div>
   </div>
   <div class="grid" id="grid" aria-label="Clubs by division and area, year-end DCP score"></div>
@@ -612,7 +619,11 @@ function drawBoard(){
   const Y=S.d.years,pi=Y.indexOf(S.year)-1,prev=pi>=0?Y[pi]:null;
   const divs={};
   S.d.clubs.forEach((c,i)=>{
-    const dv=c.d||'—',ar=c.a||'—';
+    // clubs.tsv spans every year, so skip the ones this year never had
+    const yv=c.y[S.year]||{};
+    if(yv.f==null) return;
+    // group by the alignment that was in force that year, not today's
+    const dv=yv.d||c.d||'—',ar=yv.a||c.a||'—';
     (divs[dv]=divs[dv]||{});(divs[dv][ar]=divs[dv][ar]||[]).push({c,i});
   });
   g.innerHTML=Object.keys(divs).sort().map(dv=>{
@@ -774,7 +785,12 @@ function openDetail(i){
   const c=S.d.clubs[i],Y=S.d.years,y=c.y[S.year]||c.y[Y.filter(k=>c.y[k]).pop()]||{};
   const yr=c.y[S.year]?S.year:(Y.filter(k=>c.y[k]).pop()||S.year);
   $('dname').textContent=c.m;
-  $('dsub').textContent=`${c.n} · Division ${c.d} / Area ${c.a} · year-end ${yr}`;
+  const now=S.l?S.l.clubs.find(x=>x.n===c.n):null;
+  const yd=y.d||c.d, ya=y.a||c.a;
+  const moved=now&&(now.d!==yd||now.a!==ya)?` · now Division ${now.d} / Area ${now.a}`:'';
+  $('dsub').innerHTML=`${esc(c.n)} · Division ${esc(yd)} / Area ${esc(ya)} in ${esc(yr)}`+
+    (moved?`<span style="color:var(--maroon)">${esc(moved)}</span>`:'')+
+    (!now&&S.l?' · no longer in the district':'');
   const net=(y.md!=null&&y.mb!=null)?y.md-y.mb:null;
   $('dgrid').innerHTML=[
     ['Goals met',y.f??'—',y.f==null?'var(--muted)':sig(y.f)==='g'?'var(--green)':sig(y.f)==='a'?'var(--amber)':'var(--red)'],
@@ -782,6 +798,9 @@ function openDetail(i){
     ['Net growth',net==null?'—':(net>0?'+':'')+net,net==null?'var(--muted)':net>0?'var(--green)':net<0?'var(--red)':'var(--ink)'],
   ].map(([k,v,col])=>`<div class="dcard"><div class="k">${k}</div><div class="v" style="color:${col}">${v}</div></div>`).join('')
    +`<div class="dcard"><div class="k">Status</div><div style="margin-top:8px">${badge(y.st)}</div></div>`
+   +`<div class="dcard"><div class="k">Club Success Plan</div><div style="margin-top:9px">${
+       y.csp?cspMark(y.csp,true)
+            :`<span class="csp" data-v="u"><span class="cspd">?</span>Not tracked in ${esc(yr)}</span>`}</div></div>`
    +`<div class="dcard"><div class="k">Five-year trace</div><div style="margin-top:8px">${spark(Y.map(k=>(c.y[k]||{}).f??null))}</div></div>`;
   $('dgoals').innerHTML=y.g?S.d.goals.map((g,j)=>{
     const v=y.g[j],met=v!=null&&v>=TARGETS[j];
@@ -845,6 +864,13 @@ function drawLive(){
   drawLiveTable();
 }
 
+function cspMark(v,closed){
+  const y=/Met/i.test(v||'')&&!/Not/i.test(v||'');
+  if(!v) return `<span class="csp" data-v="u" title="Not tracked this year"><span class="cspd">?</span>—</span>`;
+  // "Not yet" only reads right while the year can still change
+  return `<span class="csp" data-v="${y?'y':'n'}"><span class="cspd">${y?'\u2713':'\u2715'}</span>${
+    y?'Submitted':(closed?'Not submitted':'Not yet')}</span>`;
+}
 function drawLiveTable(){
   const L=S.l,q=$('lq').value.trim().toLowerCase(),dv=$('lfdiv').value,
         f=$('lfilt').value,so=$('lsort').value;
@@ -852,6 +878,7 @@ function drawLiveTable(){
     if(dv&&c.d!==dv) return false;
     if(q&&!(c.m.toLowerCase().includes(q)||String(Number(c.n)).includes(q))) return false;
     if(f==='out'&&c.ceil>=5) return false;
+    if(f==='nocsp'&&/Met/i.test(c.csp||'')&&!/Not/i.test(c.csp||'')) return false;
     if(f==='dist'&&c.met<5) return false;
     if(f==='zero'&&c.met!==0) return false;
     if(f==='risk'){const d=daysTo(c.nd);if(d==null||d>45) return false;}
@@ -869,7 +896,7 @@ function drawLiveTable(){
   // while every club shares a ceiling, controls that sort or filter on it can do nothing
   document.querySelectorAll('#lfilt [data-needsceil],#lsort [data-needsceil]').forEach(o=>{
     o.hidden=SAMECEIL;
-    if(SAMECEIL&&o.selected){o.selected=false;o.parentElement.value=o.parentElement.id==='lsort'?'met':'';}
+    if(SAMECEIL&&o.selected){o.selected=false;o.parentElement.value=o.parentElement.id==='lsort'?'metd':'';}
   });
   $('lvtb').innerHTML=list.map(c=>{
     const pips=c.st.map((v,i)=>`<span class="pip" data-s="${v}" title="${esc(L.goals[i])}: ${
@@ -883,9 +910,10 @@ function drawLiveTable(){
       <td><span class="nowg" style="color:${col}">${c.met}</span><span class="num" style="color:var(--muted)">/10</span></td>
       <td><span class="pips">${pips}</span></td>
       ${SAMECEIL?'':`<td class="ceil ${out?'out':'ok'}">${c.ceil}${c.best?' · '+esc(c.best):' · none'}</td>`}
+      <td>${cspMark(c.csp)}</td>
       <td class="num" style="${urg}">${c.nd?esc(fmtDate(c.nd))+(d!=null?' ('+d+'d)':''):'—'}
         <span class="cmeta">${esc(c.ndl||'')}</span></td></tr>`;}).join('')
-    ||`<tr><td colspan="${SAMECEIL?5:6}" style="color:var(--muted);padding:18px 14px">No clubs match.</td></tr>`;
+    ||`<tr><td colspan="${SAMECEIL?6:7}" style="color:var(--muted);padding:18px 14px">No clubs match.</td></tr>`;
 
   const outn=list.filter(c=>c.ceil<5).length;
   $('lvNote').textContent=`Showing ${list.length} of ${L.clubs.length} clubs. `+

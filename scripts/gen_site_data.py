@@ -37,7 +37,11 @@ for cid in sorted(meta,key=lambda c:meta[c][0].lower()):
                   "st":(fin['DCP Status'] if fin else "") or "",
                   "mb":_i(fin['Membership Base']) if fin else None,
                   "md":_i(fin['Membership To Date']) if fin else None,
-                  "g":[_i(fin[g]) for g in GOALS] if fin else None}
+                  "g":[_i(fin[g]) for g in GOALS] if fin else None,
+                  "csp":(fin.get('Club Success Plan') if fin else "") or "",
+                  # alignment is re-drawn each July, so it belongs to the year
+                  "d":(fin['Division'] if fin else "") or "",
+                  "a":(fin['Area'] if fin else "") or ""}
     clubs.append({"n":cid,"m":nm,"d":dv,"a":ar,"y":ydat})
 
 imp=[];dec=[]

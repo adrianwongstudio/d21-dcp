@@ -47,13 +47,13 @@ def main():
 
     head=["Division","Area","Club No","Club Name","Goals met","of 10","Ceiling",
           "Best still possible","Members","Base","Net growth","Meets membership rule",
-          "Next deadline","What closes then"]
+          "Next deadline","What closes then","Club Success Plan"]
     head+= [f"{ROWLBL[i]} (need {TARGETS[i]})" for i in range(12)]
     head+= [f"{pyl} final",f"{pyl} status"] if pyl else []
     ws.append(head)
     for c in range(1,len(head)+1):
         cell=ws.cell(row=1,column=c); cell.font=HDRF
-        cell.fill=HDRB if c<=14 else SUBB
+        cell.fill=HDRB if c<=15 else SUBB
         cell.alignment=Alignment(vertical='center',wrap_text=True,horizontal='center')
     ws.row_dimensions[1].height=46
 
@@ -62,14 +62,16 @@ def main():
         pf,pst=prior.get(c['n'],(None,''))
         row=[c['d'],c['a'],int(c['n']),c['m'],c['met'],10,c['ceil'],c['best'] or "none",
              c['md'],c['mb'],c['ng'],"yes" if c['memok'] else "no",
-             (datetime.date.fromisoformat(c['nd']) if c['nd'] else None),c['ndl'] or ""]
+             (datetime.date.fromisoformat(c['nd']) if c['nd'] else None),c['ndl'] or "",
+             ("submitted" if (c.get("csp") or "").lower().startswith("requirement met") else
+              "not yet" if c.get("csp") else "")]
         row+= [(c['v'][i] if c['v'][i] is not None else "") for i in range(12)]
         if pyl: row+=[pf,pst]
         ws.append(row)
         r=ws.max_row
         # shade each goal cell by whether it is met, and grey out shut windows
         for i in range(12):
-            cell=ws.cell(row=r,column=15+i)
+            cell=ws.cell(row=r,column=16+i)
             cell.alignment=Alignment(horizontal='center')
             v=c['v'][i]
             # rows 8+9 share goal 9, rows 10+11 share goal 10
@@ -82,9 +84,11 @@ def main():
         if c['nd']: ws.cell(row=r,column=13).number_format='dd mmm yyyy'
         if c['ceil']<5: ws.cell(row=r,column=7).fill=SHORT
         if not c['memok']: ws.cell(row=r,column=12).fill=SHORT
+        if c.get('csp') and not c['csp'].lower().startswith('requirement met'):
+            ws.cell(row=r,column=15).fill=SHORT
         for cc in range(1,len(head)+1): ws.cell(row=r,column=cc).border=THIN
 
-    widths=[9,7,10,38,10,7,9,18,10,8,11,12,14,26]+[13]*12+[13,20]
+    widths=[9,7,10,38,10,7,9,18,10,8,11,12,14,26,17]+[13]*12+[13,20]
     for i,w in enumerate(widths[:len(head)],1): ws.column_dimensions[get_column_letter(i)].width=w
     ws.freeze_panes="E2"; ws.auto_filter.ref=f"A1:{get_column_letter(len(head))}{ws.max_row}"
 
