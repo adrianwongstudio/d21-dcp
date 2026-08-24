@@ -69,11 +69,29 @@ a{color:inherit}
 }
 
 /* ---------- hero ---------- */
-.hero{padding-block:56px 34px}
+.hero{padding-block:52px 30px}
+.herogrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(298px,.92fr);gap:20px 52px;align-items:start}
 .eyebrow{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--maroon);margin-bottom:18px}
-.hero h1{font-size:clamp(38px,6.4vw,74px);letter-spacing:-.022em;max-width:15ch}
+.hero h1{font-size:clamp(36px,5.4vw,62px);letter-spacing:-.022em;max-width:16ch}
 .hero h1 em{font-style:italic;color:var(--maroon)}
-.lede{margin-top:20px;max-width:60ch;font-size:17.5px;color:var(--ink2)}
+.lede{margin-top:20px;max-width:54ch;font-size:17px;color:var(--ink2)}
+.legendline{display:flex;gap:16px;flex-wrap:wrap;margin-top:20px;font-size:13px;color:var(--muted)}
+.legendline span{display:flex;align-items:center;gap:7px;white-space:nowrap}
+
+.router{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:6px 7px 9px;box-shadow:var(--shadow)}
+.routerlab{font:700 10.5px/1 "Public Sans",sans-serif;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);padding:14px 14px 4px;margin:0}
+.route{display:grid;grid-template-columns:56px 1fr;gap:15px;align-items:center;
+  padding:11px 14px;border-radius:10px;text-decoration:none;color:inherit}
+.route:hover,.route:focus-visible{background:var(--sunk);outline:none}
+.route:focus-visible{box-shadow:0 0 0 2px var(--maroon)}
+.routen{font-family:Fraunces,Georgia,serif;font-size:27px;font-weight:600;color:var(--maroon);
+  font-variant-numeric:tabular-nums;line-height:1;text-align:right;letter-spacing:-.02em}
+.routen u{font-size:13px;text-decoration:none;letter-spacing:0}
+.routet{font-size:12.5px;color:var(--muted);line-height:1.35}
+.routet b{display:block;color:var(--ink);font-size:14px;font-weight:600;margin-bottom:2px}
+@media (max-width:900px){.herogrid{grid-template-columns:1fr;gap:32px}.hero{padding-block:40px 26px}}
 
 /* ---------- board ---------- */
 .board{padding-bottom:22px}
@@ -132,9 +150,11 @@ a{color:inherit}
 
 /* ---------- sections ---------- */
 .sec{padding-block:52px;border-top:1px solid var(--line);margin-top:44px}
-.sechead{max-width:66ch;margin-bottom:26px}
-.sechead h2{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.015em}
-.sechead p{color:var(--ink2);margin:12px 0 0;font-size:16px}
+.sechead{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.5fr);gap:8px 46px;
+  align-items:start;margin-bottom:26px}
+.sechead h2{font-size:clamp(25px,3.2vw,34px);letter-spacing:-.015em}
+.sechead p{color:var(--ink2);margin:5px 0 0;font-size:15.5px;max-width:64ch}
+@media (max-width:820px){.sechead{grid-template-columns:1fr;gap:12px}.sechead p{margin-top:0}}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:22px}
 @media (max-width:860px){.pair{grid-template-columns:1fr}}
 
@@ -169,57 +189,6 @@ input[type=search],select{font:500 13.5px/1 "Public Sans",sans-serif;padding:10p
   border:1px solid var(--line);background:var(--card);color:var(--ink);min-width:0}
 input[type=search]{flex:1 1 250px}
 input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-offset:1px}
-
-/* ---------- charts ---------- */
-const TARGETS=[4,2,2,2,1,1,4,4,4,4,1,1];
-const SHORT=["Level 1 awards","Level 2 awards","More Level 2 awards","Level 3 awards",
-"Level 4 / Path Completion / DTM","A second Level 4 / PC / DTM","New members (4)","More new members (4)",
-"Officers trained, Jun–Aug","Officers trained, Nov–Feb","Renewal dues on time","Officer list on time"];
-function drawGoalGap(){
-  const Y=S.d.years,y=Y[Y.length-1];$('ggYear').textContent=y;
-  const rows=S.d.clubs.map(c=>c.y[y]).filter(v=>v&&v.g);
-  const pct=SHORT.map((_,j)=>{
-    const met=rows.filter(r=>r.g[j]!=null&&r.g[j]>=TARGETS[j]).length;
-    return {j,p:rows.length?met/rows.length*100:0,met,n:rows.length};});
-  pct.sort((a,b)=>a.p-b.p);
-  $('goalgap').innerHTML=pct.map(g=>{
-    const col=g.p>=60?'var(--green)':g.p>=35?'var(--amber)':'var(--red)';
-    return `<div class="barrow"><div class="barlab">${esc(SHORT[g.j])}</div>
-      <div class="bartrack"><div class="barfill" style="width:${g.p.toFixed(1)}%;background:${col}"></div></div>
-      <div class="barval" style="color:${col}">${Math.round(g.p)}%</div></div>`;}).join('');
-}
-function drawTrend(){
-  const Y=S.d.years;
-  const cnt=Y.map(y=>{const o={g:0,a:0,r:0};
-    S.d.clubs.forEach(c=>{const f=(c.y[y]||{}).f;if(f==null)return;o[sig(f)]++;});return o;});
-  const max=Math.max(...cnt.map(o=>o.g+o.a+o.r));
-  $('trend').innerHTML=cnt.map(o=>{
-    const tot=o.g+o.a+o.r,h=tot/max*100;
-    const seg=(v,c)=>v?`<div class="seg" style="height:${v/tot*100}%;background:${c}">${v>=7?`<span class="segn">${v}</span>`:''}</div>`:'';
-    return `<div class="stackcol" style="height:${h}%">${seg(o.g,'var(--green)')}${seg(o.a,'var(--amber)')}${seg(o.r,'var(--red)')}</div>`;
-  }).join('');
-  $('trendlabs').innerHTML=Y.map(y=>`<div class="stacklab" style="flex:1">${shortYr(y)}</div>`).join('');
-}
-function drawDivisions(){
-  const Y=S.d.years,y=Y[Y.length-1],prev=Y[Y.length-2];$('dvYear').textContent=y;
-  const agg={};
-  S.d.clubs.forEach(c=>{if(!c.d)return;(agg[c.d]=agg[c.d]||{cur:[],pre:[]});
-    const a=(c.y[y]||{}).f,b=(c.y[prev]||{}).f;
-    if(a!=null)agg[c.d].cur.push(a);if(b!=null)agg[c.d].pre.push(b);});
-  const avg=a=>a.length?a.reduce((s,v)=>s+v,0)/a.length:null;
-  const list=Object.keys(agg).sort().map(d=>({d,cur:avg(agg[d].cur),pre:avg(agg[d].pre),n:agg[d].cur.length}))
-    .filter(r=>r.cur!=null).sort((a,b)=>b.cur-a.cur);
-  $('divbars').innerHTML=list.map(r=>{
-    const w=r.cur/10*100,col=r.cur>=5?'var(--green)':r.cur>=3?'var(--amber)':'var(--red)';
-    const gh=r.pre!=null?`<div class="ghost" style="left:${(r.pre/10*100).toFixed(1)}%" title="${prev}: ${r.pre.toFixed(1)}"></div>`:'';
-    const dir=r.pre!=null?(r.cur-r.pre):null;
-    return `<div class="barrow"><div class="barlab"><b>Division ${esc(r.d)}</b>
-        <span style="color:var(--muted)">· ${r.n} clubs</span></div>
-      <div class="bartrack" style="height:20px"><div class="barfill" style="width:${w.toFixed(1)}%;background:${col}"></div>${gh}</div>
-      <div class="barval" style="color:${col}">${r.cur.toFixed(1)}${dir==null?'':
-        `<span style="color:${dir>=0?'var(--green)':'var(--red)'};font-size:11px"> ${dir>=0?'▲':'▼'}</span>`}</div></div>`;
-  }).join('');
-}
 
 /* ---------- detail ---------- */
 .detail{position:fixed;inset:auto 0 0 0;max-height:82vh;overflow-y:auto;background:var(--card);
@@ -360,20 +329,45 @@ function drawDivisions(){
 
 <main>
 <section class="wrap hero">
-  <p class="eyebrow">Distinguished Club Program · 2021&ndash;22 to 2025&ndash;26 · 2026&ndash;27 in progress</p>
-  <h1>Every club in the district, <em>lit by how far it got</em>.</h1>
-  <p class="lede">Meetings run on a green, amber and red light. So does this page. Each lamp below is one club's
-  Distinguished Club Program score at the close of the year &mdash; green cleared five goals or more, amber stalled at
-  three or four, red never got past two. Move through the years and a split appears: more clubs are reaching
-  Distinguished than five years ago &mdash; and more are falling under three goals.</p>
+ <div class="herogrid">
+  <div>
+    <p class="eyebrow">Toastmasters District 21 · Distinguished Club Program</p>
+    <h1>Every club in the district, <em>lit by how far it got</em>.</h1>
+    <p class="lede">The Distinguished Club Program sets ten goals a club can meet in a year; five earns
+    Distinguished. This page carries that score for all <b id="hClubs">&mdash;</b> clubs across five finished
+    years and the one still running &mdash; so you can see who is thriving, who is slipping, and who can still
+    be helped before June.</p>
+    <div class="legendline">
+      <span><i class="chip" style="background:var(--green)"></i>5&ndash;10 goals &middot; Distinguished</span>
+      <span><i class="chip" style="background:var(--amber)"></i>3&ndash;4 goals</span>
+      <span><i class="chip" style="background:var(--red)"></i>0&ndash;2 goals</span>
+    </div>
+  </div>
+
+  <nav class="router" aria-label="What do you need">
+    <p class="routerlab">What do you need?</p>
+    <a class="route" href="#inyear">
+      <span class="routen" id="rDays">&mdash;</span>
+      <span class="routet"><b>Help a club this year</b>days left to change the outcome</span></a>
+    <a class="route" href="#board">
+      <span class="routen" id="rRed">&mdash;</span>
+      <span class="routet"><b>Find who is struggling</b>clubs under three goals last year</span></a>
+    <a class="route" href="#signals">
+      <span class="routen" id="rGap">&mdash;</span>
+      <span class="routet"><b>Fix the district-wide gap</b>completion on the weakest goal</span></a>
+    <a class="route" href="#clubs">
+      <span class="routen">5<u>yr</u></span>
+      <span class="routet"><b>Look up one club</b>full history, goal by goal</span></a>
+  </nav>
+ </div>
 </section>
 
 <section class="wrap live" id="inyear">
   <div class="sechead" style="margin-bottom:26px">
     <h2>The year in progress</h2>
-    <p>Everything below this section is finished history. This part is not &mdash; it is the open program year,
-    <b id="lvPy"></b>, as the dashboard reports it today. A goal shown as unreachable cannot be recovered:
-    the window it lived in has shut.</p>
+    <p><b>Use this to act.</b> Everything further down is finished history; this is the open program year,
+    <b id="lvPy"></b>, as the dashboard reports it today. A goal shown as unreachable cannot be recovered &mdash;
+    the window it lived in has shut. Filter to a division, then work the clubs with the lowest ceiling first.</p>
   </div>
 
   <div class="liveband">
@@ -453,6 +447,12 @@ function drawDivisions(){
 </section>
 
 <section class="wrap board" id="board">
+  <div class="sechead">
+    <h2>The finished years</h2>
+    <p><b>Use this to compare divisions and areas.</b> Every club's score at the close of a chosen year, nested
+    under the division and area that supports it and ranked worst-last within each area. Pick a year to see how
+    the district changed.</p>
+  </div>
   <div class="boardhead">
     <div class="scrub" id="scrub" role="group" aria-label="Program year"></div>
     <div class="legend">
@@ -471,9 +471,9 @@ function drawDivisions(){
 <section class="wrap sec" id="signals">
   <div class="sechead">
     <h2>Where the goals are going missing</h2>
-    <p>The Distinguished Club Program is ten goals. Knowing <em>which</em> ones the district keeps failing is the
-    difference between a pep talk and a plan &mdash; training and officer paperwork are fixed at district level,
-    education awards are fixed club by club.</p>
+    <p><b>Use this to plan district-wide support.</b> Knowing <em>which</em> of the ten goals the district keeps
+    failing is the difference between a pep talk and a plan &mdash; training and officer paperwork are fixed at
+    district level, education awards are fixed club by club.</p>
   </div>
   <div class="charts">
     <div class="chartcard">
@@ -506,8 +506,8 @@ function drawDivisions(){
 <section class="wrap sec" id="movement">
   <div class="sechead">
     <h2>Who climbed, and who slipped</h2>
-    <p>Two questions worth acting on: which clubs were under five goals and pulled themselves up, and which were
-    above five and fell back. The first group has something to teach; the second could use a hand.</p>
+    <p><b>Use this to find who to call.</b> Which clubs were under five goals and pulled themselves up, and which
+    were above five and fell back. The first group has something to teach; the second could use a hand.</p>
   </div>
   <div class="toolbar">
     <label class="sr" for="mvyear">Transition</label>
@@ -530,7 +530,8 @@ function drawDivisions(){
 <section class="wrap sec" id="clubs">
   <div class="sechead">
     <h2>Every club, year by year</h2>
-    <p>Five years of year-end scores. The trace shows the shape of each club's run &mdash; steady, spiking or sliding.</p>
+    <p><b>Use this to look one club up.</b> Search by name or number for five years of year-end scores. The trace
+    shows the shape of each club's run &mdash; steady, spiking or sliding. Select any row for its full goal detail.</p>
   </div>
   <div class="toolbar">
     <label class="sr" for="q">Search clubs</label>
@@ -1229,6 +1230,8 @@ fetch('live.json').then(r=>r.ok?r.json():Promise.reject(new Error(r.status))).th
   $('lq').oninput=drawLiveTable;$('lfdiv').onchange=drawLiveTable;
   $('lfilt').onchange=drawLiveTable;$('lsort').onchange=drawLiveTable;
   drawLive();
+  const rd=$('rDays'); if(rd) rd.textContent=L.days;
+  const hc=$('hClubs'); if(hc && L.clubs) hc.textContent=L.clubs.length;
 }).catch(e=>{
   $('inyear').innerHTML='<p style="color:var(--muted);padding:20px 0">The in-year view could not load '+
     '(live.json: '+esc(e.message)+'). The finished years below are unaffected.</p>';
@@ -1247,6 +1250,17 @@ fetch('data.json').then(r=>r.json()).then(d=>{
   d.years.forEach((y,i)=>{const el=$('yh'+(i+1));if(el)el.textContent=shortYr(y);});
   $('q').oninput=drawClubs;$('fdiv').onchange=drawClubs;$('fsort').onchange=drawClubs;
   drawScrub();drawBoard();drawGoalGap();drawTrend();drawDivisions();drawMv();drawClubs();
+  // router figures, read off the most recent finished year
+  const ly=d.years[d.years.length-1];
+  const fin=d.clubs.map(c=>(c.y[ly]||{}).f).filter(v=>v!=null);
+  const hc=$('hClubs'); if(hc && hc.textContent.trim()==='\u2014') hc.textContent=d.clubs.length;
+  const rr=$('rRed'); if(rr) rr.textContent=fin.filter(v=>v<3).length;
+  const gr=d.clubs.map(c=>c.y[ly]).filter(v=>v&&v.g);
+  if(gr.length){
+    const worst=Math.min(...SHORT.map((_,j)=>
+      gr.filter(r=>r.g[j]!=null&&r.g[j]>=TARGETS[j]).length/gr.length*100));
+    const rg=$('rGap'); if(rg) rg.innerHTML=Math.round(worst)+'<u>%</u>';
+  }
 }).catch(e=>{
   document.querySelector('main').insertAdjacentHTML('afterbegin',
    '<div class="wrap"><p style="color:var(--red);padding:20px 0">Could not load data.json. '+esc(e.message)+'</p></div>');
