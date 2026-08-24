@@ -285,6 +285,13 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
 .ceil{font:600 12.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ceil.out{color:var(--red)} .ceil.ok{color:var(--ink2)}
 .nowg{font-family:Fraunces,serif;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+th[data-k]{cursor:pointer;user-select:none;white-space:nowrap}
+th[data-k]:hover{color:var(--maroon)}
+th[data-k]:focus-visible{outline:2px solid var(--maroon);outline-offset:-2px}
+th[data-k] .ar{display:inline-block;margin-left:5px;font-size:9px;opacity:0;transition:opacity .12s}
+th[data-k]:hover .ar{opacity:.45}
+th[data-k][aria-sort] .ar{opacity:1;color:var(--maroon)}
+th[data-k][aria-sort]{color:var(--maroon)}
 .mem{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
 .memn{font:700 13.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
 .memg{font:500 11.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
@@ -444,19 +451,18 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
       <option value="zero">Nothing achieved yet</option>
       <option value="dist">Already Distinguished</option>
     </select>
-    <label class="sr" for="lsort">Sort</label>
-    <select id="lsort">
-      <option value="metd">Most goals met first</option>
-      <option value="met">Fewest goals met first</option>
-      <option value="ceil" data-needsceil>Lowest ceiling first</option>
-      <option value="mem">Fewest members first</option>
-      <option value="name">Club name</option>
-      <option value="next">Nearest deadline</option>
-    </select>
   </div>
   <div class="panel"><div class="scroller" style="max-height:640px">
-    <table><thead><tr><th>Club</th><th>Div</th><th>Members</th><th>Now</th><th>Goals &mdash; achieved, open, closed</th>
-      <th id="lvThCeil">Ceiling</th><th>Success plan</th><th>Next deadline</th></tr></thead><tbody id="lvtb"></tbody></table>
+    <table><thead><tr>
+      <th data-k="name" tabindex="0">Club<span class="ar">\u25b2</span></th>
+      <th data-k="div"  tabindex="0">Div<span class="ar">\u25b2</span></th>
+      <th data-k="mem"  tabindex="0">Members<span class="ar">\u25b2</span></th>
+      <th data-k="met"  tabindex="0">Now<span class="ar">\u25b2</span></th>
+      <th>Goals &mdash; achieved, open, closed</th>
+      <th id="lvThCeil" data-k="ceil" tabindex="0">Ceiling<span class="ar">\u25b2</span></th>
+      <th data-k="csp"  tabindex="0">Success plan<span class="ar">\u25b2</span></th>
+      <th data-k="nd"   tabindex="0">Next deadline<span class="ar">\u25b2</span></th>
+      </tr></thead><tbody id="lvtb"></tbody></table>
   </div></div>
   <div class="livekey">
     <span><span class="pip" data-s="m"></span> achieved</span>
@@ -594,7 +600,7 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
 </div></footer>
 
 <script>
-const S={d:null,year:null,mv:null,l:null};
+const S={d:null,year:null,mv:null,lvSort:{k:'met',dir:-1},l:null};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sig=v=>v==null?'x':v>=5?'g':v>=3?'a':'r';
@@ -924,6 +930,16 @@ function drawLive(){
   drawLiveTable();
 }
 
+// submitted sorts above not-submitted; unknown last
+function cspRank(v){
+  if(!v) return 2;
+  return (/Met/i.test(v)&&!/Not/i.test(v))?0:1;
+}
+function setLiveSort(k){
+  // a new column starts ascending; the active one reverses
+  S.lvSort = (S.lvSort.k===k) ? {k,dir:-S.lvSort.dir} : {k,dir:1};
+  drawLiveTable();
+}
 function memCell(c){
   if(c.md==null) return '<span class="num" style="color:var(--muted)">—</span>';
   // the DCP membership rule: 20 members, or a net gain of 5 over the base
@@ -946,7 +962,7 @@ function cspMark(v,closed){
 }
 function drawLiveTable(){
   const L=S.l,q=$('lq').value.trim().toLowerCase(),dv=$('lfdiv').value,
-        f=$('lfilt').value,so=$('lsort').value;
+        f=$('lfilt').value;
   let list=L.clubs.filter(c=>{
     if(dv&&c.d!==dv) return false;
     if(q&&!(c.m.toLowerCase().includes(q)||String(Number(c.n)).includes(q))) return false;
@@ -957,21 +973,31 @@ function drawLiveTable(){
     if(f==='risk'){const d=daysTo(c.nd);if(d==null||d>45) return false;}
     return true;});
   const byName=(x,y)=>x.m.localeCompare(y.m);
-  ({ceil:()=>list.sort((x,y)=>x.ceil-y.ceil||x.met-y.met||byName(x,y)),
-    met:()=>list.sort((x,y)=>x.met-y.met||x.ceil-y.ceil||byName(x,y)),
-    mem:()=>list.sort((x,y)=>(x.md??1e9)-(y.md??1e9)||byName(x,y)),
-    metd:()=>list.sort((x,y)=>y.met-x.met||y.ceil-x.ceil||byName(x,y)),
-    name:()=>list.sort(byName),
-    next:()=>list.sort((x,y)=>(x.nd||'9').localeCompare(y.nd||'9')||byName(x,y))}[so]||(()=>{}))();
+  const KEY={
+    name:c=>c.m.toLowerCase(),
+    div :c=>`${c.d||'zz'}${String(c.a||'zz').padStart(3,'0')}`,
+    mem :c=>c.md??-1,
+    met :c=>c.met,
+    ceil:c=>c.ceil,
+    csp :c=>cspRank(c.csp),
+    nd  :c=>c.nd||'9999-99-99'};
+  const {k,dir}=S.lvSort, get=KEY[k]||KEY.met;
+  list.sort((x,y)=>{
+    const a=get(x),b=get(y);
+    const d=a<b?-1:a>b?1:0;
+    return d*dir||byName(x,y);          // name breaks every tie, always A-Z
+  });
 
   S.lvView=list;
   const SAMECEIL=new Set(S.l.clubs.map(c=>c.ceil)).size<2;
   const th=$('lvThCeil'); if(th) th.style.display=SAMECEIL?'none':'';
   // while every club shares a ceiling, controls that sort or filter on it can do nothing
-  document.querySelectorAll('#lfilt [data-needsceil],#lsort [data-needsceil]').forEach(o=>{
+  document.querySelectorAll('#lfilt [data-needsceil]').forEach(o=>{
     o.hidden=SAMECEIL;
-    if(SAMECEIL&&o.selected){o.selected=false;o.parentElement.value=o.parentElement.id==='lsort'?'metd':'';}
+    if(SAMECEIL&&o.selected){o.selected=false;o.parentElement.value='';}
   });
+  // never leave the table sorted by a column that is not on screen
+  if(SAMECEIL&&S.lvSort.k==='ceil') S.lvSort={k:'met',dir:-1};
   $('lvtb').innerHTML=list.map(c=>{
     const pips=c.st.map((v,i)=>`<span class="pip" data-s="${v}" title="${esc(L.goals[i])}: ${
       v==='m'?'achieved':v==='o'?'still reachable':'window closed'}"></span>`).join('');
@@ -990,6 +1016,15 @@ function drawLiveTable(){
         <span class="cmeta">${esc(c.ndl||'')}</span></td></tr>`;}).join('')
     ||`<tr><td colspan="${SAMECEIL?7:8}" style="color:var(--muted);padding:18px 14px">No clubs match.</td></tr>`;
 
+  document.querySelectorAll('#inyear thead th[data-k]').forEach(th=>{
+    const on=th.dataset.k===S.lvSort.k;
+    if(on) th.setAttribute('aria-sort',S.lvSort.dir===1?'ascending':'descending');
+    else th.removeAttribute('aria-sort');
+    const ar=th.querySelector('.ar');
+    if(ar) ar.textContent = (on && S.lvSort.dir===-1) ? '\u25bc' : '\u25b2';
+    th.onclick=()=>setLiveSort(th.dataset.k);
+    th.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setLiveSort(th.dataset.k);}};
+  });
   $('lvtb').querySelectorAll('.lvrow').forEach(tr=>{
     const go=()=>openLiveDetail(tr.dataset.n);
     tr.onclick=go;
@@ -1345,7 +1380,7 @@ fetch('live.json').then(r=>r.ok?r.json():Promise.reject(new Error(r.status))).th
   $('lfdiv').innerHTML='<option value="">All divisions</option>'+
     divs.map(x=>`<option value="${x}">Division ${x}</option>`).join('');
   $('lq').oninput=drawLiveTable;$('lfdiv').onchange=drawLiveTable;
-  $('lfilt').onchange=drawLiveTable;$('lsort').onchange=drawLiveTable;
+  $('lfilt').onchange=drawLiveTable;
   drawLive();
   const rd=$('rDays'); if(rd) rd.textContent=L.days;
   const hc=$('hClubs'); if(hc && L.clubs) hc.textContent=L.clubs.length;
