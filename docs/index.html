@@ -311,7 +311,6 @@ th[data-k][aria-sort]{color:var(--maroon)}
   padding:11px 16px;border-radius:9px;border:1px solid var(--maroon);background:var(--maroon);
   color:#fff;text-decoration:none;cursor:pointer;white-space:nowrap}
 .dlbtn:hover{filter:brightness(1.08)}
-.dlbtn.alt{background:transparent;color:var(--maroon)}
 .dlbtn svg{width:15px;height:15px;flex:none}
 .dlwhy{font-size:13px;color:var(--ink2);line-height:1.45;min-width:220px;flex:1 1 260px}
 
@@ -426,10 +425,6 @@ th[data-k][aria-sort]{color:var(--maroon)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
         stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
       Download the workbook</a>
-    <button class="dlbtn alt" id="lvCsv" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
-        stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
-      This view as CSV</button>
     <p class="dlwhy">One row per club with the twelve goal counts, membership, ceiling and next
     deadline, filterable by division and area &mdash; built for an area director to open alongside a
     club officer. <span id="lvXlsxMeta" class="cmeta" style="display:block;margin-top:4px"></span></p>
@@ -926,7 +921,6 @@ function drawLive(){
 
   $('lvXlsx').setAttribute('download',`District21_InYear_${L.py}.xlsx`);
   $('lvXlsxMeta').textContent=`Excel workbook · ${a.clubs} clubs · snapshot ${L.asof||'—'}`;
-  $('lvCsv').onclick=liveCsv;
   drawLiveTable();
 }
 
@@ -1036,32 +1030,6 @@ function drawLiveTable(){
     (SAMECEIL?`Every club can still reach all ten. `
              :`Ceiling is goals already met plus those whose window is still open, so it only ever falls. `)+
     `Figures follow the dashboard's own count, in which the two officer-training rows earn a single goal, as do the two administrative rows.`;
-}
-
-/* Export whatever the table is currently showing, so an area director can
-   filter to their area and hand the officer just that. */
-function liveCsv(){
-  const L=S.l,rows=S.lvView||[];
-  const head=['Division','Area','Club No','Club Name','Goals met','Of','Ceiling',
-    'Best still possible','Members','Base','Net growth','Meets membership rule',
-    'Next deadline','What closes then']
-    .concat(L.goals)
-    .concat(['Snapshot']);
-  const body=rows.map(c=>[c.d,c.a,String(Number(c.n)),c.m,c.met,10,c.ceil,c.best||'none',
-    c.md,c.mb,c.ng,c.memok?'yes':'no',c.nd||'',c.ndl||'']
-    .concat(c.st.map(v=>v==='m'?'met':v==='o'?'open':'closed'))
-    .concat([L.asof||'']));
-  const q=v=>{const t=v==null?'':String(v);
-    return /[",\n]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t;};
-  const csv=[head,...body].map(r=>r.map(q).join(',')).join('\r\n');
-  // BOM so Excel reads the accents and dashes correctly
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const dv=$('lfdiv').value,tag=dv?'Division'+dv:'AllDivisions';
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`District21_InYear_${L.py}_${tag}.csv`;
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
 }
 
 /* ---------- a very small .xlsx writer ----------
