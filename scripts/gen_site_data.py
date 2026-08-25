@@ -1,63 +1,116 @@
-import os as _os, json, collections
-_ROOT=_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-def _p(*a): return _os.path.join(_ROOT,*a)
+"""Compact the finished years into docs/data.json for the dashboard.
 
-PYS=["2021-2022","2022-2023","2023-2024","2024-2025","2025-2026"]
-MORD=[7,8,9,10,11,12,1,2,3,4,5,6]
-GOALS=["Level 1 awards","Level 2 awards","More Level 2 awards","Level 3 awards",
-"Level 4, Path Completion, or DTM award","One more Level 4, Path Completion, or DTM award",
-"New members","More new members","Club officer roles trained June-August",
-"Club officer roles trained November-February","Membership-renewal dues on time",
-"Club officer list on time"]
-MN={7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec',1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun'}
+Keys are short because the browser downloads this file: n=number, m=name,
+d/a=division/area, y=per-year, f=final goals, s=monthly series.
+"""
+import os, sys, json, datetime, collections
 
-rows=json.load(open(_p('data','rows.json')))
-by=collections.defaultdict(dict)
-meta={}
-for r in rows:
-    mi=int(r['Month End'][5:7])
-    by[(r['Club No'],r['Program Year'])][mi]=r
-    meta[r['Club No']]=(r['Club Name'],r['Division'],r['Area'])
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import common as C
+from build import GOAL_COLUMNS
 
-def _i(v):
-    try: return int(v)
-    except Exception: return None
+MONTH_ORDER = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6]
+MONTH_NAME = {7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec",
+              1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun"}
 
-clubs=[]
-for cid in sorted(meta,key=lambda c:meta[c][0].lower()):
-    nm,dv,ar=meta[cid]
-    ydat={}
-    for py in PYS:
-        mm=by.get((cid,py))
-        if not mm: continue
-        series=[(_i(mm[m]['DCP Goals Met']) if m in mm else None) for m in MORD]
-        fin=mm.get(6)
-        ydat[py]={"s":series,
-                  "f":_i(fin['DCP Goals Met']) if fin else None,
-                  "st":(fin['DCP Status'] if fin else "") or "",
-                  "mb":_i(fin['Membership Base']) if fin else None,
-                  "md":_i(fin['Membership To Date']) if fin else None,
-                  "g":[_i(fin[g]) for g in GOALS] if fin else None,
-                  "csp":(fin.get('Club Success Plan') if fin else "") or "",
-                  # alignment is re-drawn each July, so it belongs to the year
-                  "d":(fin['Division'] if fin else "") or "",
-                  "a":(fin['Area'] if fin else "") or ""}
-    clubs.append({"n":cid,"m":nm,"d":dv,"a":ar,"y":ydat})
+DISTINGUISHED = 5   # goals that earn Distinguished, and the pivot both lists turn on
 
-imp=[];dec=[]
-for c in clubs:
-    for a,b in zip(PYS,PYS[1:]):
-        pa=c['y'].get(a,{}).get('f'); pb=c['y'].get(b,{}).get('f')
-        if pa is None or pb is None: continue
-        rec={"n":c['n'],"m":c['m'],"d":c['d'],"a":c['a'],"fy":a,"ty":b,
-             "fd":pa,"td":pb,"ch":pb-pa,"st":c['y'][b]['st']}
-        if pa<5 and pb>pa: imp.append(rec)
-        if pa>5 and pb<pa: dec.append(rec)
-imp.sort(key=lambda r:-r['ch']); dec.sort(key=lambda r:r['ch'])
 
-out={"years":PYS,"goals":GOALS,"months":[MN[m] for m in MORD],
-     "clubs":clubs,"imp":imp,"dec":dec,
-     "generated":"2026-08-21","source":"dashboards.toastmasters.org — District 21"}
-p=_p('docs','data.json')
-json.dump(out,open(p,'w'),separators=(',',':'))
-print(f"wrote {p}  {_os.path.getsize(p)/1024:.0f} KB  clubs={len(clubs)} imp={len(imp)} dec={len(dec)}")
+def as_int(v):
+    try:
+        return int(v)
+    except Exception:
+        return None
+
+
+def load_rows():
+    """rows.json indexed as [club][program year][month] -> row."""
+    with open(C.p("data", "rows.json"), encoding="utf-8") as fh:
+        rows = json.load(fh)
+    by = collections.defaultdict(dict)
+    meta = {}
+    for r in rows:
+        month = int(r["Month End"][5:7])
+        by[(r["Club No"], r["Program Year"])][month] = r
+        meta[r["Club No"]] = (r["Club Name"], r["Division"], r["Area"])
+    return by, meta
+
+
+def year_record(months):
+    """One club's year: the monthly trace plus its June year-end state."""
+    final = months.get(6)
+    series = [(as_int(months[m]["DCP Goals Met"]) if m in months else None)
+              for m in MONTH_ORDER]
+    if not final:
+        return {"s": series, "f": None, "st": "", "mb": None, "md": None,
+                "g": None, "csp": "", "d": "", "a": ""}
+    return {
+        "s": series,
+        "f": as_int(final["DCP Goals Met"]),
+        "st": final["DCP Status"] or "",
+        "mb": as_int(final["Membership Base"]),
+        "md": as_int(final["Membership To Date"]),
+        "g": [as_int(final[g]) for g in GOAL_COLUMNS],
+        "csp": final.get("Club Success Plan") or "",
+        # divisions are redrawn every July, so alignment belongs to the year
+        "d": final["Division"] or "",
+        "a": final["Area"] or "",
+    }
+
+
+def transitions(clubs, years):
+    """Clubs that climbed from under the threshold, and that slipped from above it."""
+    climbed, slipped = [], []
+    for c in clubs:
+        for before, after in zip(years, years[1:]):
+            was = c["y"].get(before, {}).get("f")
+            now = c["y"].get(after, {}).get("f")
+            if was is None or now is None:
+                continue
+            rec = {"n": c["n"], "m": c["m"], "d": c["d"], "a": c["a"],
+                   "fy": before, "ty": after, "fd": was, "td": now,
+                   "ch": now - was, "st": c["y"][after]["st"]}
+            if was < DISTINGUISHED and now > was:
+                climbed.append(rec)
+            if was > DISTINGUISHED and now < was:
+                slipped.append(rec)
+    climbed.sort(key=lambda r: -r["ch"])
+    slipped.sort(key=lambda r: r["ch"])
+    return climbed, slipped
+
+
+def main():
+    years = C.program_years()
+    by, meta = load_rows()
+
+    clubs = []
+    for club_id in sorted(meta, key=lambda c: meta[c][0].lower()):
+        name, division, area = meta[club_id]
+        per_year = {py: year_record(by[(club_id, py)])
+                    for py in years if by.get((club_id, py))}
+        clubs.append({"n": club_id, "m": name, "d": division, "a": area, "y": per_year})
+
+    climbed, slipped = transitions(clubs, years)
+
+    out = {
+        "years": years,
+        "goals": GOAL_COLUMNS,
+        "months": [MONTH_NAME[m] for m in MONTH_ORDER],
+        "clubs": clubs,
+        "imp": climbed,
+        "dec": slipped,
+        "district": C.DISTRICT_NAME,
+        "district_id": C.DISTRICT,
+        "site": C.SITE,
+        "generated": datetime.date.today().isoformat(),
+        "source": f"dashboards.toastmasters.org — {C.DISTRICT_NAME}",
+    }
+    dest = C.p("docs", "data.json")
+    with open(dest, "w", encoding="utf-8") as fh:
+        json.dump(out, fh, separators=(",", ":"))
+    print(f"wrote {dest}  {os.path.getsize(dest)/1024:.0f} KB  "
+          f"clubs={len(clubs)} imp={len(climbed)} dec={len(slipped)}")
+
+
+if __name__ == "__main__":
+    main()

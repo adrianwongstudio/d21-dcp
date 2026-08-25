@@ -6,19 +6,18 @@ membership position, and the twelve underlying goal counts so an officer can
 see exactly which number is short and by how much. Reads docs/live.json, so
 run gen_live_data.py first.
 """
-import os,json,collections,datetime
+import os,sys,json,collections,datetime
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+import common as C
 from openpyxl import Workbook
 from openpyxl.styles import Font,PatternFill,Alignment,Border,Side
 from openpyxl.utils import get_column_letter
 from openpyxl.formatting.rule import CellIsRule
 
-_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-def _p(*a): return os.path.join(_ROOT,*a)
+_p = C.p
 
-TARGETS=[4,2,2,2,1,1,4,4,4,4,1,1]
-ROWLBL=["Level 1 awards","Level 2 awards","More Level 2 awards","Level 3 awards",
- "Level 4 / PC / DTM","A second Level 4 / PC / DTM","New members","More new members",
- "Officers trained Jun-Aug","Officers trained Nov-Feb","Renewal dues on time","Officer list on time"]
+TARGETS = C.TARGETS
+ROWLBL  = C.ROW_NAMES
 
 HDRF=Font(bold=True,color="FFFFFF",size=10); HDRB=PatternFill("solid",fgColor="1F3864")
 SUBB=PatternFill("solid",fgColor="2E5A94")
@@ -28,16 +27,24 @@ BOLD=Font(bold=True); MUT=Font(color="6E828F",size=9)
 THIN=Border(bottom=Side(style='thin',color="D7DEE4"))
 
 def prior_year():
-    """Last closed year's final score, for context in the conversation."""
-    f=_p('data','rows.json')
+    """Last closed year's final score, for context in the conversation.
+
+    Reads docs/data.json rather than data/rows.json: rows.json is a local
+    build artefact and is gitignored, so on a fresh checkout - the monthly
+    workflow, for instance - it is absent and these columns silently vanish
+    from the workbook. data.json is committed, so every build agrees.
+    """
+    f=_p('docs','data.json')
     if not os.path.exists(f): return {},''
-    rows=json.load(open(f))
-    pys=sorted({r['Program Year'] for r in rows})
-    if not pys: return {},''
-    last=pys[-1]; out={}
-    for r in rows:
-        if r['Program Year']==last and r['Month End'][5:7]=='06':
-            out[r['Club No']]=(r.get('DCP Goals Met'),r.get('DCP Status') or '')
+    d=json.load(open(f,encoding='utf-8'))
+    years=d.get('years') or []
+    if not years: return {},''
+    last=years[-1]
+    out={}
+    for c in d.get('clubs',[]):
+        y=(c.get('y') or {}).get(last)
+        if y and y.get('f') is not None:
+            out[c['n']]=(y['f'], y.get('st') or '')
     return out,last
 
 def main():
@@ -115,7 +122,7 @@ def main():
 
     # ---- read me ----
     rm=wb.create_sheet("Read me",0)
-    lines=[("District 21 - Distinguished Club Program, year in progress",True),
+    lines=[(f"{C.DISTRICT_NAME} - Distinguished Club Program, year in progress",True),
       ("",False),
       (f"Program year {L['py']}. Dashboard snapshot {L['asof']}. Built {L['generated']}.",False),
       (f"{L['days']} days remain until 30 June {L['py'][-4:]}, when these scores become final.",False),

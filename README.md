@@ -1,15 +1,18 @@
 # District 21 — Club DCP Report
 
-Month-by-month DCP data for 181 District 21 clubs, 2021-22 through 2025-26
-(60 program-year month-ends, 10,170 rows).
+Month-by-month DCP data for every club District 21 has had across 2021-22
+through 2025-26 (227 clubs, 11,821 club-months), plus the open year as the
+dashboard reports it today.
 
 ## Layout
 
-    scripts/   parse.py, scrape.py, build.py, analyze.py, clubs.tsv
+    config.json  district, years and site wording — the only file another district edits
+    scripts/   common.py (shared config + DCP shape), parse.py, the scrape/build/gen scripts, clubs.tsv
                scrape_live.py, gen_live_data.py, gen_inyear_xlsx.py  (open year)
     output/    District21_DCP_Report.xlsx + the three CSVs
-    docs/      the published dashboard: index.html, data.json, live.json, inyear.xlsx
-    data/      cache/ (10,860 cached club-report pages, ~125 MB), live/, rows.json, scrape.log
+    docs/      the published dashboard: index.html + styles.css + app.js,
+               plus data.json, live.json and inyear.xlsx
+    data/      cache/ (13,620 cached club-report pages, ~150 MB), live/, rows.json
     probes/    exploratory fetches kept for reference
 
 ## Re-running

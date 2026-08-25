@@ -1,45 +1,83 @@
-import os,gzip,calendar,csv,json
-import os as _os
-_ROOT=_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-def _p(*a): return _os.path.join(_ROOT,*a)
+"""Parse the cached pages into one flat row per club per month-end.
 
+Writes data/rows.json, which every downstream script reads. Nothing here
+touches the network — re-run it freely after changing parse.py.
+"""
+import os, sys, gzip, json, calendar
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import common as C
 import parse as P
 
-CACHE=_p("data","cache")
-GOALS=["Level 1 awards","Level 2 awards","More Level 2 awards","Level 3 awards",
-"Level 4, Path Completion, or DTM award","One more Level 4, Path Completion, or DTM award",
-"New members","More new members","Club officer roles trained June-August",
-"Club officer roles trained November-February","Membership-renewal dues on time",
-"Club officer list on time"]
-PYS=["2021-2022","2022-2023","2023-2024","2024-2025","2025-2026"]
-def pymonths(py):
-    s=int(py[:4]); return [(m,s) for m in range(7,13)]+[(m,s+1) for m in range(1,7)]
-MNAME=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+# Column headings for the report, which follow the club report's own wording
+# rather than the shorter internal names in common.ROW_NAMES.
+GOAL_COLUMNS = [
+    "Level 1 awards", "Level 2 awards", "More Level 2 awards", "Level 3 awards",
+    "Level 4, Path Completion, or DTM award",
+    "One more Level 4, Path Completion, or DTM award",
+    "New members", "More new members",
+    "Club officer roles trained June-August",
+    "Club officer roles trained November-February",
+    "Membership-renewal dues on time", "Club officer list on time",
+]
 
-clubs=[l.rstrip('\n').split('\t') for l in open(_p('scripts','clubs.tsv')) if l.strip()]
-clubs=[(n.zfill(8),nm) for n,nm in clubs]
+MONTH = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
-rows=[];missing=0
-for cid,nm in clubs:
-    for py in PYS:
-        for m,y in pymonths(py):
-            f=os.path.join(CACHE,f"{cid}_{py}_{m:02d}.html.gz")
-            if not os.path.exists(f): missing+=1; continue
-            try: s=gzip.open(f,'rt',encoding='utf-8',errors='replace').read()
-            except Exception: missing+=1; continue
-            d=P.parse(s)
-            if d.get('goals_met') is None and not d.get('goals'): continue
-            g=d['goals']
-            vals=[(g[i]['todate'] if i<len(g) else '') for i in range(12)]
-            rows.append({
-              'Club No':cid,'Club Name':nm,'Division':d.get('division',''),'Area':d.get('area',''),
-              'Program Year':py,
-              'Month':f"{MNAME[m]} {y}",'Month End':f"{y}-{m:02d}-{calendar.monthrange(y,m)[1]}",
-              'Sort Key':f"{y}{m:02d}",'As Of':d.get('asof') or '',
-              'DCP Status':d.get('status') or '',
-              'Membership Base':d.get('mem_base'),'Membership To Date':d.get('members'),
-              'Net Growth':d.get('net_growth'),'Club Success Plan':d.get('csp',''),
-              'DCP Goals Met':d.get('goals_met'),
-              **{GOALS[i]:vals[i] for i in range(12)}})
-print(f"parsed rows={len(rows)} missing_files={missing}")
-json.dump(rows,open(_p('data','rows.json'),'w'))
+
+def read_cached(club_id, program_year, month):
+    path = os.path.join(C.CACHE, f"{club_id}_{program_year}_{month:02d}.html.gz")
+    if not os.path.exists(path):
+        return None
+    try:
+        with gzip.open(path, "rt", encoding="utf-8", errors="replace") as fh:
+            return fh.read()
+    except Exception:
+        return None
+
+
+def row_for(club_id, name, program_year, month, year, parsed):
+    goals = parsed["goals"]
+    todate = [(goals[i]["todate"] if i < len(goals) else "") for i in range(12)]
+    return {
+        "Club No": club_id,
+        "Club Name": name,
+        "Division": parsed.get("division", ""),
+        "Area": parsed.get("area", ""),
+        "Program Year": program_year,
+        "Month": f"{MONTH[month]} {year}",
+        "Month End": f"{year}-{month:02d}-{calendar.monthrange(year, month)[1]}",
+        "Sort Key": f"{year}{month:02d}",
+        "As Of": parsed.get("asof") or "",
+        "DCP Status": parsed.get("status") or "",
+        "Membership Base": parsed.get("mem_base"),
+        "Membership To Date": parsed.get("members"),
+        "Net Growth": parsed.get("net_growth"),
+        "Club Success Plan": parsed.get("csp", ""),
+        "DCP Goals Met": parsed.get("goals_met"),
+        **{GOAL_COLUMNS[i]: todate[i] for i in range(12)},
+    }
+
+
+def main():
+    rows, missing = [], 0
+    for club_id, name in C.load_clubs():
+        for program_year in C.program_years():
+            for month, year in C.months_of(program_year):
+                page = read_cached(club_id, program_year, month)
+                if page is None:
+                    missing += 1
+                    continue
+                parsed = P.parse(page)
+                # a club that did not exist that month returns a shell page
+                if parsed.get("goals_met") is None and not parsed.get("goals"):
+                    continue
+                rows.append(row_for(club_id, name, program_year, month, year, parsed))
+
+    print(f"parsed rows={len(rows)} missing_files={missing}")
+    with open(C.p("data", "rows.json"), "w", encoding="utf-8") as fh:
+        json.dump(rows, fh)
+
+
+if __name__ == "__main__":
+    main()

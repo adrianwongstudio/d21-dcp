@@ -13,45 +13,21 @@ ceiling can drop below Distinguished long before the year ends.
 import os,sys,gzip,json,calendar,datetime,collections
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import parse as P
-
-DISTRICT="21"
-
-def _current_roster(S):
-    """Club numbers the district dashboard lists for the open program year."""
-    import csv,io,urllib.request
-    url=(f"https://dashboards.toastmasters.org/export.aspx?type=CSV"
-         f"&report=clubperformance~{DISTRICT}~~~{S}-{S+1}")
-    try:
-        raw=urllib.request.urlopen(urllib.request.Request(url,
-            headers={'User-Agent':'Mozilla/5.0 (D21 DCP report)'}),timeout=45).read().decode('utf-8-sig','replace')
-        ids={(r.get('Club Number') or '').strip() for r in csv.DictReader(io.StringIO(raw))}
-        ids={i for i in ids if i}
-        return ids if len(ids)>20 else None      # too few to be a real roster; don't filter on it
-    except Exception as e:
-        print(f"  roster unavailable ({e}); keeping every club in clubs.tsv")
-        return None
+import common as C
 
 
-_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-def _p(*a): return os.path.join(_ROOT,*a)
+_p = C.p
 LIVE=_p("data","live")
 
 # The club report prints 12 rows, but the DCP awards only 10 goals: the two
 # officer-training rows together earn one goal, and so do the two admin rows.
 # Counting achieved rows instead of goals overstates almost every club.
-TARGETS=[4,2,2,2,1,1,4,4,4,4,1,1]
-ROWNAMES=["Level 1 awards","Level 2 awards","More Level 2 awards","Level 3 awards",
- "Level 4, Path Completion or DTM","A second Level 4, PC or DTM","New members",
- "More new members","Officers trained Jun-Aug","Officers trained Nov-Feb",
- "Renewal dues on time","Officer list on time"]
-GOALS=[{"n":"Level 1 awards","r":[0]},{"n":"Level 2 awards","r":[1]},
- {"n":"More Level 2 awards","r":[2]},{"n":"Level 3 awards","r":[3]},
- {"n":"Level 4, Path Completion or DTM","r":[4]},{"n":"A second Level 4, PC or DTM","r":[5]},
- {"n":"New members","r":[6]},{"n":"More new members","r":[7]},
- {"n":"Club officers trained","r":[8,9]},{"n":"Dues & officer list on time","r":[10,11]}]
+TARGETS   = C.TARGETS
+ROWNAMES  = C.ROW_NAMES
+GOALS     = [{"n": n, "r": r} for n, r in zip(C.GOAL_NAMES, C.GOAL_ROWS)]
 MORD=[7,8,9,10,11,12,1,2,3,4,5,6]
 MN={7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec',1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun'}
-LEVELS=[(10,"Smedley"),(9,"President's"),(7,"Select"),(5,"Distinguished")]
+LEVELS=C.LEVELS
 
 def eom(y,m): return datetime.date(y,m,calendar.monthrange(y,m)[1])
 
@@ -95,7 +71,7 @@ def goal_states(vals,WIN,today,END):
 
 def main():
     today=datetime.date.today()
-    S=today.year if today.month>=7 else today.year-1
+    S=C.season_start(today)
     PY=f"{S}-{S+1}"; END=datetime.date(S+1,6,30)
     days_left=(END-today).days
     WIN=windows(S)
@@ -106,7 +82,7 @@ def main():
     # clubs.tsv spans every year we hold history for, so it includes clubs that have
     # since closed or left. Their pages still resolve with stale alignment, which would
     # put them in the in-year view. The district's own roster is what counts today.
-    roster=_current_roster(S)
+    roster=C.roster()
     if roster:
         before=len(clubs)
         clubs=[c for c in clubs if c[0].zfill(8) in roster]
@@ -190,7 +166,7 @@ def main():
       "targets":TARGETS,"rows":ROWNAMES,
       "goals":[g['n'] for g in GOALS],"clubs":out,"agg":agg,
       "generated":datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
-      "source":"dashboards.toastmasters.org - District 21"}
+      "source":f"dashboards.toastmasters.org - {C.DISTRICT_NAME}","district":C.DISTRICT_NAME}
     p=_p('docs','live.json')
     json.dump(doc,open(p,'w'),separators=(',',':'))
     print(f"wrote {p}  {os.path.getsize(p)/1024:.0f} KB")

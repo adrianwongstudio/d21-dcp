@@ -1,7 +1,8 @@
 import json,collections
-import os as _os
-_ROOT=_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-def _p(*a): return _os.path.join(_ROOT,*a)
+import os as _os, sys as _sys
+_sys.path.insert(0,_os.path.dirname(_os.path.abspath(__file__)))
+import common as C
+_p = C.p
 
 from openpyxl import Workbook
 from openpyxl.styles import Font,PatternFill,Alignment
@@ -12,7 +13,7 @@ GOALS=["Level 1 awards","Level 2 awards","More Level 2 awards","Level 3 awards",
 "New members","More new members","Club officer roles trained June-August",
 "Club officer roles trained November-February","Membership-renewal dues on time",
 "Club officer list on time"]
-PYS=["2021-2022","2022-2023","2023-2024","2024-2025","2025-2026"]
+PYS=C.program_years()
 COLS=['Club No','Club Name','Division','Area','Program Year','Month','Month End','As Of',
       'DCP Status','Club Success Plan','Membership Base','Membership To Date','Net Growth',
       'DCP Goals Met']+GOALS
@@ -93,7 +94,7 @@ for title,data,note in [("Improving Clubs",imp,"Finished a year under 5 DCP poin
 
 # ---- Action List (most recent transition) ----
 LA,LB=PYS[-2],PYS[-1]
-w=wb.create_sheet("Action List 2025-2026")
+w=wb.create_sheet(f"Action List {PYS[-1]}")
 ah=['Priority','Club No','Club Name','Division','Area',f'{LA} DCP',f'{LB} DCP','Change',
     f'{LB} Status',f'{LA} Members',f'{LB} Members']
 w.append(ah)
@@ -112,8 +113,8 @@ for row in w.iter_rows(min_row=2,max_row=w.max_row,max_col=len(ah)):
 
 # ---- README ----
 w=wb.create_sheet("README",0)
-info=[["District 21 — Club DCP Report"],[],
- ["Source","https://dashboards.toastmasters.org (ClubReport.aspx, District 21)"],
+info=[[f"{C.DISTRICT_NAME} — Club DCP Report"],[],
+ ["Source",f"https://dashboards.toastmasters.org (ClubReport.aspx, {C.DISTRICT_NAME})"],
  ["Coverage",f"{len(names)} clubs x 60 month-ends ({PYS[0]} through {PYS[-1]})"],
  ["Rows in Monthly Data",len(rows)],
  ["Granularity","One row per club per month-end. Values are cumulative 'To Date' as of that month."],
@@ -125,14 +126,14 @@ info=[["District 21 — Club DCP Report"],[],
  ["Year-End Summary","Final (June 30) DCP score and status per club per year."],
  ["Improving Clubs","<5 DCP points, then improved the following year."],
  ["Declining Clubs",">5 DCP points, then declined the following year."],
- ["Action List 2025-2026","The most recent year's transitions only — the shortlist to act on now."]]
+ [f"Action List {PYS[-1]}","The most recent year's transitions only — the shortlist to act on now."]]
 for r in info: w.append(r)
 w['A1'].font=Font(bold=True,size=15); w.column_dimensions['A'].width=24; w.column_dimensions['B'].width=105
 for c in ['A3','A4','A5','A6','A7','A8','A9','A12','A13','A14','A15','A16']: w[c].font=Font(bold=True)
 w['A11'].font=Font(bold=True,size=12)
 for cell in ['B6','B7','B8','B12','B13','B14','B15','B16']: w[cell].alignment=Alignment(wrap_text=True)
 
-wb.save(_p("output","District21_DCP_Report.xlsx"))
+wb.save(_p("output",C.OUTPUT.get("report_xlsx","DCP_Report.xlsx")))
 print(f"rows={len(rows)} improving={len(imp)} declining={len(dec)}")
 
 import csv

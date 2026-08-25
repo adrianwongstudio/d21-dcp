@@ -6,10 +6,11 @@ still honours ?month=, so we can pull the in-year trajectory as well as today.
 
 Past months are cached permanently; the live month is refetched when stale.
 """
-import os,gzip,calendar,threading,queue,time,datetime,urllib.request
+import os,sys,gzip,calendar,threading,queue,time,datetime,urllib.request
 
-_ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-def _p(*a): return os.path.join(_ROOT,*a)
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
+import common as C
+_p = C.p
 
 BASE="https://dashboards.toastmasters.org"
 LIVE=_p("data","live"); os.makedirs(LIVE,exist_ok=True)
@@ -55,7 +56,7 @@ def main():
     today=datetime.date.today()
     start=py_start(today); py=f"{start}-{start+1}"
     ms=months_so_far(start,today)
-    clubs=[l.rstrip('\n').split('\t') for l in open(_p('scripts','clubs.tsv')) if l.strip()]
+    clubs=[list(t) for t in C.load_clubs()]
     clubs=[n.zfill(8) for n,_ in clubs]
     jobs=[(c,m,y,o) for c in clubs for (m,y,o) in ms]
     print(f"program year {py}  clubs={len(clubs)}  months={len(ms)}  jobs={len(jobs)}",flush=True)
