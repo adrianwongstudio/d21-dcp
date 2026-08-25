@@ -814,6 +814,117 @@ function assetUrl(name){
   return (window.__ASSETS__ && window.__ASSETS__[name]) || name;
 }
 
+
+/* ---------- contact ---------- */
+/* This is a static site with no server of its own, so there are two ways to
+   deliver a message. If site.contact_endpoint is set in config.json - a form
+   service or a small Worker - the form POSTs there and the sender never leaves
+   the page. While it is blank the form hands the message to the sender's own
+   mail client instead, which needs no account and no key.
+
+   The spam check is an arithmetic question plus a hidden field no person can
+   see. That stops naive bots; it is not a verified captcha, which needs a
+   server to check the token. */
+const CONTACT={a:0,b:0};
+
+function contactCfg(){
+  const s=(S.d&&S.d.site)||{};
+  return {to:s.contact_email||'', tag:s.contact_tag||'', endpoint:s.contact_endpoint||''};
+}
+function newSum(){
+  CONTACT.a=2+Math.floor(Math.random()*8);
+  CONTACT.b=2+Math.floor(Math.random()*8);
+  const l=$('cfSumLabel');
+  if(l) l.textContent=`Spam check — what is ${CONTACT.a} + ${CONTACT.b}?`;
+  const f=$('cfSum'); if(f){f.value='';f.removeAttribute('aria-invalid');}
+}
+function setMsg(text,kind){
+  const m=$('cfMsg'); if(!m) return;
+  m.textContent=text||'';
+  if(kind) m.setAttribute('data-t',kind); else m.removeAttribute('data-t');
+}
+let contactReturnFocus=null;
+
+function openContact(){
+  contactReturnFocus=document.activeElement;
+  newSum(); setMsg('');
+  const cfg=contactCfg(), to=$('cfTo');
+  if(to) to.textContent=cfg.to?`Goes to ${cfg.to}`:'';
+  $('contactVeil').hidden=false; $('contactModal').hidden=false;
+  $('cfName').focus();
+}
+function closeContact(){
+  $('contactVeil').hidden=true; $('contactModal').hidden=true;
+  if(contactReturnFocus&&contactReturnFocus.focus) contactReturnFocus.focus();
+}
+
+function validateContact(){
+  const need=[['cfName','a name'],['cfEmail','an email address'],
+              ['cfSubject','a subject'],['cfBody','a message']];
+  for(const [id,what] of need){
+    const el=$(id);
+    if(!el.value.trim()){el.setAttribute('aria-invalid','true');el.focus();
+      return `Please add ${what}.`;}
+    el.removeAttribute('aria-invalid');
+  }
+  const em=$('cfEmail');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em.value.trim())){
+    em.setAttribute('aria-invalid','true');em.focus();
+    return 'That email address does not look right.';
+  }
+  if($('cfHoney').value) return 'Sorry — that looked automated.';
+  const sum=$('cfSum');
+  if(parseInt(sum.value,10)!==CONTACT.a+CONTACT.b){
+    sum.setAttribute('aria-invalid','true');sum.focus();
+    newSum();
+    return 'That sum was not right — here is another.';
+  }
+  return null;
+}
+
+async function submitContact(e){
+  e.preventDefault();
+  const err=validateContact();
+  if(err) return setMsg(err,'err');
+
+  const cfg=contactCfg();
+  const subject=(cfg.tag?cfg.tag+' — ':'')+$('cfSubject').value.trim();
+  const payload={name:$('cfName').value.trim(), email:$('cfEmail').value.trim(),
+                 subject, message:$('cfBody').value.trim(), to:cfg.to};
+
+  if(cfg.endpoint){
+    setMsg('Sending…');
+    $('cfSend').disabled=true;
+    try{
+      const r=await fetch(cfg.endpoint,{method:'POST',
+        headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      if(!r.ok) throw new Error('the server replied '+r.status);
+      $('contactForm').reset(); newSum();
+      setMsg('Sent. Thank you — you will get a reply by email.','ok');
+    }catch(ex){
+      setMsg('Could not send ('+ex.message+'). Please try again, or email '+cfg.to+' directly.','err');
+    }finally{ $('cfSend').disabled=false; }
+    return;
+  }
+
+  // no endpoint configured: hand off to the sender's mail client
+  const body=`${payload.message}\n\n— ${payload.name} (${payload.email})`;
+  window.location.href=`mailto:${encodeURIComponent(cfg.to)}`+
+    `?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  setMsg('Opening your mail app with the message ready to send.','ok');
+}
+
+function wireContact(){
+  const btn=$('contactbtn'); if(!btn) return;
+  btn.onclick=openContact;
+  $('contactClose').onclick=closeContact;
+  $('contactVeil').onclick=closeContact;
+  $('contactForm').onsubmit=submitContact;
+  addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&!$('contactModal').hidden) closeContact();
+  });
+}
+
 /* ---------- boot ---------- */
 fetch(assetUrl('live.json')).then(r=>r.ok?r.json():Promise.reject(new Error(r.status))).then(L=>{
   S.l=L;
@@ -833,6 +944,7 @@ fetch(assetUrl('live.json')).then(r=>r.ok?r.json():Promise.reject(new Error(r.st
 fetch(assetUrl('data.json')).then(r=>r.json()).then(d=>{
   S.d=d;S.year=d.years[d.years.length-1];
   applySiteConfig(d);
+  wireContact();
   const pairs=d.years.slice(1).map((y,i)=>[d.years[i],y]);
   S.mv=pairs[pairs.length-1].join('|');
   $('mvyear').innerHTML=pairs.map(([a,b])=>

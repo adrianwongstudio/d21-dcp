@@ -221,6 +221,26 @@ label, use `ink()` or an `-ink` token, then re-run the contrast audit: walk the
 text elements, compare computed colour against the nearest painted background,
 and require 4.5:1 (3:1 for large text). Both themes should report zero failures.
 
+## Contact form
+
+The site is static, so it has no way to send mail on its own. The form's
+behaviour follows `site.contact_endpoint` in config.json:
+
+- **blank** (today) — the message is handed to the sender's own mail client
+  via `mailto:`, addressed to `site.contact_email` with the subject prefixed
+  by `site.contact_tag`. No account, no key, works immediately.
+- **set** — the form POSTs JSON `{name,email,subject,message,to}` to that URL
+  and the sender never leaves the page. Point it at a form service or a small
+  Worker; no code changes are needed.
+
+The spam check is arithmetic plus a hidden field no person can see. That stops
+naive bots. It is **not** a verified captcha — Turnstile or reCAPTCHA need a
+server to check the token, which this site does not have. Wiring an endpoint is
+what makes real verification possible.
+
+Note that `mailto:` puts the address in the page for scrapers to find. An
+endpoint keeps it server-side.
+
 ## Gotchas
 
 - **Verify against a known club before trusting a run.** District 21 used club

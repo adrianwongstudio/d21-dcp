@@ -47,7 +47,14 @@ a{color:inherit}
 .mastlinks{display:flex;gap:20px;font-size:13px;font-weight:600}
 .mastlinks a{color:var(--ink2);text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px}
 .mastlinks a:hover,.mastlinks a:focus-visible{color:var(--maroon);border-bottom-color:var(--maroon)}
-.mastright{display:flex;align-items:center;gap:18px;margin-left:auto}
+.mastright{display:flex;align-items:center;gap:18px;margin-left:auto;flex-wrap:wrap;min-width:0}
+@media (max-width:620px){
+  /* the nav, Contact and the toggle together outrun a phone's width, so the
+     group wraps under the brand rather than pushing the page sideways */
+  .mastright{gap:10px 14px;margin-left:0;width:100%}
+  .mastlinks{gap:14px;flex-wrap:wrap;min-width:0}
+  .contactbtn{padding:8px 13px}
+}
 .themetoggle{display:grid;place-items:center;width:36px;height:36px;flex:none;cursor:pointer;
   border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink2);
   transition:color .15s,border-color .15s,background .15s}
@@ -217,7 +224,12 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
 .dyr[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .dyr.now[aria-pressed="true"]{background:var(--maroon);border-color:var(--maroon);color:#fff}
 .dyr.now{color:var(--maroon);border-color:color-mix(in srgb,var(--maroon) 45%,transparent)}
-.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;padding:20px 24px 0}
+.dgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:20px 24px 0}
+/* Eight cards. auto-fit lands on seven at most desktop widths and orphans the
+   eighth on a row of its own, so the count is fixed to factors of eight — the
+   row is always full, never one card trailing. */
+@media (min-width:700px){.dgrid{grid-template-columns:repeat(4,1fr)}}
+@media (min-width:1500px){.dgrid{grid-template-columns:repeat(8,1fr)}}
 .dcard{background:var(--sunk);border-radius:11px;padding:13px 15px}
 .dcard .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
 .dcard .v{font-family:Fraunces,serif;font-size:26px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
@@ -358,3 +370,35 @@ th[data-k][aria-sort]{color:var(--maroon)}
      surface you have deliberately opened. It scrolls, so the extra height fits. */
   .detail > *{zoom:1.4}
 }
+
+/* ---------- contact ---------- */
+.contactbtn{font:600 13px/1 "Public Sans",sans-serif;padding:9px 15px;border-radius:999px;
+  cursor:pointer;background:transparent;color:var(--ink2);border:1px solid var(--line);
+  white-space:nowrap;transition:color .15s,border-color .15s,background .15s}
+.contactbtn:hover,.contactbtn:focus-visible{color:var(--maroon);border-color:var(--maroon)}
+
+.modalveil{position:fixed;inset:0;background:rgba(0,20,32,.55);z-index:60;backdrop-filter:blur(2px)}
+.modal{position:fixed;z-index:61;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(560px,calc(100vw - 32px));max-height:88vh;overflow-y:auto;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  box-shadow:0 24px 60px rgba(0,20,32,.35)}
+.modalhead{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:20px 22px 0}
+.modalhead h3{font-size:23px;letter-spacing:-.015em}
+#contactForm{padding:16px 22px 22px;display:flex;flex-direction:column;gap:13px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld span{font:700 10.5px/1 "Public Sans",sans-serif;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted)}
+.fld input,.fld textarea{font:400 14.5px/1.45 "Public Sans",sans-serif;padding:10px 12px;
+  border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink);
+  width:100%;resize:vertical}
+.fld input:focus,.fld textarea:focus{outline:2px solid var(--maroon);outline-offset:1px;
+  border-color:var(--maroon)}
+.fld input[aria-invalid="true"],.fld textarea[aria-invalid="true"]{border-color:var(--red)}
+.fldhint{font-size:12px;color:var(--muted);margin:-4px 0 0}
+.honey{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.formfoot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:4px}
+.formmsg{font-size:13px;margin:0;min-height:1.2em}
+.formmsg[data-t="err"]{color:var(--red-ink)}
+.formmsg[data-t="ok"]{color:var(--green-ink)}
+@media (max-width:560px){.modal{width:calc(100vw - 20px)}}

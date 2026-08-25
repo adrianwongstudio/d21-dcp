@@ -10,12 +10,12 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=318371e680">
+<link rel="stylesheet" href="styles.css?v=6d12ffa5e0">
 <!-- Without these the fetches inside app.js cannot start until the script has
      downloaded and run. Preloading lets the data travel alongside it. -->
-<link rel="preload" href="data.json?v=18e40fd58f" as="fetch" type="application/json" crossorigin>
+<link rel="preload" href="data.json?v=f0eaa76e3a" as="fetch" type="application/json" crossorigin>
 <link rel="preload" href="live.json?v=392c5df496" as="fetch" type="application/json" crossorigin>
-<script>window.__ASSETS__={"styles.css":"styles.css?v=318371e680","app.js":"app.js?v=274a9c8d24","data.json":"data.json?v=18e40fd58f","live.json":"live.json?v=392c5df496"};</script>
+<script>window.__ASSETS__={"styles.css":"styles.css?v=6d12ffa5e0","app.js":"app.js?v=e7d493b5f5","data.json":"data.json?v=f0eaa76e3a","live.json":"live.json?v=392c5df496"};</script>
 </head>
 <body>
 
@@ -33,6 +33,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
       <a href="#inyear">In&#8209;year</a><a href="#board">Board</a><a href="#movement">Movement</a><a href="#clubs">Clubs</a>
       <a id="sheet1" href="https://docs.google.com/spreadsheets/d/17Mz3T2skAokBOqEmiFIVnL2EV9Z5TNYI/edit?usp=sharing&amp;rtpof=true&amp;sd=true" rel="noopener">Data</a>
     </nav>
+    <button class="contactbtn" id="contactbtn" type="button">Contact</button>
     <button class="themetoggle" id="themetoggle" type="button" aria-label="Switch to dark theme">
       <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/>
@@ -282,6 +283,38 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
   <div class="goalwrap"><div id="dgoals"></div></div>
 </div>
 
+
+<div class="modalveil" id="contactVeil" hidden></div>
+<div class="modal" id="contactModal" role="dialog" aria-modal="true"
+     aria-labelledby="contactTitle" hidden>
+  <div class="modalhead">
+    <h3 id="contactTitle">Contact</h3>
+    <button class="dclose" id="contactClose" type="button" aria-label="Close">&times;</button>
+  </div>
+  <form id="contactForm" novalidate>
+    <label class="fld"><span>Name</span>
+      <input type="text" id="cfName" name="name" autocomplete="name" required></label>
+    <label class="fld"><span>Email</span>
+      <input type="email" id="cfEmail" name="email" autocomplete="email" required></label>
+    <label class="fld"><span>Subject</span>
+      <input type="text" id="cfSubject" name="subject" required></label>
+    <label class="fld"><span>Message</span>
+      <textarea id="cfBody" name="body" rows="6" required></textarea></label>
+    <label class="fld"><span id="cfSumLabel">Spam check</span>
+      <input type="text" id="cfSum" inputmode="numeric" autocomplete="off" required
+             aria-describedby="cfSumHint"></label>
+    <p class="fldhint" id="cfSumHint">A quick sum, to keep robots out.</p>
+    <!-- a field no person sees; anything that fills it is automated -->
+    <input type="text" id="cfHoney" name="website" tabindex="-1" autocomplete="off"
+           aria-hidden="true" class="honey">
+    <p class="formmsg" id="cfMsg" role="status" aria-live="polite"></p>
+    <div class="formfoot">
+      <button type="submit" class="dxbtn" id="cfSend">Send</button>
+      <span class="fldhint" id="cfTo"></span>
+    </div>
+  </form>
+</div>
+
 <footer class="foot"><div class="wrap">
   <div>Built from <a href="https://dashboards.toastmasters.org/District.aspx?id=21" id="footDash">dashboards.toastmasters.org</a>,
   <span id="footSource">District 21</span> club reports. Figures are year-end (30 June).</div>
@@ -289,6 +322,6 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
   <a href="https://github.com/adrianwongstudio/d21-dcp" id="footRepo">Source</a></div>
 </div></footer>
 
-<script src="app.js?v=274a9c8d24" defer></script>
+<script src="app.js?v=e7d493b5f5" defer></script>
 </body>
 </html>

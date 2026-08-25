@@ -11,7 +11,10 @@
     "description": "Five years of Distinguished Club Program results for every club in Toastmasters District 21.",
     "eyebrow": "Toastmasters District 21 · Distinguished Club Program",
     "spreadsheet_url": "https://docs.google.com/spreadsheets/d/17Mz3T2skAokBOqEmiFIVnL2EV9Z5TNYI/edit?usp=sharing&rtpof=true&sd=true",
-    "repo_url": "https://github.com/adrianwongstudio/d21-dcp"
+    "repo_url": "https://github.com/adrianwongstudio/d21-dcp",
+    "contact_email": "adrian@akwongmade.com",
+    "contact_tag": "DCP-Dashboard",
+    "contact_endpoint": ""
   },
   "output": {
     "report_xlsx": "District21_DCP_Report.xlsx",
