@@ -249,13 +249,23 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
 
 /* ---------- in-year / live ---------- */
 .live{padding-block:46px;border-top:1px solid var(--line);margin-top:8px}
-.liveband{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap;margin-bottom:26px}
-.clock{display:flex;align-items:baseline;gap:14px}
-.clockn{font-family:Fraunces,serif;font-size:66px;font-weight:600;line-height:.86;
-  letter-spacing:-.035em;color:var(--maroon);font-variant-numeric:tabular-nums}
-.clockl{font-size:13.5px;color:var(--ink2);max-width:20ch;line-height:1.4}
-.clockl b{color:var(--ink);display:block}
-.asof{margin-left:auto;font:400 11.5px/1.6 "IBM Plex Mono",monospace;color:var(--muted);text-align:right}
+.liveband{display:flex;align-items:center;justify-content:space-between;gap:26px 34px;
+  flex-wrap:wrap;margin-bottom:26px;padding:18px 22px;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.clock{display:flex;align-items:center;gap:16px;min-width:0}
+.clockn{font-family:Fraunces,Georgia,serif;font-size:54px;font-weight:600;line-height:1;
+  letter-spacing:-.035em;color:var(--maroon);font-variant-numeric:tabular-nums;flex:none}
+.clockl{font-size:13.5px;color:var(--ink2);max-width:34ch;line-height:1.4}
+.clockl b{color:var(--ink);display:block;font-size:14.5px;margin-bottom:1px}
+.asof{font:400 11.5px/1.7 "IBM Plex Mono",monospace;color:var(--muted);text-align:right;
+  padding-left:20px;border-left:1px solid var(--line);flex:none}
+.asof b{display:block;color:var(--ink2);font-weight:500}
+@media (max-width:700px){
+  .liveband{padding:16px 18px}
+  .clockn{font-size:44px}
+  .asof{text-align:left;padding-left:0;border-left:none;
+    padding-top:14px;border-top:1px solid var(--line);width:100%}
+}
 .livegrid{display:grid;grid-template-columns:1.02fr .98fr;gap:22px;align-items:start}
 @media (max-width:940px){.livegrid{grid-template-columns:1fr}}
 
