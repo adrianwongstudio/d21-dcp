@@ -162,6 +162,56 @@ def club_report_url(club_id, program_year, month=None, year=None, live=False):
     return url
 
 
+def roster_with_names(program_year=None):
+    """{club number: club name} from the district export for a program year."""
+    py = program_year or current_program_year()
+    closed = py != current_program_year()
+    stem = f"{BASE}/{py}/export.aspx" if closed else f"{BASE}/export.aspx"
+    raw = get(f"{stem}?type=CSV&report=clubperformance~{DISTRICT}~~~{py}")
+    if not raw:
+        return None
+    out = {}
+    for row in csv.DictReader(io.StringIO(raw.lstrip("\ufeff"))):
+        num = (row.get("Club Number") or "").strip()
+        if num:
+            out[num] = (row.get("Club Name") or "").strip() or f"Club {num}"
+    return out or None
+
+
+def sync_clubs_tsv(found):
+    """Append clubs the district lists that clubs.tsv has never seen.
+
+    New clubs charter mid-year. They appear in the district roster straight
+    away, but the scrapers work from clubs.tsv, so without this a new club is
+    invisible until someone edits the file by hand.
+    """
+    if not found:
+        return []
+    have = {cid for cid, _ in load_clubs()}
+    added = [(n.zfill(8), nm) for n, nm in sorted(found.items()) if n.zfill(8) not in have]
+    if added:
+        with open(p("scripts", "clubs.tsv"), "a", encoding="utf-8") as fh:
+            for num, name in added:
+                fh.write(f"{num}\t{name}\n")
+    return added
+
+
+def live_club_list():
+    """Clubs to pull for the open year: the district's roster, plus anything
+    clubs.tsv knows that the roster call could not confirm.
+
+    Roster first so a brand-new club is picked up the same day it charters;
+    clubs.tsv as the fallback so a failed fetch does not empty the run.
+    """
+    found = roster_with_names()
+    if not found:
+        print("  roster unavailable; falling back to clubs.tsv")
+        return load_clubs(), []
+    added = sync_clubs_tsv(found)
+    return [(n.zfill(8), nm) for n, nm in sorted(found.items(),
+            key=lambda kv: kv[1].lower())], added
+
+
 def roster(program_year=None):
     """Club numbers the district lists for a program year.
 
@@ -190,5 +240,6 @@ __all__ = [
     "stamp", "program_years", "season_start",
     "current_program_year", "months_of", "last_day", "TARGETS", "ROW_NAMES",
     "GOAL_ROWS", "GOAL_NAMES", "LEVELS", "load_clubs", "BASE", "get",
-    "club_report_url", "roster",
+    "club_report_url", "roster", "roster_with_names", "sync_clubs_tsv",
+    "live_club_list",
 ]

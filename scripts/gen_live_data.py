@@ -78,7 +78,7 @@ def main():
     elapsed=[(m,S if m>=7 else S+1) for m in MORD
              if (S if m>=7 else S+1,m)<=(today.year,today.month)]
 
-    clubs=[l.rstrip('\n').split('\t') for l in open(_p('scripts','clubs.tsv')) if l.strip()]
+    clubs=[list(t) for t in C.load_clubs()]
     # clubs.tsv spans every year we hold history for, so it includes clubs that have
     # since closed or left. Their pages still resolve with stale alignment, which would
     # put them in the in-year view. The district's own roster is what counts today.

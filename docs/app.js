@@ -205,6 +205,27 @@ function fmtDay(iso){
 // Rows 9+10 earn one goal, and so do rows 11+12, so ten goals cover twelve rows.
 const GOALROWS=[[0],[1],[2],[3],[4],[5],[6],[7],[8,9],[10,11]];
 
+
+/* The drawer can move between years without closing. A club's division and
+   area belong to the year in view, so switching years reprints the header —
+   which is the point: the same club sits in different areas across years. */
+function renderYearPicker(clubNo, active){
+  const box=$('dyears'); if(!box) return;
+  const club=S.d?S.d.clubs.find(c=>c.n===clubNo):null;
+  const live=S.l?S.l.clubs.find(c=>c.n===clubNo):null;
+  const years=club?(S.d.years||[]).filter(y=>club.y[y]):[];
+  if(!years.length && !live){box.innerHTML='';return;}
+  const btn=(label,val,isNow,on)=>
+    `<button class="dyr${isNow?' now':''}" data-y="${esc(val)}" aria-pressed="${on}">${esc(label)}</button>`;
+  box.innerHTML=years.map(y=>btn(shortYr(y),y,false,y===active)).join('')
+    + (live?btn((S.l.py?shortYr(S.l.py):'now')+' · in progress','__live',true,active==='__live'):'');
+  box.querySelectorAll('.dyr').forEach(b=>b.onclick=()=>{
+    if(b.dataset.y==='__live') return openLiveDetail(clubNo);
+    const i=S.d.clubs.findIndex(c=>c.n===clubNo);
+    if(i>=0) openDetail(i,b.dataset.y);
+  });
+}
+
 function openLiveDetail(n){
   const L=S.l, c=L.clubs.find(x=>x.n===n); if(!c) return;
   const net=c.ng, memcol=c.memok?'var(--green)':'var(--red)';
@@ -240,13 +261,15 @@ function openLiveDetail(n){
       <span class="gtick" data-m="${st==='m'?1:st}">${icon}</span>
       <span class="gname">${esc(g)}<span class="gsub">${detail}</span></span>${when}</div>`;
   }).join('');
+  renderYearPicker(c.n,'__live');
   $('ddl').style.display='none';           // per-club export is a finished-year feature
   $('detail').classList.add('open');$('dclose').focus();
 }
 
-function openDetail(i){
-  const c=S.d.clubs[i],Y=S.d.years,y=c.y[S.year]||c.y[Y.filter(k=>c.y[k]).pop()]||{};
-  const yr=c.y[S.year]?S.year:(Y.filter(k=>c.y[k]).pop()||S.year);
+function openDetail(i,want){
+  const c=S.d.clubs[i],Y=S.d.years;
+  const yr=(want&&c.y[want])?want:(c.y[S.year]?S.year:(Y.filter(k=>c.y[k]).pop()||S.year));
+  const y=c.y[yr]||{};
   $('dname').textContent=c.m;
   const now=S.l?S.l.clubs.find(x=>x.n===c.n):null;
   const yd=y.d||c.d, ya=y.a||c.a;
@@ -271,6 +294,7 @@ function openDetail(i){
       <span class="gname">${esc(g)}</span><span class="num">${v??'—'}<span
         style="color:var(--muted)"> / ${TARGETS[j]}</span></span></div>`;}).join('')
     :'<p style="color:var(--muted);font-size:13.5px">No goal detail for this year.</p>';
+  renderYearPicker(c.n,yr);
   $('ddl').style.display='';
   $('ddl').onclick=()=>saveBlob(clubXlsx(c),
     `${c.m.replace(/[^A-Za-z0-9]+/g,'_').replace(/^_|_$/g,'')}_DCP.xlsx`,

@@ -56,8 +56,10 @@ def main():
     today=datetime.date.today()
     start=py_start(today); py=f"{start}-{start+1}"
     ms=months_so_far(start,today)
-    clubs=[list(t) for t in C.load_clubs()]
-    clubs=[n.zfill(8) for n,_ in clubs]
+    roster_clubs,added=C.live_club_list()
+    if added:
+        print(f"  new clubs since last run: "+", ".join(f"{n} {nm}" for n,nm in added),flush=True)
+    clubs=[n for n,_ in roster_clubs]
     jobs=[(c,m,y,o) for c in clubs for (m,y,o) in ms]
     print(f"program year {py}  clubs={len(clubs)}  months={len(ms)}  jobs={len(jobs)}",flush=True)
     q=queue.Queue()

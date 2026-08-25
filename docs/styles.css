@@ -197,6 +197,14 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon);outline-of
 .dtop{padding:22px 24px 0}
 .dtop h3{font-size:26px;letter-spacing:-.015em;padding-right:150px}
 .dsub{font:400 12px/1 "IBM Plex Mono",monospace;color:var(--muted);margin-top:8px}
+.dyears{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.dyr{font:600 12px/1 "Public Sans",sans-serif;padding:7px 11px;border-radius:999px;cursor:pointer;
+  background:transparent;color:var(--ink2);border:1px solid var(--line);white-space:nowrap;
+  transition:background .15s,color .15s,border-color .15s}
+.dyr:hover{border-color:var(--maroon);color:var(--maroon)}
+.dyr[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.dyr.now[aria-pressed="true"]{background:var(--maroon);border-color:var(--maroon);color:#fff}
+.dyr.now{color:var(--maroon);border-color:color-mix(in srgb,var(--maroon) 45%,transparent)}
 .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;padding:20px 24px 0}
 .dcard{background:var(--sunk);border-radius:11px;padding:13px 15px}
 .dcard .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
