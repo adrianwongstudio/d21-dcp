@@ -15,7 +15,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
      downloaded and run. Preloading lets the data travel alongside it. -->
 <link rel="preload" href="data.json?v=18e40fd58f" as="fetch" type="application/json" crossorigin>
 <link rel="preload" href="live.json?v=392c5df496" as="fetch" type="application/json" crossorigin>
-<script>window.__ASSETS__={"styles.css":"styles.css?v=61c151d4bb","app.js":"app.js?v=911533730d","data.json":"data.json?v=18e40fd58f","live.json":"live.json?v=392c5df496"};</script>
+<script>window.__ASSETS__={"styles.css":"styles.css?v=61c151d4bb","app.js":"app.js?v=7badacb397","data.json":"data.json?v=18e40fd58f","live.json":"live.json?v=392c5df496"};</script>
 </head>
 <body>
 
@@ -81,7 +81,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
 <section class="wrap live" id="inyear">
   <div class="sechead" style="margin-bottom:26px">
-    <h2>The year in progress</h2>
+    <h2>The Year in Progress</h2>
     <p><b>Use this to act.</b> Everything further down is finished history; this is the open program year,
     <b id="lvPy"></b>, as the dashboard reports it today. A goal shown as unreachable cannot be recovered &mdash;
     the window it lived in has shut. Filter to a division, then start with the clubs missing a window that
@@ -100,14 +100,14 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
   <div class="livegrid">
     <div class="chartcard">
-      <h3>What shuts next</h3>
+      <h3>What Shuts Next</h3>
       <p class="cap">Most goals stay open until 30 June, but the officer-training and administrative windows close
       during the year. Each row is a door about to shut, and the count is how many clubs have not yet walked
       through it.</p>
       <div class="dl" id="lvDl"></div>
     </div>
     <div class="chartcard">
-      <h3>Where the district stands</h3>
+      <h3>Where the District Stands</h3>
       <p class="cap">Goals achieved so far this year, across all clubs. Five goals is Distinguished. Early in the
       year most clubs sit at zero &mdash; that is normal, and the ceiling matters more than the count.</p>
       <div class="bars" id="lvBars"></div>
@@ -124,7 +124,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
     club officer. <span id="lvXlsxMeta" class="cmeta" style="display:block;margin-top:4px"></span></p>
   </div>
 
-  <div class="sechead" style="margin:44px 0 0"><h2 style="font-size:24px">Club by club</h2>
+  <div class="sechead" style="margin:44px 0 0"><h2 style="font-size:24px">The Current Year</h2>
     <p>Ten squares per club, one per DCP goal. Filled means achieved, outlined means still reachable,
     struck through means the window has closed for good.</p></div>
   <div class="toolbar" style="margin-top:18px">
@@ -163,7 +163,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
 <section class="wrap board" id="board">
   <div class="sechead">
-    <h2>The finished years</h2>
+    <h2>The Finished Years</h2>
     <p><b>Use this to compare divisions and areas.</b> Every club's score at the close of a chosen year, nested
     under the division and area that supported it <em>in that year</em>, ranked worst-last within each area.
     Toastmasters realigns divisions and areas each July, so a club may sit somewhere else on today's dashboard
@@ -185,20 +185,20 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
 <section class="wrap sec" id="signals">
   <div class="sechead">
-    <h2>Where the goals are going missing</h2>
+    <h2>Where the Goals Are Going Missing</h2>
     <p><b>Use this to plan district-wide support.</b> Knowing <em>which</em> of the ten goals the district keeps
     failing is the difference between a pep talk and a plan &mdash; training and officer paperwork are fixed at
     district level, education awards are fixed club by club.</p>
   </div>
   <div class="charts">
     <div class="chartcard">
-      <h3>Goal completion across the district</h3>
+      <h3>Goal Completion Across the District</h3>
       <p class="cap">Share of clubs that met each goal in <b id="ggYear"></b>. Sorted worst first &mdash; the top of
       this list is where district support buys the most goals.</p>
       <div class="bars" id="goalgap"></div>
     </div>
     <div class="chartcard">
-      <h3>Five-year trajectory</h3>
+      <h3>Five-Year Trajectory</h3>
       <p class="cap">Clubs by year-end band. Green and red have both grown since 2021&ndash;22. The district is
       pulling apart, not lifting evenly &mdash; which is why the two lists below matter more than the average.</p>
       <div class="stack" id="trend"></div>
@@ -210,7 +210,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
       </div>
     </div>
     <div class="chartcard span2">
-      <h3>Division standings</h3>
+      <h3>Division Standings</h3>
       <p class="cap">Average year-end goals per club by division, <b id="dvYear"></b>. The marker shows where the
       division sat the year before &mdash; bars past it gained ground, bars short of it lost ground.</p>
       <div class="bars" id="divbars"></div>
@@ -220,7 +220,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
 <section class="wrap sec" id="movement">
   <div class="sechead">
-    <h2>Who climbed, and who slipped</h2>
+    <h2>Who Climbed, and Who Slipped</h2>
     <p><b>Use this to find who to call.</b> Which clubs were under five goals and pulled themselves up, and which
     were above five and fell back. The first group has something to teach; the second could use a hand.</p>
   </div>
@@ -244,7 +244,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
 <section class="wrap sec" id="clubs">
   <div class="sechead">
-    <h2>Every club, year by year</h2>
+    <h2>Every Club, Year by Year</h2>
     <p><b>Use this to look one club up.</b> Search by name or number for five years of year-end scores. The trace
     shows the shape of each club's run &mdash; steady, spiking or sliding. Select any row for its full goal detail.</p>
   </div>
@@ -289,6 +289,6 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
   <a href="https://github.com/adrianwongstudio/d21-dcp" id="footRepo">Source</a></div>
 </div></footer>
 
-<script src="app.js?v=911533730d" defer></script>
+<script src="app.js?v=7badacb397" defer></script>
 </body>
 </html>

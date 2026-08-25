@@ -820,7 +820,7 @@ fetch(assetUrl('live.json')).then(r=>r.ok?r.json():Promise.reject(new Error(r.st
   const hc=$('hClubs'); if(hc && L.clubs) hc.textContent=L.clubs.length;
 }).catch(e=>{
   $('inyear').innerHTML='<p style="color:var(--muted);padding:20px 0">The in-year view could not load '+
-    '(live.json: '+esc(e.message)+'). The finished years below are unaffected.</p>';
+    '(live.json: '+esc(e.message)+'). The Finished Years section below is unaffected.</p>';
 });
 
 fetch(assetUrl('data.json')).then(r=>r.json()).then(d=>{
