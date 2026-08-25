@@ -204,6 +204,23 @@ consecutive years: improving is `before < 5 and after > before`; declining is
 why it is the pivot. A club can appear on both lists in different years —
 that volatility is a finding, not a bug.
 
+## Colour
+
+Tokens live in `styles.css`, with a `:root[data-theme="dark"]` branch so an
+explicit choice beats the system setting.
+
+The signal colours are defined twice on purpose. `--green` / `--amber` /
+`--red` are **fills** — lamps, pips, bars — and stay vivid so the traffic-light
+reading holds. `--green-ink` / `--amber-ink` / `--red-ink` are the **text**
+tones, dark enough to clear 4.5:1 on a pale ground; amber measured 2.5:1 before
+they existed. In dark mode the pairs are identical.
+
+`ink()` in `app.js` maps a fill colour to its text counterpart, so anything
+written into a `color:` declaration goes through it. If you add a new coloured
+label, use `ink()` or an `-ink` token, then re-run the contrast audit: walk the
+text elements, compare computed colour against the nearest painted background,
+and require 4.5:1 (3:1 for large text). Both themes should report zero failures.
+
 ## Gotchas
 
 - **Verify against a known club before trusting a run.** District 21 used club

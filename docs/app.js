@@ -1,5 +1,12 @@
 const S={d:null,year:null,mv:null,lvSort:{k:'met',dir:-1},l:null};
 const $=id=>document.getElementById(id);
+/* The signal colours run as fills and as text. Fills stay vivid; text on a pale
+   ground needs a darker tone to clear 4.5:1, so anything set as a colour goes
+   through ink(). In dark mode the two are the same value. */
+const INK={'var(--green)':'var(--green-ink)','var(--amber)':'var(--amber-ink)',
+           'var(--red)':'var(--red-ink)'};
+const ink=v=>INK[v]||v;
+
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sig=v=>v==null?'x':v>=5?'g':v>=3?'a':'r';
 const shortYr=y=>y.slice(2,4)+'–'+y.slice(7,9);
@@ -16,7 +23,7 @@ function spark(vals){
   if(pts.length<2) return `<svg width="${w}" height="${h}" aria-hidden="true"></svg>`;
   const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
   const last=vals.filter(v=>v!=null).pop();
-  const c=sig(last)==='g'?'var(--green)':sig(last)==='a'?'var(--amber)':'var(--red)';
+  const c=ink(sig(last)==='g'?'var(--green)':sig(last)==='a'?'var(--amber)':'var(--red)');
   return `<svg width="${w}" height="${h}" aria-hidden="true" style="overflow:visible">
     <line x1="4" y1="${(h-3-(5/10)*(h-7)).toFixed(1)}" x2="${w-4}" y2="${(h-3-(5/10)*(h-7)).toFixed(1)}"
       stroke="var(--line)" stroke-width="1" stroke-dasharray="2 2"/>
@@ -78,7 +85,7 @@ function drawBoard(){
     }).join('');
     return `<section class="divblock"><div class="divhead">
         <span class="divname">Division ${esc(dv)}</span>
-        <span class="divstat">${cur.length} clubs · avg <span class="divavg" style="color:${acol}">${ca==null?'—':ca.toFixed(1)}</span>${trend==null?'':` <span style="color:${tcol}">${level?'level':(trend>0?'▲':'▼')+' '+Math.abs(trend).toFixed(1)}</span>`}</span>
+        <span class="divstat">${cur.length} clubs · avg <span class="divavg" style="color:${ink(acol)}">${ca==null?'—':ca.toFixed(1)}</span>${trend==null?'':` <span style="color:${tcol}">${level?'level':(trend>0?'▲':'▼')+' '+Math.abs(trend).toFixed(1)}</span>`}</span>
         <button class="scopedl" data-kind="Division" data-label="${esc(dv)}"
           title="Download Division ${esc(dv)} — current roster — as an Excel workbook"
           aria-label="Download Division ${esc(dv)} as an Excel workbook">
@@ -104,7 +111,7 @@ function drawBoard(){
   $('tally').innerHTML=[
     ['Distinguished or better',n.g,'var(--green)'],['Stalled at 3–4',n.a,'var(--amber)'],
     ['Under 3 goals',n.r,'var(--red)'],['Perfect 10',n.ten,'var(--ink)']
-  ].map(([l,v,c])=>`<div class="tallyitem"><div class="tallyn" style="color:${c}">${v}</div>
+  ].map(([l,v,c])=>`<div class="tallyitem"><div class="tallyn" style="color:${ink(c)}">${v}</div>
      <div class="tallyl">${l}</div></div>`).join('');
 }
 
@@ -145,7 +152,7 @@ function drawClubs(){
     const cells=Y.map(y=>{const f=(c.y[y]||{}).f;
       if(f==null) return '<td class="num" style="color:var(--muted)">—</td>';
       const col=sig(f)==='g'?'var(--green)':sig(f)==='a'?'var(--amber)':'var(--red)';
-      return `<td class="num" style="color:${col};font-weight:600">${f}</td>`;}).join('');
+      return `<td class="num" style="color:${ink(col)};font-weight:600">${f}</td>`;}).join('');
     const i=S.d.clubs.indexOf(c);
     return `<tr data-i="${i}" tabindex="0" role="button" style="cursor:pointer">
       <td class="cname">${esc(c.m)}<span class="cmeta">${esc(c.n)}</span></td>
@@ -173,7 +180,7 @@ function drawGoalGap(){
     const col=g.p>=60?'var(--green)':g.p>=35?'var(--amber)':'var(--red)';
     return `<div class="barrow"><div class="barlab">${esc(SHORT[g.j])}</div>
       <div class="bartrack"><div class="barfill" style="width:${g.p.toFixed(1)}%;background:${col}"></div></div>
-      <div class="barval" style="color:${col}">${Math.round(g.p)}%</div></div>`;}).join('');
+      <div class="barval" style="color:${ink(col)}">${Math.round(g.p)}%</div></div>`;}).join('');
 }
 function drawTrend(){
   const Y=S.d.years;
@@ -203,8 +210,8 @@ function drawDivisions(){
     return `<div class="barrow"><div class="barlab"><b>Division ${esc(r.d)}</b>
         <span style="color:var(--muted)">· ${r.n} clubs</span></div>
       <div class="bartrack" style="height:20px"><div class="barfill" style="width:${w.toFixed(1)}%;background:${col}"></div>${gh}</div>
-      <div class="barval" style="color:${col}">${r.cur.toFixed(1)}${dir==null?'':
-        `<span style="color:${dir>=0?'var(--green)':'var(--red)'};font-size:11px"> ${dir>=0?'▲':'▼'}</span>`}</div></div>`;
+      <div class="barval" style="color:${ink(col)}">${r.cur.toFixed(1)}${dir==null?'':
+        `<span style="color:${ink(dir>=0?'var(--green)':'var(--red)')};font-size:11px"> ${dir>=0?'▲':'▼'}</span>`}</div></div>`;
   }).join('');
 }
 
@@ -245,7 +252,7 @@ function openLiveDetail(n){
   $('dsub').innerHTML=`${esc(c.n)} · Division ${esc(c.d)} / Area ${esc(c.a)} · `+
     `<b style="color:var(--maroon)">${esc(L.py)} in progress</b> · as of ${esc(L.asof||'')}`;
   const card=(k,v,col,extra)=>`<div class="dcard"><div class="k">${k}</div>`+
-    (extra?`<div style="margin-top:9px">${v}</div>`:`<div class="v" style="color:${col||'var(--ink)'}">${v}</div>`)+`</div>`;
+    (extra?`<div style="margin-top:9px">${v}</div>`:`<div class="v" style="color:${ink(col)||'var(--ink)'}">${v}</div>`)+`</div>`;
   $('dgrid').innerHTML=
      card('Goals met so far',`${c.met}<span style="font-size:15px;color:var(--muted)">/10</span>`,
           c.met>=5?'var(--green)':c.met>=3?'var(--amber)':'var(--red)')
@@ -266,8 +273,8 @@ function openLiveDetail(n){
       const v=c.v[r], t=(L.targets||TARGETS)[r], n=v==null?'—':v;
       return rows.length>1?`${esc(L.rows[r])} ${n} / ${t}`:`${n} of ${t}`;
     }).join('  ·  ');
-    const when=st==='m'?'<span class="gwhen" style="color:var(--green)">done</span>'
-      :st==='d'?`<span class="gwhen" style="color:var(--red)">closed ${esc(fmtDay(c.why[j]))}</span>`
+    const when=st==='m'?'<span class="gwhen" style="color:var(--green-ink)">done</span>'
+      :st==='d'?`<span class="gwhen" style="color:var(--red-ink)">closed ${esc(fmtDay(c.why[j]))}</span>`
       :`<span class="gwhen">by ${esc(fmtDay(c.why[j]))}</span>`;
     return `<div class="goalrow${st==='d'?' shut':''}">
       <span class="gtick" data-m="${st==='m'?1:st}">${icon}</span>
@@ -294,7 +301,7 @@ function openDetail(i,want){
     ['Goals met',y.f??'—',y.f==null?'var(--muted)':sig(y.f)==='g'?'var(--green)':sig(y.f)==='a'?'var(--amber)':'var(--red)'],
     ['Members',y.md??'—','var(--ink)'],['Membership base',y.mb??'—','var(--ink)'],
     ['Net growth',net==null?'—':(net>0?'+':'')+net,net==null?'var(--muted)':net>0?'var(--green)':net<0?'var(--red)':'var(--ink)'],
-  ].map(([k,v,col])=>`<div class="dcard"><div class="k">${k}</div><div class="v" style="color:${col}">${v}</div></div>`).join('')
+  ].map(([k,v,col])=>`<div class="dcard"><div class="k">${k}</div><div class="v" style="color:${ink(col)}">${v}</div></div>`).join('')
    +`<div class="dcard"><div class="k">Status</div><div style="margin-top:8px">${badge(y.st)}</div></div>`
    +`<div class="dcard"><div class="k">Club Success Plan</div><div style="margin-top:9px">${
        y.csp?cspMark(y.csp,true)
@@ -336,7 +343,7 @@ function drawLive(){
     ['No longer able to',a.dist_out,a.dist_out?'var(--red)':'var(--muted)'],
     ['Average goals met',a.avg_met.toFixed(2),'var(--ink)'],
     ['Meet the membership rule',a.memok+'/'+a.clubs,'var(--ink)']
-  ].map(([k,v,c])=>`<div class="tallyitem"><div class="tallyn" style="color:${c}">${v}</div>
+  ].map(([k,v,c])=>`<div class="tallyitem"><div class="tallyn" style="color:${ink(c)}">${v}</div>
     <div class="tallyl">${k}</div></div>`).join('');
 
   $('lvDl').innerHTML=(a.close||[]).map(c=>{
@@ -356,7 +363,7 @@ function drawLive(){
     const col=k>=5?'var(--green)':k>=3?'var(--amber)':'var(--red)';
     return `<div class="barrow"><div class="barlab">${k} goal${k===1?'':'s'} met</div>
       <div class="bartrack"><div class="barfill" style="width:${(cnt[k]/max*100).toFixed(1)}%;background:${col}"></div></div>
-      <div class="barval" style="color:${col}">${cnt[k]}</div></div>`;}).join('');
+      <div class="barval" style="color:${ink(col)}">${cnt[k]}</div></div>`;}).join('');
 
   $('lvXlsx').setAttribute('download',`District21_InYear_${L.py}.xlsx`);
   $('lvXlsxMeta').textContent=`Excel workbook · ${a.clubs} clubs · snapshot ${L.asof||'—'}`;
@@ -382,8 +389,8 @@ function memCell(c){
   const gcol=c.ng>0?'var(--green)':c.ng<0?'var(--red)':'var(--muted)';
   return `<span class="mem" title="${c.md} members now, base ${c.mb}${
       c.memok?' — meets the membership rule':' — short of 20 members and of +5 net growth'}">`+
-    `<span class="memn" style="color:${col}">${c.md}</span>`+
-    (g?`<span class="memg" style="color:${gcol}">${g}</span>`:'')+
+    `<span class="memn" style="color:${ink(col)}">${c.md}</span>`+
+    (g?`<span class="memg" style="color:${ink(gcol)}">${g}</span>`:'')+
     `</span>`;
 }
 function cspMark(v,closed){
@@ -436,12 +443,12 @@ function drawLiveTable(){
       v==='m'?'achieved':v==='o'?'still reachable':'window closed'}"></span>`).join('');
     const col=c.met>=5?'var(--green)':c.met>=3?'var(--amber)':c.met>0?'var(--red)':'var(--muted)';
     const out=c.ceil<5, d=daysTo(c.nd);
-    const urg=d!=null&&d<=14?'color:var(--red);font-weight:700':d!=null&&d<=45?'color:var(--amber)':'';
+    const urg=d!=null&&d<=14?'color:var(--red-ink);font-weight:700':d!=null&&d<=45?'color:var(--amber-ink)':'';
     return `<tr class="lvrow" tabindex="0" role="button" data-n="${esc(c.n)}"><td>${esc(c.m)}<span class="cmeta">${esc(String(Number(c.n)))}${
         c.memok?'':' · membership rule not met'}</span></td>
       <td class="num">${esc(c.d||'—')}</td>
       <td>${memCell(c)}</td>
-      <td><span class="nowg" style="color:${col}">${c.met}</span><span class="num" style="color:var(--muted)">/10</span></td>
+      <td><span class="nowg" style="color:${ink(col)}">${c.met}</span><span class="num" style="color:var(--muted)">/10</span></td>
       <td><span class="pips">${pips}</span></td>
       ${SAMECEIL?'':`<td class="ceil ${out?'out':'ok'}">${c.ceil}${c.best?' · '+esc(c.best):' · none'}</td>`}
       <td>${cspMark(c.csp)}</td>
@@ -850,5 +857,5 @@ fetch(assetUrl('data.json')).then(r=>r.json()).then(d=>{
   }
 }).catch(e=>{
   document.querySelector('main').insertAdjacentHTML('afterbegin',
-   '<div class="wrap"><p style="color:var(--red);padding:20px 0">Could not load data.json. '+esc(e.message)+'</p></div>');
+   '<div class="wrap"><p style="color:var(--red-ink);padding:20px 0">Could not load data.json. '+esc(e.message)+'</p></div>');
 });
