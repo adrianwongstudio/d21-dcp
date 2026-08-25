@@ -351,24 +351,7 @@ th[data-k][aria-sort]{color:var(--maroon)}
 :focus-visible{outline:2px solid var(--maroon);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-/* Everything a quarter larger. Applied as zoom rather than by raising font
-   sizes: the layout is built in px, so zoom scales type, spacing, borders and
-   components together and keeps every proportion intact. Media queries then
-   evaluate against the reduced CSS viewport, exactly as browser zoom behaves.
-   Phones are excluded — 375px is already sized for the hand, and a quarter
-   more would spill. */
-@media (min-width:768px){
-  /* Zoom the flowed content rather than :root. A position:fixed panel inside a
-     zoomed root resolves its offsets in the zoomed space and then gets scaled
-     again, which walks it off the bottom of the screen; keeping the root at 1
-     leaves the drawer anchored to the real viewport. */
-  .mast, main, .foot{zoom:1.25}
-  /* The drawer box itself is never zoomed: it is position:fixed, and zooming it
-     resolves bottom:0 in the scaled space and lands it below the screen. Its
-     children scale instead, so the panel stays anchored while its contents grow.
-     They run a little larger than the page behind them: the drawer is a reading
-     surface you have deliberately opened. It scrolls, so the extra height fits. */
-  .detail > *{zoom:1.4}
+
 }
 
 /* ---------- contact ---------- */
@@ -402,3 +385,22 @@ th[data-k][aria-sort]{color:var(--maroon)}
 .formmsg[data-t="err"]{color:var(--red-ink)}
 .formmsg[data-t="ok"]{color:var(--green-ink)}
 @media (max-width:560px){.modal{width:calc(100vw - 20px)}}
+
+/* Everything a quarter larger. Applied as zoom rather than by raising font
+   sizes: the layout is built in px, so zoom scales type, spacing, borders and
+   components together and keeps every proportion intact. Media queries then
+   evaluate against the reduced CSS viewport, exactly as browser zoom behaves.
+   Phones are excluded — 375px is already sized for the hand, and a quarter
+   more would spill. */
+@media (min-width:768px){
+  /* Zoom the flowed content rather than :root. A position:fixed panel inside a
+     zoomed root resolves its offsets in the zoomed space and then gets scaled
+     again, which walks it off the bottom of the screen; keeping the root at 1
+     leaves the drawer anchored to the real viewport. */
+  .mast, main, .foot{zoom:1.25}
+  /* The drawer box itself is never zoomed: it is position:fixed, and zooming it
+     resolves bottom:0 in the scaled space and lands it below the screen. Its
+     children scale instead, so the panel stays anchored while its contents grow.
+     They run a little larger than the page behind them: the drawer is a reading
+     surface you have deliberately opened. It scrolls, so the extra height fits. */
+  .detail > *{zoom:1.4}

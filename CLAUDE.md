@@ -204,6 +204,33 @@ consecutive years: improving is `before < 5 and after > before`; declining is
 why it is the pivot. A club can appear on both lists in different years —
 that volatility is a finding, not a bug.
 
+## Scale
+
+Desktop renders a quarter larger, as `zoom` on `.mast`, `main` and `.foot`.
+Zoom rather than larger font sizes because the layout is in px — it carries
+type, spacing, borders and component sizes together. Below 768px there is no
+zoom; a phone is already sized for the hand.
+
+Three things to know before touching it:
+
+- **Never zoom `:root`.** A `position: fixed` panel inside a zoomed root
+  resolves its offsets in the scaled space and is then scaled again, which
+  walks the club drawer off the bottom of the screen. The drawer box is left
+  unzoomed and only `.detail > *` scales, at 1.4.
+- **The rule must stay at the end of the stylesheet.** Media queries add no
+  specificity, so while it sat at the top the base `.detail` rule 160 lines
+  below silently beat its overrides.
+- **`vh` inside a zoomed element is resolved before scaling**, so `82vh`
+  renders at 102% of the screen. Divide by the zoom, or set the cap on an
+  unzoomed ancestor.
+
+Grid column counts inside the drawer are fixed to factors of eight rather than
+`auto-fit`, which lands on seven at most desktop widths and orphans the eighth
+card on a row of its own.
+
+Section and card headings are Title Case: articles, short prepositions and
+conjunctions stay lowercase unless they open the heading.
+
 ## Colour
 
 Tokens live in `styles.css`, with a `:root[data-theme="dark"]` branch so an
@@ -229,7 +256,7 @@ behaviour follows `site.contact_endpoint` in config.json:
 - **blank** (today) — the message is handed to the sender's own mail client
   via `mailto:`, addressed to `site.contact_email` with the subject prefixed
   by `site.contact_tag`. No account, no key, works immediately.
-- **set** — the form POSTs JSON `{name,email,subject,message,to}` to that URL
+- **set** — the form POSTs JSON `{name,email,subject,message}` to that URL
   and the sender never leaves the page. Point it at a form service or a small
   Worker; no code changes are needed.
 

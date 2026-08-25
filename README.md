@@ -101,6 +101,34 @@ next deadline and Club Success Plan, for an area director to open alongside a
 club officer. Each division header and area card carries its own scoped
 download, and a club's panel exports just that club.
 
+## Contact
+
+A **Contact** button in the masthead opens a form — name, email, subject,
+message and a spam check. The subject is sent prefixed with `site.contact_tag`
+("DCP-Dashboard") to `site.contact_email`.
+
+The site is static and cannot send mail itself, so delivery follows
+`site.contact_endpoint`:
+
+- **blank** (as now) — the message is handed to the sender's own mail client,
+  pre-addressed with the tagged subject. No account or key needed.
+- **set** — the form POSTs `{name, email, subject, message}` to that URL and
+  the sender never leaves the page. Point it at a form service or a small
+  Worker; no code changes required.
+
+The address is never published as text: `gen_site_data.py` encodes it into
+data.json and the form decodes it only when a message is sent, so nothing in
+`docs/` matches an email pattern. That is obfuscation, not secrecy — only an
+endpoint keeps the address off the client altogether.
+
+The POST body carries **no recipient**. A client-supplied `to` would let anyone
+who found the endpoint URL relay mail through it; the destination belongs in
+the endpoint's own configuration.
+
+The spam check is an arithmetic question plus a hidden field no person can see.
+That stops naive bots. It is **not** a verified captcha — Turnstile and
+reCAPTCHA check their token server-side, which needs the endpoint above.
+
 ## Colour
 
 Light and dark palettes are defined as tokens in `styles.css`, with an explicit
@@ -112,6 +140,21 @@ stay vivid so the traffic-light reading survives, and `--green-ink` /
 as text on a pale ground — it measured 2.5:1 before. Every text colour now
 clears WCAG AA (4.5:1) against the darkest background it sits on, in both
 themes; `ink()` in `app.js` maps a fill colour to its text counterpart.
+
+## Scale and headings
+
+Desktop renders a quarter larger. It is applied as `zoom` on `.mast`, `main`
+and `.foot` rather than by raising font sizes, because the layout is built in
+px — zoom carries type, spacing, borders and component sizes together. Phones
+are excluded below 768px, where 375px is already sized for the hand.
+
+The club drawer is deliberately not zoomed as a box: it is `position: fixed`,
+and zooming it resolves its offsets in the scaled space and lands it below the
+screen. Its children scale instead, at 1.4, so the panel reads a step larger
+than the page it covers while staying anchored.
+
+Section and card headings are Title Case — articles, short prepositions and
+conjunctions stay lowercase unless they open the heading.
 
 ## Notes
 
