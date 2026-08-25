@@ -106,6 +106,7 @@ scripts/
   gen_live_data.py   live cache      -> docs/live.json
   gen_inyear_xlsx.py live.json       -> docs/inyear.xlsx
   close_year.py      a closed year   -> merged into docs/data.json + output/*_final.xlsx
+  stamp_assets.py    content hashes onto the URLs index.html loads (run LAST)
 docs/
   index.html         markup only
   styles.css         all styling
@@ -223,6 +224,11 @@ that volatility is a finding, not a bug.
 - **Wrap long club names, don't truncate.** Ellipsis hid 27 of 180 names.
 - **Don't publish `ouid` in Google Sheets URLs** — it identifies an account,
   and links resolve without it.
+- **Re-run `stamp_assets.py` after anything that rewrites `docs/`, and run it
+  last.** Pages caches every file for ten minutes *independently*, so after a
+  deploy a browser can hold new markup beside a stale `app.js` — which looks
+  exactly like a feature that shipped broken. The hashes make a deploy atomic;
+  they go stale the moment a stamped file changes again.
 - **Preload the JSON.** The fetches live inside `app.js`, so without the
   `<link rel="preload">` tags they cannot start until the script has
   downloaded and run — measured at 135 ms of dead time. Keep the preload and

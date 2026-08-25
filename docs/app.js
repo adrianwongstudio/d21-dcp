@@ -788,8 +788,15 @@ function applySiteConfig(d){
   set('footDash',el=>{ if(d.district_id) el.href=`https://dashboards.toastmasters.org/District.aspx?id=${d.district_id}`; });
 }
 
+/* index.html stamps content hashes onto the data files so a deploy cannot
+   leave this script fetching a copy the preload never warmed. Falls back to
+   the plain name when nothing stamped it. */
+function assetUrl(name){
+  return (window.__ASSETS__ && window.__ASSETS__[name]) || name;
+}
+
 /* ---------- boot ---------- */
-fetch('live.json').then(r=>r.ok?r.json():Promise.reject(new Error(r.status))).then(L=>{
+fetch(assetUrl('live.json')).then(r=>r.ok?r.json():Promise.reject(new Error(r.status))).then(L=>{
   S.l=L;
   const divs=[...new Set(L.clubs.map(c=>c.d).filter(Boolean))].sort();
   $('lfdiv').innerHTML='<option value="">All divisions</option>'+
@@ -804,7 +811,7 @@ fetch('live.json').then(r=>r.ok?r.json():Promise.reject(new Error(r.status))).th
     '(live.json: '+esc(e.message)+'). The finished years below are unaffected.</p>';
 });
 
-fetch('data.json').then(r=>r.json()).then(d=>{
+fetch(assetUrl('data.json')).then(r=>r.json()).then(d=>{
   S.d=d;S.year=d.years[d.years.length-1];
   applySiteConfig(d);
   const pairs=d.years.slice(1).map((y,i)=>[d.years[i],y]);
