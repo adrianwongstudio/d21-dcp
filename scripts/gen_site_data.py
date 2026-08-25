@@ -16,6 +16,17 @@ MONTH_NAME = {7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec",
 DISTINGUISHED = 5   # goals that earn Distinguished, and the pivot both lists turn on
 
 
+
+def _site_for_publishing(site):
+    """Copy of the site config with the contact address encoded, not plain."""
+    import base64
+    out = dict(site)
+    addr = out.pop("contact_email", "")
+    if addr:
+        out["contact_email_enc"] = base64.b64encode(addr[::-1].encode()).decode()
+    return out
+
+
 def as_int(v):
     try:
         return int(v)
@@ -105,7 +116,11 @@ def main():
         "dec": slipped,
         "district": C.DISTRICT_NAME,
         "district_id": C.DISTRICT,
-        "site": C.SITE,
+        # The address is obfuscated on its way into the published JSON. Address
+        # harvesters crawl static files for anything matching an email pattern;
+        # this defeats that. It is not secrecy — anyone reading the code can
+        # decode it — but it keeps the address out of a scraper's regex.
+        "site": _site_for_publishing(C.SITE),
         "generated": C.today_local().isoformat(),
         "source": f"dashboards.toastmasters.org — {C.DISTRICT_NAME}",
     }

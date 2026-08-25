@@ -829,7 +829,11 @@ const CONTACT={a:0,b:0};
 
 function contactCfg(){
   const s=(S.d&&S.d.site)||{};
-  return {to:s.contact_email||'', tag:s.contact_tag||'', endpoint:s.contact_endpoint||''};
+  // decoded only at the moment of use, so the address is never sitting in the
+  // page as text for a harvester to scrape
+  let to='';
+  try{ if(s.contact_email_enc) to=[...atob(s.contact_email_enc)].reverse().join(''); }catch(e){}
+  return {to, tag:s.contact_tag||'', endpoint:s.contact_endpoint||''};
 }
 function newSum(){
   CONTACT.a=2+Math.floor(Math.random()*8);
@@ -848,8 +852,6 @@ let contactReturnFocus=null;
 function openContact(){
   contactReturnFocus=document.activeElement;
   newSum(); setMsg('');
-  const cfg=contactCfg(), to=$('cfTo');
-  if(to) to.textContent=cfg.to?`Goes to ${cfg.to}`:'';
   $('contactVeil').hidden=false; $('contactModal').hidden=false;
   $('cfName').focus();
 }
@@ -889,8 +891,10 @@ async function submitContact(e){
 
   const cfg=contactCfg();
   const subject=(cfg.tag?cfg.tag+' — ':'')+$('cfSubject').value.trim();
+  // no recipient in the payload — the endpoint decides where mail goes, or it
+  // is an open relay for anyone who finds the URL
   const payload={name:$('cfName').value.trim(), email:$('cfEmail').value.trim(),
-                 subject, message:$('cfBody').value.trim(), to:cfg.to};
+                 subject, message:$('cfBody').value.trim()};
 
   if(cfg.endpoint){
     setMsg('Sending…');
@@ -902,7 +906,7 @@ async function submitContact(e){
       $('contactForm').reset(); newSum();
       setMsg('Sent. Thank you — you will get a reply by email.','ok');
     }catch(ex){
-      setMsg('Could not send ('+ex.message+'). Please try again, or email '+cfg.to+' directly.','err');
+      setMsg('Could not send ('+ex.message+'). Please try again in a moment.','err');
     }finally{ $('cfSend').disabled=false; }
     return;
   }

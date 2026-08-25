@@ -238,8 +238,15 @@ naive bots. It is **not** a verified captcha — Turnstile or reCAPTCHA need a
 server to check the token, which this site does not have. Wiring an endpoint is
 what makes real verification possible.
 
-Note that `mailto:` puts the address in the page for scrapers to find. An
-endpoint keeps it server-side.
+The address is never published as text. `gen_site_data.py` encodes it into
+data.json and `contactCfg()` decodes it only at the moment of use, so a
+harvester crawling the static files finds nothing matching an email pattern.
+That is obfuscation, not secrecy — anyone reading the code can decode it. Only
+an endpoint keeps the address off the client entirely.
+
+The POST body carries no recipient. A client-supplied `to` would let anyone who
+found the endpoint URL mail arbitrary addresses through it; the destination
+belongs in the endpoint's own configuration.
 
 ## Gotchas
 
