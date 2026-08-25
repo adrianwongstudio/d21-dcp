@@ -7,6 +7,10 @@ Distinguished Club Program, and how to talk to the dashboard.
 Nothing here is specific to District 21 — that lives in config.json.
 """
 import os, io, csv, json, time, calendar, datetime, urllib.request
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:                     # pragma: no cover - Python < 3.9
+    ZoneInfo = None
 
 # ---------------------------------------------------------------- paths ----
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,6 +30,33 @@ DISTRICT_NAME = CONFIG.get("district_name") or f"District {DISTRICT}"
 SITE = CONFIG.get("site", {})
 OUTPUT = CONFIG.get("output", {})
 
+TIMEZONE = CONFIG.get("timezone") or "UTC"
+
+
+def tz():
+    """The district's own timezone, so timestamps read local to its officers."""
+    if ZoneInfo is None:
+        return None
+    try:
+        return ZoneInfo(TIMEZONE)
+    except Exception:
+        return None
+
+
+def now_local():
+    """Timezone-aware now, in the district's timezone."""
+    return datetime.datetime.now(tz() or datetime.timezone.utc)
+
+
+def today_local():
+    return now_local().date()
+
+
+def stamp(fmt="%Y-%m-%d %H:%M %Z"):
+    """A build timestamp a reader in the district will recognise."""
+    return now_local().strftime(fmt).strip()
+
+
 CACHE = p("data", "cache")        # finished years, one page per club-month
 LIVE_CACHE = p("data", "live")    # the open year
 
@@ -40,7 +71,7 @@ def program_years():
 
 def season_start(today=None):
     """The calendar year a program year begins in. July starts a new one."""
-    today = today or datetime.date.today()
+    today = today or today_local()
     return today.year if today.month >= 7 else today.year - 1
 
 
@@ -155,7 +186,8 @@ def roster(program_year=None):
 
 __all__ = [
     "ROOT", "p", "CONFIG", "DISTRICT", "DISTRICT_NAME", "SITE", "OUTPUT",
-    "CACHE", "LIVE_CACHE", "program_years", "season_start",
+    "CACHE", "LIVE_CACHE", "TIMEZONE", "tz", "now_local", "today_local",
+    "stamp", "program_years", "season_start",
     "current_program_year", "months_of", "last_day", "TARGETS", "ROW_NAMES",
     "GOAL_ROWS", "GOAL_NAMES", "LEVELS", "load_clubs", "BASE", "get",
     "club_report_url", "roster",

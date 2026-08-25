@@ -2,12 +2,10 @@
   "district": "21",
   "district_name": "District 21",
   "region": "Toastmasters",
-
   "history": {
     "start_year": 2021,
     "years": 5
   },
-
   "site": {
     "title": "District 21 — Club Health Board",
     "description": "Five years of Distinguished Club Program results for every club in Toastmasters District 21.",
@@ -15,9 +13,9 @@
     "spreadsheet_url": "https://docs.google.com/spreadsheets/d/17Mz3T2skAokBOqEmiFIVnL2EV9Z5TNYI/edit?usp=sharing&rtpof=true&sd=true",
     "repo_url": "https://github.com/adrianwongstudio/d21-dcp"
   },
-
   "output": {
     "report_xlsx": "District21_DCP_Report.xlsx",
     "inyear_prefix": "District21"
-  }
+  },
+  "timezone": "America/Vancouver"
 }

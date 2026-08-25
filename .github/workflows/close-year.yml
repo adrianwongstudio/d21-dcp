@@ -1,0 +1,75 @@
+name: Close finished year
+
+# A program year ends on 30 June and its scores become final. This folds it
+# into the published history and writes the workbook to import into the
+# district spreadsheet.
+#
+# It runs on the same days as the in-year refresh and exits immediately when
+# there is nothing to close, so for eleven months of the year it is a no-op.
+# The dashboard takes a while to publish an archive after 30 June, which is
+# why it keeps checking rather than firing once.
+on:
+  schedule:
+    - cron: "30 16 1,15 * *"   # half an hour after the in-year refresh
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "Program year to close, e.g. 2026-2027. Blank = whatever is ready."
+        required: false
+      check_only:
+        description: "Report what would happen without changing anything"
+        type: boolean
+        default: false
+
+concurrency:
+  group: close-year
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install --quiet openpyxl
+
+      - name: Close the year if one is ready
+        run: |
+          python3 scripts/close_year.py \
+            ${{ inputs.check_only && '--check' || '' }} \
+            ${{ inputs.year }}
+
+      - name: Refuse to publish a history that lost clubs or years
+        run: |
+          python3 - <<'PY'
+          import json, sys
+          d = json.load(open('docs/data.json'))
+          years, clubs = d['years'], d['clubs']
+          if len(years) < 1 or len(clubs) < 50:
+              sys.exit(f"data.json looks wrong: {len(years)} years, {len(clubs)} clubs")
+          for y in years:
+              n = sum(1 for c in clubs if y in c['y'])
+              if n < 20:
+                  sys.exit(f"{y} has only {n} clubs - refusing to publish")
+              print(f"  {y}: {n} clubs")
+          PY
+
+      - name: Commit if a year was folded in
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data.json config.json scripts/clubs.tsv output/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no year closed this run"
+            exit 0
+          fi
+          git commit -m "Close $(python3 -c "import json;print(json.load(open('docs/data.json'))['years'][-1])") and publish its final scores"
+          git push

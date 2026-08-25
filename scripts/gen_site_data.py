@@ -102,7 +102,7 @@ def main():
         "district": C.DISTRICT_NAME,
         "district_id": C.DISTRICT,
         "site": C.SITE,
-        "generated": datetime.date.today().isoformat(),
+        "generated": C.today_local().isoformat(),
         "source": f"dashboards.toastmasters.org — {C.DISTRICT_NAME}",
     }
     dest = C.p("docs", "data.json")

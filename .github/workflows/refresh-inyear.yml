@@ -1,11 +1,12 @@
 name: Refresh in-year data
 
 # The finished years never change, so only the open program year is refreshed here.
-# Runs on the 1st of each month; the dashboard posts its snapshots a week or two
-# behind, so the 1st picks up everything settled from the month just gone.
+# Runs on the 1st and the 15th. The dashboard posts its snapshots a week or two
+# behind, so the 1st catches the month just gone settling and the 15th catches
+# it once it has.
 on:
   schedule:
-    - cron: "0 16 1 * *"     # 16:00 UTC = 09:00 Pacific on the 1st
+    - cron: "0 16 1,15 * *"   # 16:00 UTC = 09:00 Pacific, 1st and 15th
   workflow_dispatch:          # and on demand, from the Actions tab
 
 concurrency:

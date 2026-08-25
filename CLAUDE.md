@@ -23,6 +23,7 @@ Everything district-specific lives here. Nothing else should need touching.
 {
   "district": "57",
   "district_name": "District 57",
+  "timezone": "America/Chicago",
   "history": { "start_year": 2021, "years": 5 },
   "site": { "title": "...", "eyebrow": "...", "spreadsheet_url": "...", "repo_url": "..." },
   "output": { "report_xlsx": "District57_DCP_Report.xlsx", "inyear_prefix": "District57" }
@@ -73,11 +74,22 @@ Scripts resolve paths from the repo root, so the working directory is free.
 gh api -X PUT repos/<owner>/<repo>/pages -f "source[branch]=main" -f "source[path]=/docs"
 ```
 
-`.github/workflows/refresh-inyear.yml` re-runs the open-year scripts on the
-1st of each month and commits the result. It needs `permissions: contents:
-write` — the repo default is read-only, and the workflow-level grant does
-override it, but verify with a manual `workflow_dispatch` run rather than
-waiting a month to discover otherwise.
+Two workflows keep it current, both on the **1st and 15th**:
+
+- `refresh-inyear.yml` re-runs the open-year scripts and commits `live.json`
+  and `inyear.xlsx`. Refuses to commit a run returning under fifty clubs.
+- `close-year.yml` runs `close_year.py` half an hour later. For eleven months
+  of the year it exits immediately; once the dashboard publishes an archive
+  for the year that ended on 30 June, it folds that year into `data.json`,
+  widens `config.json`, and writes the final-scores workbook.
+
+Both need `permissions: contents: write` — the repo default is read-only, and
+the workflow-level grant does override it, but verify with a manual
+`workflow_dispatch` run rather than waiting a month to find out.
+
+`config.timezone` is the district's own zone; build timestamps use it, so
+"built 18:43 PDT" reads correctly to an officer rather than showing the
+runner's UTC.
 
 ## Layout
 
@@ -93,6 +105,7 @@ scripts/
   scrape_live.py     open year       -> data/live/
   gen_live_data.py   live cache      -> docs/live.json
   gen_inyear_xlsx.py live.json       -> docs/inyear.xlsx
+  close_year.py      a closed year   -> merged into docs/data.json + output/*_final.xlsx
 docs/
   index.html         markup only
   styles.css         all styling
@@ -106,6 +119,25 @@ because Pages serves them.
 **Put shared facts in `common.py`.** It already holds `TARGETS`, `ROW_NAMES`,
 `GOAL_ROWS`, `GOAL_NAMES` and `LEVELS`. Redefining any of them in a script is
 how the twelve-row/ten-goal rule drifts out of agreement.
+
+## The year-end rollover
+
+`close_year.py` moves a finished year out of the open-year view and into the
+published history. It scrapes **only** the closing year and merges into the
+committed `data.json`, so it runs on a fresh checkout with no `data/cache`.
+
+- `--check` reports whether an archive exists, changing nothing
+- it refuses to close the year that is still open
+- it re-reads that year's roster first, so clubs that existed then are covered
+- it recomputes the climbed/slipped lists over the whole history
+- it writes `output/<prefix>_<year>_final.xlsx` for the district spreadsheet
+
+**Nothing writes to Google Sheets** — no connector is wired up. The workbook
+is the handoff; importing it is manual.
+
+The merge was verified by removing 2025-2026 from `data.json`, re-closing it,
+and confirming the result matched club-for-club, including both transition
+lists. Do that round trip again if you change the merge.
 
 ## How the dashboard actually behaves
 
@@ -191,6 +223,10 @@ that volatility is a finding, not a bug.
 - **Wrap long club names, don't truncate.** Ellipsis hid 27 of 180 names.
 - **Don't publish `ouid` in Google Sheets URLs** — it identifies an account,
   and links resolve without it.
+- **Preload the JSON.** The fetches live inside `app.js`, so without the
+  `<link rel="preload">` tags they cannot start until the script has
+  downloaded and run — measured at 135 ms of dead time. Keep the preload and
+  the fetch modes matching, or the browser downloads each file twice.
 - **Downloads are xlsx only.** A CSV of the same view carries less — no
   shading, no targets, no area sheet — and offering both invites the weaker file.
 

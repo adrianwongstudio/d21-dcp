@@ -70,7 +70,7 @@ def goal_states(vals,WIN,today,END):
     return st,why
 
 def main():
-    today=datetime.date.today()
+    today=C.today_local()
     S=C.season_start(today)
     PY=f"{S}-{S+1}"; END=datetime.date(S+1,6,30)
     days_left=(END-today).days
@@ -165,7 +165,7 @@ def main():
       "acts":[WIN[i][0].isoformat() for i in range(12)],
       "targets":TARGETS,"rows":ROWNAMES,
       "goals":[g['n'] for g in GOALS],"clubs":out,"agg":agg,
-      "generated":datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+      "generated":C.stamp(),"timezone":C.TIMEZONE,
       "source":f"dashboards.toastmasters.org - {C.DISTRICT_NAME}","district":C.DISTRICT_NAME}
     p=_p('docs','live.json')
     json.dump(doc,open(p,'w'),separators=(',',':'))
