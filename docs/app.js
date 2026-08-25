@@ -113,12 +113,24 @@ function drawMv(){
   const [fy,ty]=S.mv.split('|');
   const f=r=>r.fy===fy&&r.ty===ty;
   const imp=S.d.imp.filter(f),dec=S.d.dec.filter(f);
-  const row=r=>`<tr><td class="cname">${esc(r.m)}<span class="cmeta">${esc(r.n)} · Div ${esc(r.d)}/${esc(r.a)}</span></td>
+  // Div/Area here is the alignment of the year being reported, not today's.
+  const row=r=>`<tr class="mvrow" tabindex="0" role="button" data-n="${esc(r.n)}" data-y="${esc(r.ty)}"
+      title="${esc(r.m)} — open ${esc(r.ty)}">
+    <td class="cname">${esc(r.m)}<span class="cmeta">${esc(r.n)} · Div ${esc(r.d)}/${esc(r.a)}</span></td>
     <td class="arc">${r.fd} → ${r.td}</td>
     <td class="delta ${r.ch>0?'up':'down'}">${r.ch>0?'+':''}${r.ch}</td><td>${badge(r.st)}</td></tr>`;
   $('imptb').innerHTML=imp.length?imp.map(row).join(''):'<tr><td colspan="4" style="color:var(--muted)">No clubs.</td></tr>';
   $('dectb').innerHTML=dec.length?dec.map(row).join(''):'<tr><td colspan="4" style="color:var(--muted)">No clubs.</td></tr>';
   $('impcnt').textContent=imp.length+' clubs';$('deccnt').textContent=dec.length+' clubs';
+  // open the club on the year it slipped or climbed into
+  document.querySelectorAll('#imptb .mvrow,#dectb .mvrow').forEach(tr=>{
+    const go=()=>{
+      const i=S.d.clubs.findIndex(c=>c.n===tr.dataset.n);
+      if(i>=0) openDetail(i,tr.dataset.y);
+    };
+    tr.onclick=go;
+    tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};
+  });
 }
 
 /* ---------- explorer ---------- */

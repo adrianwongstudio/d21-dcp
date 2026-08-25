@@ -67,9 +67,13 @@ def transitions(clubs, years):
             now = c["y"].get(after, {}).get("f")
             if was is None or now is None:
                 continue
-            rec = {"n": c["n"], "m": c["m"], "d": c["d"], "a": c["a"],
+            # the alignment that applied in the year being reported, not the
+            # club's current one — most clubs have moved at least once
+            end = c["y"][after]
+            rec = {"n": c["n"], "m": c["m"],
+                   "d": end.get("d") or c["d"], "a": end.get("a") or c["a"],
                    "fy": before, "ty": after, "fd": was, "td": now,
-                   "ch": now - was, "st": c["y"][after]["st"]}
+                   "ch": now - was, "st": end["st"]}
             if was < DISTINGUISHED and now > was:
                 climbed.append(rec)
             if was > DISTINGUISHED and now < was:
