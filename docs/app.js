@@ -1,11 +1,14 @@
 const S={d:null,year:null,mv:null,lvSort:{k:'met',dir:-1},l:null};
 const $=id=>document.getElementById(id);
-/* The signal colours run as fills and as text. Fills stay vivid; text on a pale
-   ground needs a darker tone to clear 4.5:1, so anything set as a colour goes
-   through ink(). In dark mode the two are the same value. */
-const INK={'var(--green)':'var(--green-ink)','var(--amber)':'var(--amber-ink)',
-           'var(--red)':'var(--red-ink)'};
-const ink=v=>INK[v]||v;
+/* Every signal colour is a pair, not a value. The fill stays vivid so the
+   traffic-light reading holds; ink() is the same status set as type against the
+   page, and on() is the text that sits ON the fill — amber never takes white,
+   which is where the old single value measured near 2:1. */
+const PAIR={'var(--green)':['var(--green-ink)','var(--green-on)'],
+            'var(--amber)':['var(--amber-ink)','var(--amber-on)'],
+            'var(--red)'  :['var(--red-ink)',  'var(--red-on)']};
+const ink=v=>(PAIR[v]||[v])[0];
+const on =v=>(PAIR[v]||[,'var(--ink)'])[1];
 
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const sig=v=>v==null?'x':v>=5?'g':v>=3?'a':'r';
@@ -39,6 +42,7 @@ function drawScrub(){
 }
 function drawBoard(){
   const g=$('grid'),n={g:0,a:0,r:0,x:0,ten:0};
+  const chip=$('bdChip'); if(chip) chip.textContent=shortYr(S.year)+' · closed';
   const Y=S.d.years,pi=Y.indexOf(S.year)-1,prev=pi>=0?Y[pi]:null;
   const divs={};
   S.d.clubs.forEach((c,i)=>{
@@ -85,14 +89,14 @@ function drawBoard(){
     }).join('');
     return `<section class="divblock"><div class="divhead">
         <span class="divname">Division ${esc(dv)}</span>
-        <span class="divstat">${cur.length} clubs · avg <span class="divavg" style="color:${ink(acol)}">${ca==null?'—':ca.toFixed(1)}</span>${trend==null?'':` <span style="color:${tcol}">${level?'level':(trend>0?'▲':'▼')+' '+Math.abs(trend).toFixed(1)}</span>`}</span>
+        <span class="divstat">${cur.length}<span class="w"> clubs · avg </span><span class="divavg" style="color:${ink(acol)}">${ca==null?'—':ca.toFixed(1)}</span>${trend==null?'':` <span style="color:${ink(tcol)}">${level?'<span class="w">level</span>':(trend>0?'▲':'▼')+' '+Math.abs(trend).toFixed(1)}</span>`}</span>
         <button class="scopedl" data-kind="Division" data-label="${esc(dv)}"
           title="Download Division ${esc(dv)} — current roster — as an Excel workbook"
           aria-label="Download Division ${esc(dv)} as an Excel workbook">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
           Excel</button>
-      </div><div class="areas">${body}</div></section>`;
+      </div><div class="areas" data-n="${areas.length}">${body}</div></section>`;
   }).join('');
   g.querySelectorAll('.clubrow').forEach(b=>b.onclick=()=>openDetail(+b.dataset.i));
   g.querySelectorAll('.scopedl').forEach(b=>b.onclick=e=>{
@@ -141,27 +145,39 @@ function drawMv(){
 }
 
 /* ---------- explorer ---------- */
+/* On a phone the year columns run newest-first, so the year everyone came for
+   is on screen before any sideways scrolling. The pinned club column is CSS. */
+const NARROW=matchMedia('(max-width:768px)');
+const yearOrder=()=>NARROW.matches?S.d.years.slice().reverse():S.d.years.slice();
+
 function drawClubs(){
   const q=$('q').value.trim().toLowerCase(),dv=$('fdiv').value,so=$('fsort').value,Y=S.d.years;
+  const YO=yearOrder(), latest=Y[Y.length-1];
+  YO.forEach((y,i)=>{const el=$('yh'+(i+1)); if(el) el.textContent=shortYr(y);});
+  const chip=$('clChip'); if(chip) chip.textContent=Y.length+' finished years';
   let list=S.d.clubs.filter(c=>(!dv||c.d===dv)&&(!q||c.m.toLowerCase().includes(q)||c.n.includes(q)));
   const last=c=>(c.y[Y[Y.length-1]]||{}).f??-1;
   const swing=c=>{const v=Y.map(y=>(c.y[y]||{}).f).filter(x=>x!=null);return v.length<2?-1:Math.max(...v)-Math.min(...v);};
   list.sort(so==='name'?(a,b)=>a.m.localeCompare(b.m):so==='last'?(a,b)=>last(b)-last(a)
     :so==='lastasc'?(a,b)=>last(a)-last(b):(a,b)=>swing(b)-swing(a));
   $('clubtb').innerHTML=list.map(c=>{
-    const cells=Y.map(y=>{const f=(c.y[y]||{}).f;
-      if(f==null) return '<td class="num" style="color:var(--muted)">—</td>';
-      const col=sig(f)==='g'?'var(--green)':sig(f)==='a'?'var(--amber)':'var(--red)';
-      return `<td class="num" style="color:${ink(col)};font-weight:600">${f}</td>`;}).join('');
+    // The numeral stays ink. A coloured numeral at this size is the least
+    // legible use of colour and the worst case for red-green deficiency, so
+    // where a figure needs a status it gets a dot beside it instead.
+    const cells=YO.map(y=>{const f=(c.y[y]||{}).f;
+      if(f==null) return '<td class="yrcell num" style="color:var(--muted)">—</td>';
+      const now=y===latest;
+      return `<td class="yrcell"><span class="yv${now?' now':''}">${
+        now?`<i class="sdot" data-sig="${sig(f)}"></i>`:''}${f}</span></td>`;}).join('');
     const i=S.d.clubs.indexOf(c);
     return `<tr data-i="${i}" tabindex="0" role="button" style="cursor:pointer">
-      <td class="cname">${esc(c.m)}<span class="cmeta">${esc(c.n)}</span></td>
+      <td class="cname">${esc(c.m)}<span class="cmeta">${esc(c.d)}/${esc(c.a)} · ${esc(c.n)}</span></td>
       <td class="num">${esc(c.d)}/${esc(c.a)}</td>${cells}
       <td>${spark(Y.map(y=>(c.y[y]||{}).f??null))}</td></tr>`;}).join('');
   $('clubtb').querySelectorAll('tr').forEach(tr=>{
     const go=()=>openDetail(+tr.dataset.i);
     tr.onclick=go;tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};});
-  $('clubnote').textContent=`Showing ${list.length} of ${S.d.clubs.length} clubs. Dashes mark years before the club chartered.`;
+  $('clubnote').textContent=`${list.length} of ${S.d.clubs.length} clubs`;
 }
 
 /* ---------- charts ---------- */
@@ -171,6 +187,7 @@ const SHORT=["Level 1 awards","Level 2 awards","More Level 2 awards","Level 3 aw
 "Officers trained, Jun–Aug","Officers trained, Nov–Feb","Renewal dues on time","Officer list on time"];
 function drawGoalGap(){
   const Y=S.d.years,y=Y[Y.length-1];$('ggYear').textContent=y;
+  const chip=$('sgChip'); if(chip) chip.textContent=shortYr(y)+' · closed';
   const rows=S.d.clubs.map(c=>c.y[y]).filter(v=>v&&v.g);
   const pct=SHORT.map((_,j)=>{
     const met=rows.filter(r=>r.g[j]!=null&&r.g[j]>=TARGETS[j]).length;
@@ -180,7 +197,7 @@ function drawGoalGap(){
     const col=g.p>=60?'var(--green)':g.p>=35?'var(--amber)':'var(--red)';
     return `<div class="barrow"><div class="barlab">${esc(SHORT[g.j])}</div>
       <div class="bartrack"><div class="barfill" style="width:${g.p.toFixed(1)}%;background:${col}"></div></div>
-      <div class="barval" style="color:${ink(col)}">${Math.round(g.p)}%</div></div>`;}).join('');
+      <div class="barval">${Math.round(g.p)}%</div></div>`;}).join('');
 }
 function drawTrend(){
   const Y=S.d.years;
@@ -189,7 +206,9 @@ function drawTrend(){
   const max=Math.max(...cnt.map(o=>o.g+o.a+o.r));
   $('trend').innerHTML=cnt.map(o=>{
     const tot=o.g+o.a+o.r,h=tot/max*100;
-    const seg=(v,c)=>v?`<div class="seg" style="height:${v/tot*100}%;background:${c}">${v>=7?`<span class="segn">${v}</span>`:''}</div>`:'';
+    // the count sits on the fill, so it takes the fill's own ink
+    const seg=(v,c)=>v?`<div class="seg" style="height:${v/tot*100}%;background:${c}">${
+      v>=7?`<span class="segn" style="color:${on(c)}">${v}</span>`:''}</div>`:'';
     return `<div class="stackcol" style="height:${h}%">${seg(o.g,'var(--green)')}${seg(o.a,'var(--amber)')}${seg(o.r,'var(--red)')}</div>`;
   }).join('');
   $('trendlabs').innerHTML=Y.map(y=>`<div class="stacklab" style="flex:1">${shortYr(y)}</div>`).join('');
@@ -210,7 +229,7 @@ function drawDivisions(){
     return `<div class="barrow"><div class="barlab"><b>Division ${esc(r.d)}</b>
         <span style="color:var(--muted)">· ${r.n} clubs</span></div>
       <div class="bartrack" style="height:20px"><div class="barfill" style="width:${w.toFixed(1)}%;background:${col}"></div>${gh}</div>
-      <div class="barval" style="color:${ink(col)}">${r.cur.toFixed(1)}${dir==null?'':
+      <div class="barval">${r.cur.toFixed(1)}${dir==null?'':
         `<span style="color:${ink(dir>=0?'var(--green)':'var(--red)')};font-size:11px"> ${dir>=0?'▲':'▼'}</span>`}</div></div>`;
   }).join('');
 }
@@ -250,7 +269,7 @@ function openLiveDetail(n){
   const net=c.ng, memcol=c.memok?'var(--green)':'var(--red)';
   $('dname').textContent=c.m;
   $('dsub').innerHTML=`${esc(c.n)} · Division ${esc(c.d)} / Area ${esc(c.a)} · `+
-    `<b style="color:var(--maroon)">${esc(L.py)} in progress</b> · as of ${esc(L.asof||'')}`;
+    `<b style="color:var(--ink)">${esc(L.py)} in progress</b> · as of ${esc(L.asof||'')}`;
   const card=(k,v,col,extra)=>`<div class="dcard"><div class="k">${k}</div>`+
     (extra?`<div style="margin-top:9px">${v}</div>`:`<div class="v" style="color:${ink(col)||'var(--ink)'}">${v}</div>`)+`</div>`;
   $('dgrid').innerHTML=
@@ -263,7 +282,7 @@ function openLiveDetail(n){
    + card('Where it stands',c.now?badge(c.now+' Distinguished'):'<span class="badge">Not yet Distinguished</span>',null,true)
    + card('Best still possible',c.best?badge(c.best+' Distinguished'):'<span class="badge">Distinguished out of reach</span>',null,true)
    + card('Club Success Plan',cspMark(c.csp),null,true)
-   + card('Days to 30 June',L.days,'var(--maroon)');
+   + card('Days to 30 June',L.days,'var(--maroon-ink)');
 
   $('dgoals').innerHTML=L.goals.map((g,j)=>{
     const st=c.st[j], rows=GOALROWS[j];
@@ -294,7 +313,7 @@ function openDetail(i,want){
   const yd=y.d||c.d, ya=y.a||c.a;
   const moved=now&&(now.d!==yd||now.a!==ya)?` · now Division ${now.d} / Area ${now.a}`:'';
   $('dsub').innerHTML=`${esc(c.n)} · Division ${esc(yd)} / Area ${esc(ya)} in ${esc(yr)}`+
-    (moved?`<span style="color:var(--maroon)">${esc(moved)}</span>`:'')+
+    (moved?`<span style="color:var(--ink)">${esc(moved)}</span>`:'')+
     (!now&&S.l?' · no longer in the district':'');
   const net=(y.md!=null&&y.mb!=null)?y.md-y.mb:null;
   $('dgrid').innerHTML=[
@@ -333,7 +352,7 @@ const daysTo=iso=>{if(!iso)return null;
 function drawLive(){
   const L=S.l,a=L.agg;
   $('lvDays').textContent=L.days;
-  $('lvPy').textContent=L.py.replace('-','–');
+  $('lvPy').textContent=shortYr(L.py);
   $('lvAsof').innerHTML='<b>dashboard snapshot '+esc(L.asof||'—')+'</b>'+
     a.clubs+' clubs · built '+esc(L.generated);
 
@@ -353,7 +372,7 @@ function drawLive(){
       <span class="dlname">${esc(c.lbl)}<small>closes ${esc(fmtDate(c.date))}${
         c.open?'':' · opens '+esc(fmtDate(c.opens))}</small></span>
       <span class="dlcnt">${c.open?`<b>${c.clubs}</b>clubs short`
-        :'<span style="opacity:.7">not open<br>yet</span>'}</span></div>`;}).join('')
+        :'<span style="opacity:.7">not open yet</span>'}</span></div>`;}).join('')
     ||'<p style="color:var(--muted);font-size:13.5px">Nothing else closes before 30 June.</p>';
 
   // how many clubs sit at each goal count, worst first
@@ -363,7 +382,7 @@ function drawLive(){
     const col=k>=5?'var(--green)':k>=3?'var(--amber)':'var(--red)';
     return `<div class="barrow"><div class="barlab">${k} goal${k===1?'':'s'} met</div>
       <div class="bartrack"><div class="barfill" style="width:${(cnt[k]/max*100).toFixed(1)}%;background:${col}"></div></div>
-      <div class="barval" style="color:${ink(col)}">${cnt[k]}</div></div>`;}).join('');
+      <div class="barval">${cnt[k]}</div></div>`;}).join('');
 
   $('lvXlsx').setAttribute('download',`District21_InYear_${L.py}.xlsx`);
   $('lvXlsxMeta').textContent=`Excel workbook · ${a.clubs} clubs · snapshot ${L.asof||'—'}`;
@@ -381,17 +400,16 @@ function setLiveSort(k){
   drawLiveTable();
 }
 function memCell(c){
-  if(c.md==null) return '<span class="num" style="color:var(--muted)">—</span>';
-  // the DCP membership rule: 20 members, or a net gain of 5 over the base
-  const col=c.memok?'var(--green)':'var(--red)';
+  if(c.md==null) return '<span class="lvmem"><span class="memn" style="color:var(--muted)">—</span></span>';
+  // the count is ink; only the direction of travel carries colour, and it sits
+  // in a fixed box so the counts stay in one column whether or not it is there
   // a zero net change must render as nothing, or "23" and "0" read as "230"
   const g=(c.ng==null||c.ng===0)?'':(c.ng>0?'+'+c.ng:String(c.ng));
   const gcol=c.ng>0?'var(--green)':c.ng<0?'var(--red)':'var(--muted)';
-  return `<span class="mem" title="${c.md} members now, base ${c.mb}${
+  return `<span class="lvmem" title="${c.md} members now, base ${c.mb}${
       c.memok?' — meets the membership rule':' — short of 20 members and of +5 net growth'}">`+
-    `<span class="memn" style="color:${ink(col)}">${c.md}</span>`+
-    (g?`<span class="memg" style="color:${ink(gcol)}">${g}</span>`:'')+
-    `</span>`;
+    `<span class="memn">${c.md}</span>`+
+    `<span class="memg" style="color:${ink(gcol)}">${g}</span></span>`;
 }
 function cspMark(v,closed){
   const y=/Met/i.test(v||'')&&!/Not/i.test(v||'');
@@ -401,16 +419,10 @@ function cspMark(v,closed){
     y?'Submitted':(closed?'Not submitted':'Not yet')}</span>`;
 }
 function drawLiveTable(){
-  const L=S.l,q=$('lq').value.trim().toLowerCase(),dv=$('lfdiv').value,
-        f=$('lfilt').value;
+  const L=S.l,q=$('lq').value.trim().toLowerCase(),dv=$('lfdiv').value;
   let list=L.clubs.filter(c=>{
     if(dv&&c.d!==dv) return false;
     if(q&&!(c.m.toLowerCase().includes(q)||String(Number(c.n)).includes(q))) return false;
-    if(f==='out'&&c.ceil>=5) return false;
-    if(f==='nocsp'&&/Met/i.test(c.csp||'')&&!/Not/i.test(c.csp||'')) return false;
-    if(f==='dist'&&c.met<5) return false;
-    if(f==='zero'&&c.met!==0) return false;
-    if(f==='risk'){const d=daysTo(c.nd);if(d==null||d>45) return false;}
     return true;});
   const byName=(x,y)=>x.m.localeCompare(y.m);
   const KEY={
@@ -418,8 +430,6 @@ function drawLiveTable(){
     div :c=>`${c.d||'zz'}${String(c.a||'zz').padStart(3,'0')}`,
     mem :c=>c.md??-1,
     met :c=>c.met,
-    ceil:c=>c.ceil,
-    csp :c=>cspRank(c.csp),
     nd  :c=>c.nd||'9999-99-99'};
   const {k,dir}=S.lvSort, get=KEY[k]||KEY.met;
   list.sort((x,y)=>{
@@ -429,32 +439,25 @@ function drawLiveTable(){
   });
 
   S.lvView=list;
-  const SAMECEIL=new Set(S.l.clubs.map(c=>c.ceil)).size<2;
-  const th=$('lvThCeil'); if(th) th.style.display=SAMECEIL?'none':'';
-  // while every club shares a ceiling, controls that sort or filter on it can do nothing
-  document.querySelectorAll('#lfilt [data-needsceil]').forEach(o=>{
-    o.hidden=SAMECEIL;
-    if(SAMECEIL&&o.selected){o.selected=false;o.parentElement.value='';}
-  });
-  // never leave the table sorted by a column that is not on screen
-  if(SAMECEIL&&S.lvSort.k==='ceil') S.lvSort={k:'met',dir:-1};
   $('lvtb').innerHTML=list.map(c=>{
     const pips=c.st.map((v,i)=>`<span class="pip" data-s="${v}" title="${esc(L.goals[i])}: ${
       v==='m'?'achieved':v==='o'?'still reachable':'window closed'}"></span>`).join('');
-    const col=c.met>=5?'var(--green)':c.met>=3?'var(--amber)':c.met>0?'var(--red)':'var(--muted)';
-    const out=c.ceil<5, d=daysTo(c.nd);
-    const urg=d!=null&&d<=14?'color:var(--red-ink);font-weight:700':d!=null&&d<=45?'color:var(--amber-ink)':'';
-    return `<tr class="lvrow" tabindex="0" role="button" data-n="${esc(c.n)}"><td>${esc(c.m)}<span class="cmeta">${esc(String(Number(c.n)))}${
-        c.memok?'':' · membership rule not met'}</span></td>
-      <td class="num">${esc(c.d||'—')}</td>
+    const d=daysTo(c.nd);
+    // colour appears only where it decides something: the chip is the one that
+    // says act this month. The score itself is a rank, and stays ink.
+    const urg=(d!=null&&d<=30)?`<span class="lvurg" title="closes in ${d} days">${d}d</span>`:'';
+    // the Success Plan is a boolean that used to compete with the score for a
+    // whole column; it rides on the club line, and only when it is missing
+    const plan=cspRank(c.csp)===1?'<span class="lvplan" title="No Club Success Plan yet">no plan</span>':'';
+    return `<tr class="lvrow" tabindex="0" role="button" data-n="${esc(c.n)}">
+      <td><span class="lvname" title="${esc(c.m)}">${esc(c.m)}</span><span class="lvnum">${esc(String(Number(c.n)))}${plan}</span></td>
+      <td class="lvdiv">${esc(c.d||'—')}</td>
+      <td><span class="lvscore"><b>${c.met}</b><span>/10</span></span></td>
+      <td class="lvpips"><span class="pips">${pips}</span></td>
       <td>${memCell(c)}</td>
-      <td><span class="nowg" style="color:${ink(col)}">${c.met}</span><span class="num" style="color:var(--muted)">/10</span></td>
-      <td><span class="pips">${pips}</span></td>
-      ${SAMECEIL?'':`<td class="ceil ${out?'out':'ok'}">${c.ceil}${c.best?' · '+esc(c.best):' · none'}</td>`}
-      <td>${cspMark(c.csp)}</td>
-      <td class="num" style="${urg}">${c.nd?esc(fmtDate(c.nd))+(d!=null?' ('+d+'d)':''):'—'}
-        <span class="cmeta">${esc(c.ndl||'')}</span></td></tr>`;}).join('')
-    ||`<tr><td colspan="${SAMECEIL?7:8}" style="color:var(--muted);padding:18px 14px">No clubs match.</td></tr>`;
+      <td><span class="lvnd">${urg}<span class="lvdate">${c.nd?esc(fmtDate(c.nd)):'—'}</span>
+        <span class="lvwin">${esc(c.ndl||'')}</span></span></td></tr>`;}).join('')
+    ||`<tr><td colspan="6" style="color:var(--muted);padding:18px 14px">No clubs match.</td></tr>`;
 
   document.querySelectorAll('#inyear thead th[data-k]').forEach(th=>{
     const on=th.dataset.k===S.lvSort.k;
@@ -470,12 +473,7 @@ function drawLiveTable(){
     tr.onclick=go;
     tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};
   });
-  const outn=list.filter(c=>c.ceil<5).length;
-  $('lvNote').textContent=`Showing ${list.length} of ${L.clubs.length} clubs. `+
-    (outn?`${outn} can no longer reach Distinguished this year. `:'')+
-    (SAMECEIL?`Every club can still reach all ten. `
-             :`Ceiling is goals already met plus those whose window is still open, so it only ever falls. `)+
-    `Figures follow the dashboard's own count, in which the two officer-training rows earn a single goal, as do the two administrative rows.`;
+  $('lvNote').textContent=`${list.length} of ${L.clubs.length} clubs · snapshot ${L.asof||'—'}`;
 }
 
 /* ---------- a very small .xlsx writer ----------
@@ -771,6 +769,41 @@ function scopeDownload(kind,label,clubs){
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 }
 
+/* ---------- masthead state ---------- */
+/* Three destinations cover six sections: the two retrospective ones and the
+   district charts all sit under Past years. */
+(function(){
+  const nav=$('mastnav'); if(!nav||!('IntersectionObserver' in window)) return;
+  const OWNER={inyear:'#inyear',board:'#board',signals:'#board',movement:'#board',clubs:'#clubs'};
+  const links=[...nav.querySelectorAll('a')];
+  const seen=new Map();
+  const mark=()=>{
+    let best=null;
+    seen.forEach((ratio,id)=>{if(ratio>0&&(!best||ratio>seen.get(best)))best=id;});
+    const href=best?OWNER[best]:null;
+    links.forEach(a=>{
+      if(a.getAttribute('href')===href) a.setAttribute('aria-current','true');
+      else a.removeAttribute('aria-current');
+    });
+  };
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>seen.set(e.target.id,e.isIntersecting?e.intersectionRatio:0));
+    mark();
+  },{rootMargin:'-64px 0px -55% 0px',threshold:[0,.1,.35,.7,1]});
+  Object.keys(OWNER).forEach(id=>{const el=$(id); if(el) io.observe(el);});
+})();
+
+/* The caveats are one click away on screen, but a printed page has no clicks —
+   so every disclosure opens for the print and closes again afterwards. */
+(function(){
+  let reopened=[];
+  addEventListener('beforeprint',()=>{
+    reopened=[...document.querySelectorAll('details.howto:not([open])')];
+    reopened.forEach(d=>d.open=true);
+  });
+  addEventListener('afterprint',()=>{reopened.forEach(d=>d.open=false);reopened=[];});
+})();
+
 /* ---------- theme ---------- */
 (function(){
   const root=document.documentElement,btn=$('themetoggle');
@@ -797,14 +830,27 @@ function applySiteConfig(d){
   if(s.title){document.title=s.title;}
   if(s.description){const m=document.querySelector('meta[name="description"]');
     if(m) m.setAttribute('content',s.description);}
-  if(s.eyebrow) set('heroEyebrow',el=>el.textContent=s.eyebrow);
+  if(s.eyebrow) S.eyebrow=s.eyebrow;
+  setEyebrow();
   if(name){
-    set('brandName',el=>el.innerHTML=esc(name).replace(/\s/,'&nbsp;')+' · Club Health');
+    set('brandName',el=>el.innerHTML=esc(name).replace(/\s/,'&nbsp;')+' Club Health');
     set('footSource',el=>el.textContent=name);
   }
   ['sheet1','sheet2'].forEach(id=>{ if(s.spreadsheet_url) set(id,el=>el.href=s.spreadsheet_url); });
   ['footRepo','navData'].forEach(id=>{ if(s.repo_url) set(id,el=>el.href=s.repo_url); });
   set('footDash',el=>{ if(d.district_id) el.href=`https://dashboards.toastmasters.org/District.aspx?id=${d.district_id}`; });
+}
+
+/* The eyebrow names the programme and the span the page covers. The span is
+   read off the data — the finished years plus the open one — rather than being
+   written into the config, so it is right the morning after a year rolls. */
+const spanYr=y=>y.slice(0,4)+'\u2013'+y.slice(7,9);
+function setEyebrow(){
+  const el=$('heroEyebrow'); if(!el) return;
+  const Y=(S.d&&S.d.years)||[];
+  const last=(S.l&&S.l.py)||Y[Y.length-1];
+  const lead=S.eyebrow||el.textContent.trim();
+  el.textContent=(Y.length&&last)?`${lead} \u00b7 ${spanYr(Y[0])} to ${spanYr(last)}`:lead;
 }
 
 /* index.html stamps content hashes onto the data files so a deploy cannot
@@ -936,9 +982,9 @@ fetch(assetUrl('live.json')).then(r=>r.ok?r.json():Promise.reject(new Error(r.st
   $('lfdiv').innerHTML='<option value="">All divisions</option>'+
     divs.map(x=>`<option value="${x}">Division ${x}</option>`).join('');
   $('lq').oninput=drawLiveTable;$('lfdiv').onchange=drawLiveTable;
-  $('lfilt').onchange=drawLiveTable;
   drawLive();
   const rd=$('rDays'); if(rd) rd.textContent=L.days;
+  setEyebrow();
   const hc=$('hClubs'); if(hc && L.clubs) hc.textContent=L.clubs.length;
 }).catch(e=>{
   $('inyear').innerHTML='<p style="color:var(--muted);padding:20px 0">The in-year view could not load '+
@@ -957,8 +1003,9 @@ fetch(assetUrl('data.json')).then(r=>r.json()).then(d=>{
   $('mvyear').onchange=e=>{S.mv=e.target.value;drawMv();};
   const divs=[...new Set(d.clubs.map(c=>c.d).filter(Boolean))].sort();
   $('fdiv').innerHTML='<option value="">All divisions</option>'+divs.map(x=>`<option value="${x}">Division ${x}</option>`).join('');
-  d.years.forEach((y,i)=>{const el=$('yh'+(i+1));if(el)el.textContent=shortYr(y);});
   $('q').oninput=drawClubs;$('fdiv').onchange=drawClubs;$('fsort').onchange=drawClubs;
+  // the year columns reverse when the viewport crosses into phone width
+  NARROW.addEventListener('change',()=>{if(S.d)drawClubs();});
   drawScrub();drawBoard();drawGoalGap();drawTrend();drawDivisions();drawMv();drawClubs();
   // router figures, read off the most recent finished year
   const ly=d.years[d.years.length-1];

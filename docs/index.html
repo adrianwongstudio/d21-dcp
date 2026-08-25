@@ -10,12 +10,12 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=e70b04e307">
+<link rel="stylesheet" href="styles.css?v=2056a3378c">
 <!-- Without these the fetches inside app.js cannot start until the script has
      downloaded and run. Preloading lets the data travel alongside it. -->
-<link rel="preload" href="data.json?v=8ca83adc6d" as="fetch" type="application/json" crossorigin>
+<link rel="preload" href="data.json?v=5744ca057e" as="fetch" type="application/json" crossorigin>
 <link rel="preload" href="live.json?v=392c5df496" as="fetch" type="application/json" crossorigin>
-<script>window.__ASSETS__={"styles.css":"styles.css?v=e70b04e307","app.js":"app.js?v=d4ad36aa94","data.json":"data.json?v=8ca83adc6d","live.json":"live.json?v=392c5df496"};</script>
+<script>window.__ASSETS__={"styles.css":"styles.css?v=2056a3378c","app.js":"app.js?v=2589d7d780","data.json":"data.json?v=5744ca057e","live.json":"live.json?v=392c5df496"};</script>
 </head>
 <body>
 
@@ -26,13 +26,18 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
       <rect x="14.4" y="6" width="3.4" height="13" rx="1.7" fill="currentColor" transform="rotate(38 16 12.5)"/>
       <rect x="6.5" y="3.4" width="10.5" height="7.4" rx="2.2" fill="currentColor" transform="rotate(38 11.75 7.1)"/>
     </svg>
-    <div class="brandtext" id="brandRegion">Toastmasters<b id="brandName">District&nbsp;21 · Club Health</b></div>
+    <div class="brandtext">
+      <span class="brandname" id="brandName">District&nbsp;21 Club Health</span>
+      <span class="brandorg" id="brandRegion">Toastmasters</span></div>
   </div>
   <div class="mastright">
-    <nav class="mastlinks">
-      <a href="#inyear">In&#8209;year</a><a href="#board">Board</a><a href="#movement">Movement</a><a href="#clubs">Clubs</a>
-      <a id="sheet1" href="https://docs.google.com/spreadsheets/d/17Mz3T2skAokBOqEmiFIVnL2EV9Z5TNYI/edit?usp=sharing&amp;rtpof=true&amp;sd=true" rel="noopener">Data</a>
+    <!-- Three destinations, named for the task. Board and Movement are both
+         retrospective and both sit under the year picker, so they share one. -->
+    <nav class="mastnav" id="mastnav">
+      <a href="#inyear">This year</a><a href="#board">Past years</a><a href="#clubs">Find a club</a>
     </nav>
+    <div class="mastutil">
+    <a id="sheet1" href="https://docs.google.com/spreadsheets/d/17Mz3T2skAokBOqEmiFIVnL2EV9Z5TNYI/edit?usp=sharing&amp;rtpof=true&amp;sd=true" rel="noopener">Download</a>
     <button class="contactbtn" id="contactbtn" type="button">Contact</button>
     <button class="themetoggle" id="themetoggle" type="button" aria-label="Switch to dark theme">
       <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -42,6 +47,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M20.5 14.3A8.6 8.6 0 1 1 9.7 3.5a6.9 6.9 0 0 0 10.8 10.8Z"/></svg>
     </button>
+    </div>
   </div>
 </div></header>
 
@@ -49,12 +55,10 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 <section class="wrap hero">
  <div class="herogrid">
   <div>
-    <p class="eyebrow" id="heroEyebrow">Toastmasters District 21 · Distinguished Club Program</p>
+    <p class="eyebrow" id="heroEyebrow">Distinguished Club Program · 2021&ndash;22 to 2026&ndash;27</p>
     <h1>Every club in the district,<br><em>lit by how far it got</em>.</h1>
-    <p class="lede">The Distinguished Club Program sets ten goals a club can meet in a year; five earns
-    Distinguished. This page carries that score for all <b id="hClubs">&mdash;</b> clubs across five finished
-    years and the one still running &mdash; so you can see who is thriving, who is slipping, and who can still
-    be helped before June.</p>
+    <p class="lede">Ten goals a year; five earns Distinguished. This page carries that score for
+    <b id="hClubs">&mdash;</b> clubs across five finished years and the one still running.</p>
     <div class="legendline">
       <span><i class="chip" style="background:var(--green)"></i>5&ndash;10 goals &middot; Distinguished</span>
       <span><i class="chip" style="background:var(--amber)"></i>3&ndash;4 goals</span>
@@ -81,12 +85,16 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 </section>
 
 <section class="wrap live" id="inyear">
-  <div class="sechead" style="margin-bottom:26px">
-    <h2>The Year in Progress</h2>
-    <p><b>Use this to act.</b> Everything further down is finished history; this is the open program year,
-    <b id="lvPy"></b>, as the dashboard reports it today. A goal shown as unreachable cannot be recovered &mdash;
-    the window it lived in has shut. Filter to a division, then start with the clubs missing a window that
-    closes soon.</p>
+  <div class="sechead">
+    <div class="secheadrow"><h2>The Year in Progress</h2>
+      <span class="secchip"><b id="lvPy"></b> &middot; open</span></div>
+    <p class="instruct">The year still running. Start with clubs missing a window that closes soon.</p>
+    <details class="howto"><summary>How to read this section</summary>
+      <div class="howtobody">
+        <p>This is the open program year as the dashboard reports it today; everything further down
+        is finished history.</p>
+        <p>A goal shown as unreachable cannot be recovered &mdash; the window it lived in has shut.</p>
+      </div></details>
   </div>
 
   <div class="liveband">
@@ -122,53 +130,60 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
       Download the workbook</a>
     <p class="dlwhy">One row per club with the twelve goal counts, membership, ceiling and next
     deadline, filterable by division and area &mdash; built for an area director to open alongside a
-    club officer. <span id="lvXlsxMeta" class="cmeta" style="display:block;margin-top:4px"></span></p>
+    club officer. <span id="lvXlsxMeta" class="dlmeta"></span></p>
   </div>
 
-  <div class="sechead" style="margin:44px 0 0"><h2 style="font-size:24px">The Current Year</h2>
-    <p>Ten squares per club, one per DCP goal. Filled means achieved, outlined means still reachable,
-    struck through means the window has closed for good.</p></div>
-  <div class="toolbar" style="margin-top:18px">
-    <label class="sr" for="lq">Search clubs</label>
-    <input type="search" id="lq" placeholder="Search by club name or number">
-    <label class="sr" for="lfdiv">Division</label><select id="lfdiv"></select>
-    <label class="sr" for="lfilt">Show</label>
-    <select id="lfilt">
-      <option value="">All clubs</option>
-      <option value="risk">Missing a window that closes soon</option>
-      <option value="out" data-needsceil>Can no longer reach Distinguished</option>
-      <option value="nocsp">No Club Success Plan yet</option>
-      <option value="zero">Nothing achieved yet</option>
-      <option value="dist">Already Distinguished</option>
-    </select>
+  <div class="sechead sub withctl" style="margin-top:44px">
+    <div>
+      <div class="secheadrow"><h2>The Current Year</h2></div>
+      <p class="instruct">Every club as the dashboard reports it today. Sorted by score, lowest last.</p>
+      <details class="howto"><summary>How to read this section</summary>
+        <div class="howtobody">
+          <p>Ten squares per club, one per DCP goal: filled means achieved, outlined means still
+          reachable, flat means the window has closed for good.</p>
+          <p>Figures follow the dashboard's own count, in which the two officer-training rows earn a
+          single goal, as do the two administrative rows. Select any row for the club's full record,
+          including its Club Success Plan and the best result still open to it.</p>
+        </div></details>
+    </div>
+    <div class="toolbar">
+      <label class="sr" for="lq">Search clubs</label>
+      <input type="search" id="lq" placeholder="Search club name or number">
+      <label class="sr" for="lfdiv">Division</label><select id="lfdiv"></select>
+    </div>
   </div>
-  <div class="panel"><div class="scroller" style="max-height:640px">
+  <div class="panel lvpanel stick"><div class="scroller" style="max-height:640px">
     <table><thead><tr>
-      <th data-k="name" tabindex="0">Club<span class="ar">\u25b2</span></th>
-      <th data-k="div"  tabindex="0">Div<span class="ar">\u25b2</span></th>
-      <th data-k="mem"  tabindex="0">Members<span class="ar">\u25b2</span></th>
-      <th data-k="met"  tabindex="0">Now<span class="ar">\u25b2</span></th>
-      <th>Goals &mdash; achieved, open, closed</th>
-      <th id="lvThCeil" data-k="ceil" tabindex="0">Ceiling<span class="ar">\u25b2</span></th>
-      <th data-k="csp"  tabindex="0">Success plan<span class="ar">\u25b2</span></th>
-      <th data-k="nd"   tabindex="0">Next deadline<span class="ar">\u25b2</span></th>
+      <th data-k="name" tabindex="0">Club<span class="ar">▲</span></th>
+      <th data-k="div"  tabindex="0">Div<span class="ar">▲</span></th>
+      <th data-k="met"  tabindex="0">Score<span class="ar">▲</span></th>
+      <th>Ten goals</th>
+      <th data-k="mem"  tabindex="0">Members<span class="ar">▲</span></th>
+      <th data-k="nd"   tabindex="0">Next deadline<span class="ar">▲</span></th>
       </tr></thead><tbody id="lvtb"></tbody></table>
   </div></div>
-  <div class="livekey">
-    <span><span class="pip" data-s="m"></span> achieved</span>
-    <span><span class="pip" data-s="o"></span> still reachable</span>
-    <span><span class="pip" data-s="d"></span> window closed</span>
+  <div class="lvfoot">
+    <div class="livekey">
+      <span><span class="pip" data-s="m"></span> achieved</span>
+      <span><span class="pip" data-s="o"></span> still reachable</span>
+      <span><span class="pip" data-s="d"></span> window closed</span>
+    </div>
+    <p class="lvcount" id="lvNote"></p>
   </div>
-  <p class="note" id="lvNote"></p>
 </section>
 
 <section class="wrap board" id="board">
   <div class="sechead">
-    <h2>The Finished Years</h2>
-    <p><b>Use this to compare divisions and areas.</b> Every club's score at the close of a chosen year, nested
-    under the division and area that supported it <em>in that year</em>, ranked worst-last within each area.
-    Toastmasters realigns divisions and areas each July, so a club may sit somewhere else on today's dashboard
-    &mdash; open any club to see where it is now.</p>
+    <div class="secheadrow"><h2>The Finished Years</h2>
+      <span class="secchip" id="bdChip"></span></div>
+    <p class="instruct">Pick a year, then read to the bottom of each area for the clubs that needed help.</p>
+    <details class="howto"><summary>How to read this section</summary>
+      <div class="howtobody">
+        <p>Every club's score at the close of the chosen year, nested under the division and area that
+        supported it <em>in that year</em> and ranked most goals to fewest within each area.</p>
+        <p>Toastmasters realigns divisions and areas each July, so a club may sit somewhere else on
+        today's dashboard &mdash; open any club to see where it is now.</p>
+      </div></details>
   </div>
   <div class="boardhead">
     <div class="scrub" id="scrub" role="group" aria-label="Program year"></div>
@@ -186,10 +201,15 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
 <section class="wrap sec" id="signals">
   <div class="sechead">
-    <h2>Where the Goals Are Going Missing</h2>
-    <p><b>Use this to plan district-wide support.</b> Knowing <em>which</em> of the ten goals the district keeps
-    failing is the difference between a pep talk and a plan &mdash; training and officer paperwork are fixed at
-    district level, education awards are fixed club by club.</p>
+    <div class="secheadrow"><h2>Where the Goals Are Going Missing</h2>
+      <span class="secchip" id="sgChip"></span></div>
+    <p class="instruct">Start at the top of the first chart &mdash; that goal is where support buys the most.</p>
+    <details class="howto"><summary>How to read this section</summary>
+      <div class="howtobody">
+        <p>Knowing <em>which</em> of the ten goals the district keeps failing is the difference between a
+        pep talk and a plan: training and officer paperwork are fixed at district level, education
+        awards are fixed club by club.</p>
+      </div></details>
   </div>
   <div class="charts">
     <div class="chartcard">
@@ -221,9 +241,17 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
 <section class="wrap sec" id="movement">
   <div class="sechead">
-    <h2>Who Climbed, and Who Slipped</h2>
-    <p><b>Use this to find who to call.</b> Which clubs were under five goals and pulled themselves up, and which
-    were above five and fell back. The first group has something to teach; the second could use a hand.</p>
+    <div class="secheadrow"><h2>Who Climbed, and Who Slipped</h2>
+      <span class="secchip">year to year</span></div>
+    <p class="instruct">Call the clubs on the right; ask the ones on the left what changed.</p>
+    <details class="howto"><summary>How to read this section</summary>
+      <div class="howtobody">
+        <p>Climbed is a club that finished under five goals and then beat that score; slipped is a club
+        that was above five and fell back. Five is the Distinguished threshold, which is why it is the
+        pivot.</p>
+        <p>A club can appear on both lists in different years &mdash; that volatility is a finding, not an
+        error.</p>
+      </div></details>
   </div>
   <div class="toolbar">
     <label class="sr" for="mvyear">Transition</label>
@@ -245,9 +273,15 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
 <section class="wrap sec" id="clubs">
   <div class="sechead">
-    <h2>Every Club, Year by Year</h2>
-    <p><b>Use this to look one club up.</b> Search by name or number for five years of year-end scores. The trace
-    shows the shape of each club's run &mdash; steady, spiking or sliding. Select any row for its full goal detail.</p>
+    <div class="secheadrow"><h2>Every Club, Year by Year</h2>
+      <span class="secchip" id="clChip"></span></div>
+    <p class="instruct">Search a club by name or number for five years of year-end scores.</p>
+    <details class="howto"><summary>How to read this section</summary>
+      <div class="howtobody">
+        <p>The trace shows the shape of each club's run &mdash; steady, spiking or sliding &mdash; against a
+        dashed line at five goals. Dashes mark years before the club chartered.</p>
+        <p>Select any row for its full goal detail, year by year.</p>
+      </div></details>
   </div>
   <div class="toolbar">
     <label class="sr" for="q">Search clubs</label>
@@ -261,9 +295,11 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
       <option value="swing">Biggest 5-year swing</option>
     </select>
   </div>
-  <div class="panel"><div class="scroller" style="max-height:640px">
-    <table><thead><tr><th>Club</th><th>Div</th><th id="yh1"></th><th id="yh2"></th><th id="yh3"></th>
-    <th id="yh4"></th><th id="yh5"></th><th>Trace</th></tr></thead><tbody id="clubtb"></tbody></table>
+  <div class="panel clubpanel stick"><div class="scroller" style="max-height:640px">
+    <table><thead><tr><th>Club</th><th>Div</th><th class="yrcell" id="yh1"></th>
+    <th class="yrcell" id="yh2"></th><th class="yrcell" id="yh3"></th>
+    <th class="yrcell" id="yh4"></th><th class="yrcell" id="yh5"></th><th>Trace</th></tr></thead>
+    <tbody id="clubtb"></tbody></table>
   </div></div>
   <p class="note" id="clubnote"></p>
 </section>
@@ -321,6 +357,6 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
   <a href="https://github.com/adrianwongstudio/d21-dcp" id="footRepo">Source</a></div>
 </div></footer>
 
-<script src="app.js?v=d4ad36aa94" defer></script>
+<script src="app.js?v=2589d7d780" defer></script>
 </body>
 </html>

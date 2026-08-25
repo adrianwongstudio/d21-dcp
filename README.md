@@ -70,12 +70,26 @@ To re-pull specific months, delete them from `data/cache/` (named
 
 ## What the site shows
 
+The masthead carries three destinations named for the task — **This year**,
+**Past years**, **Find a club** — with the spreadsheet, Contact and the theme
+toggle demoted to a utility cluster behind a rule. The active one follows the
+section in view.
+
+Every section opens with one imperative line, at most twenty words. The
+caveats, definitions and provenance notes sit behind a **How to read this
+section** disclosure: a native `<details>`, so it works without JS, and every
+one of them opens for a print and closes again afterwards.
+
 **The Year in Progress** — the open year: goals achieved so far, days to 30
 June, and which goals are still mathematically reachable. A goal is unreachable
 once its window has shut; the two officer-training windows and the two
 administrative deadlines all close mid-year, so a club's ceiling can fall below
 Distinguished long before June. **The Current Year** table lists every club with
-its membership, score and Club Success Plan, sortable from any column heading.
+its score, ten goal pips, membership and next deadline, sortable from any column
+heading. Rows are 56px, which fits roughly twice as many clubs on a screen as
+the 76px rows before them. The Club Success Plan rides on the club line as a
+`no plan` flag rather than taking a column of its own, and the urgency chip
+appears only inside thirty days — colour where it decides something.
 
 **The Finished Years** — every club at the close of a chosen year, grouped by
 the division and area that supported it *in that year*, ranked worst-last within
@@ -88,6 +102,13 @@ five-year trajectory, and division standings against the prior year.
 improved, and clubs that were above five and fell back.
 
 **Every Club, Year by Year** — searchable, with five-year sparklines.
+
+Both wide tables pin their club column on a phone: `position: sticky` on the
+first `th` and `td` with an **opaque** background and a hairline on its right
+edge — a transparent sticky cell lets the scrolling figures show through it, and
+the hairline is what makes it read as a rail rather than a rendering fault. The
+five-year table also orders its year columns newest-first below 768px, so the
+year everyone came for is on screen before any sideways scrolling.
 
 Selecting a club anywhere opens a panel with a year picker: every year it has,
 plus the open year while it is still in the district. Switching years reprints
@@ -134,12 +155,37 @@ reCAPTCHA check their token server-side, which needs the endpoint above.
 Light and dark palettes are defined as tokens in `styles.css`, with an explicit
 `[data-theme]` branch so the toggle wins over the system setting.
 
-The signal colours exist twice: `--green` / `--amber` / `--red` for fills, which
-stay vivid so the traffic-light reading survives, and `--green-ink` /
-`--amber-ink` / `--red-ink` for text. Amber especially is far too light to read
-as text on a pale ground — it measured 2.5:1 before. Every text colour now
-clears WCAG AA (4.5:1) against the darkest background it sits on, in both
-themes; `ink()` in `app.js` maps a fill colour to its text counterpart.
+**Maroon is the interactive colour and the traffic lights are status only.**
+`--maroon` is a fill and always takes white text; `--maroon-ink` is the same
+brand read as type — links, eyebrows, disclosure triggers, the hero italic.
+Nothing writes `--maroon` into a `color:`.
+
+Each signal colour is a triple, not a value:
+
+| | fill | text on the fill | text on the page |
+|---|---|---|---|
+| 5–10 goals | `--green` | `--green-on` | `--green-ink` |
+| 3–4 goals | `--amber` | `--amber-on` | `--amber-ink` |
+| 0–2 goals | `--red` | `--red-on` | `--red-ink` |
+
+The fills are the same values in both themes — one hue per status, only
+lightness moves — so a lamp is the same green on paper and on ink. `ink()` and
+`on()` in `app.js` map a fill to its two counterparts. Amber never takes white:
+it measured near 2:1 that way.
+
+Colour appears only where it decides something. Numerals in tables stay
+`--ink`; a figure that needs a status gets an 8px dot beside it, because a
+coloured numeral at 15px is the least legible use of colour and the worst case
+for the red-green deficiency that affects roughly 8% of the male membership.
+Monospace carries numbers, dates and IDs; words go to the sans.
+
+Every text colour clears WCAG AA (4.5:1, 3:1 for large text) against the
+background it sits on — including the surface a row takes on hover — in both
+themes. Re-run the audit after adding a coloured label: walk the text elements,
+compare computed colour against the nearest painted background, and require
+zero failures in each theme.
+
+There are no shadows. Elevation is `--card` against `--paper` plus a hairline.
 
 ## Scale and headings
 

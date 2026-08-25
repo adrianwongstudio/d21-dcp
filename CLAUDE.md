@@ -231,22 +231,61 @@ card on a row of its own.
 Section and card headings are Title Case: articles, short prepositions and
 conjunctions stay lowercase unless they open the heading.
 
+Each section header is a heading row (heading + a mono context chip), one
+imperative instruction line of at most twenty words, and a `How to read this
+section` disclosure holding the caveats. The disclosure is a native
+`<details>` so it needs no JS; a `beforeprint` handler opens every one and
+`afterprint` closes the ones it opened.
+
+Area cards flow in CSS **columns**, not a grid: a fixed `repeat(3, 1fr)` with
+variable-height cards breaks its row and leaves a hole two columns wide in
+every division. The column count follows the number of areas (`data-n` on
+`.areas`), because column balancing fills greedily — four cards across three
+columns lands 2-2-0 and empties the third.
+
+Both wide tables pin their first cell on a phone (`.stick`). Pin the cell, not
+the table, give it an **opaque** background — a transparent sticky cell lets the
+scrolling figures show through — and a hairline on its right edge, which is what
+makes it read as a rail rather than a rendering fault.
+
 ## Colour
 
 Tokens live in `styles.css`, with a `:root[data-theme="dark"]` branch so an
 explicit choice beats the system setting.
 
-The signal colours are defined twice on purpose. `--green` / `--amber` /
-`--red` are **fills** — lamps, pips, bars — and stay vivid so the traffic-light
-reading holds. `--green-ink` / `--amber-ink` / `--red-ink` are the **text**
-tones, dark enough to clear 4.5:1 on a pale ground; amber measured 2.5:1 before
-they existed. In dark mode the pairs are identical.
+**Maroon is the interactive colour; the traffic lights are status only.**
+`--maroon` is a fill and always takes white text. `--maroon-ink` is the brand
+read as type — links, eyebrows, disclosure triggers, the hero italic. Never
+write `--maroon` into a `color:`; three places in `app.js` did, and they
+measured 2:1.
 
-`ink()` in `app.js` maps a fill colour to its text counterpart, so anything
-written into a `color:` declaration goes through it. If you add a new coloured
-label, use `ink()` or an `-ink` token, then re-run the contrast audit: walk the
+Each signal colour is a **triple**: `--green` is the fill, `--green-on` is the
+text that sits on that fill, `--green-ink` is the same status set as type
+against the page. Amber never takes white — that pairing measured near 2:1. The
+fills are the same values in both themes: one hue per status, only lightness
+moves, so the two themes do not read as different products.
+
+`ink()` and `on()` in `app.js` map a fill to its two counterparts, so anything
+written into a `color:` goes through one of them. If you add a new coloured
+label, use them or an `-ink` token, then re-run the contrast audit: walk the
 text elements, compare computed colour against the nearest painted background,
-and require 4.5:1 (3:1 for large text). Both themes should report zero failures.
+and require 4.5:1 (3:1 for large text). **Include the surface a row takes on
+hover** — the fourth ink tier clears 4.5:1 on the page ground and fails on the
+raised one, which is how `--ink4` got its value. Both themes should report zero
+failures.
+
+Two values sit a shade off the design handoff for that reason, and the hue is
+unchanged in both: `--maroon-ink` (the handoff's `#C05263` measures 4.14:1 on
+the ground, not the 6.1:1 it claims) and `--red` (white on `#D2564F` measures
+4.08:1, and the lamps carrying it are small bold type, not large).
+
+Colour appears only where it decides something. Numerals in tables stay
+`--ink`; a figure needing a status takes an 8px dot beside it. Saturated fills
+belong to score badges, bars and pips. Monospace carries numbers, dates and
+IDs — words go to the sans.
+
+There are no shadows; `--shadow` is `none` in both themes. Elevation is
+`--card` against `--paper` plus a hairline.
 
 ## Contact form
 
