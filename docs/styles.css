@@ -140,9 +140,14 @@ a{color:inherit}
   .cn{font-size:12.5px}
 }
 .tally{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-.tallyitem{flex:1 1 150px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
-.tallyn{font-family:Fraunces,serif;font-size:32px;font-weight:600;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.tallyl{font-size:12px;color:var(--muted);margin-top:6px;letter-spacing:.02em}
+.tallyitem{flex:1 1 158px;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:15px 17px 14px;box-shadow:var(--shadow)}
+.tallyn{font-family:Fraunces,Georgia,serif;font-size:33px;font-weight:600;line-height:1;
+  letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+/* The label has to hold its own against a 33px numeral, so it carries weight
+   and --ink2 rather than sitting back in --muted at 12px. */
+.tallyl{font-size:13px;font-weight:600;color:var(--ink2);margin-top:7px;
+  letter-spacing:0;line-height:1.32;text-wrap:balance}
 
 /* ---------- sections ---------- */
 .sec{padding-block:52px;border-top:1px solid var(--line);margin-top:44px}

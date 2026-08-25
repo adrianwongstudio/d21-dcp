@@ -339,8 +339,8 @@ function drawLive(){
 
   $('lvTally').innerHTML=[
     ['Distinguished already',a.dist_now,a.dist_now?'var(--green)':'var(--muted)'],
-    ['Can still get there',a.dist_live,'var(--ink)'],
-    ['No longer able to',a.dist_out,a.dist_out?'var(--red)':'var(--muted)'],
+    ['Can still reach it',a.dist_live,'var(--ink)'],
+    ['Can no longer reach it',a.dist_out,a.dist_out?'var(--red)':'var(--muted)'],
     ['Average goals met',a.avg_met.toFixed(2),'var(--ink)'],
     ['Meet the membership rule',a.memok+'/'+a.clubs,'var(--ink)']
   ].map(([k,v,c])=>`<div class="tallyitem"><div class="tallyn" style="color:${ink(c)}">${v}</div>
