@@ -353,7 +353,8 @@ th[data-k][aria-sort]{color:var(--maroon)}
   .mast, main, .foot{zoom:1.25}
   /* The drawer box itself is never zoomed: it is position:fixed, and zooming it
      resolves bottom:0 in the scaled space and lands it below the screen. Its
-     children scale instead, so the panel stays anchored while its contents grow
-     with the rest of the page. It already scrolls, so the taller content fits. */
-  .detail > *{zoom:1.25}
+     children scale instead, so the panel stays anchored while its contents grow.
+     They run a little larger than the page behind them: the drawer is a reading
+     surface you have deliberately opened. It scrolls, so the extra height fits. */
+  .detail > *{zoom:1.4}
 }
