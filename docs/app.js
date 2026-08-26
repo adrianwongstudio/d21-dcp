@@ -448,7 +448,7 @@ function drawLiveTable(){
     const urg=(d!=null&&d<=30)?`<span class="lvurg" title="closes in ${d} days">${d}d</span>`:'';
     // the Success Plan is a boolean that used to compete with the score for a
     // whole column; it rides on the club line, and only when it is missing
-    const plan=cspRank(c.csp)===1?'<span class="lvplan" title="No Club Success Plan yet">no plan</span>':'';
+    const plan=cspRank(c.csp)===1?'<span class="lvplan" title="No Club Success Plan yet">No Club Success Plan</span>':'';
     return `<tr class="lvrow" tabindex="0" role="button" data-n="${esc(c.n)}">
       <td><span class="lvname" title="${esc(c.m)}">${esc(c.m)}</span><span class="lvnum">${esc(String(Number(c.n)))}${plan}</span></td>
       <td class="lvdiv">${esc(c.d||'—')}</td>

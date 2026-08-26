@@ -413,8 +413,8 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
   /* names wrap rather than truncate — an ellipsis hid 27 of 180 of them */
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .lvnum{font:400 11px/1.2 "IBM Plex Mono",monospace;color:var(--ink4);display:block;margin-top:1px}
-.lvplan{font:600 10px/1 "Public Sans",sans-serif;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--amber-ink);margin-left:7px;white-space:nowrap}
+.lvplan{font:600 11px/1 "Public Sans",sans-serif;color:var(--amber-ink);
+  margin-left:7px;white-space:nowrap}
 /* without the indent a wrapped club name reads as touching the division letter */
 .lvdiv{font:400 14px/1 "IBM Plex Mono",monospace;color:var(--ink2);padding-left:14px!important}
 .lvscore{display:flex;align-items:baseline;justify-content:flex-end;gap:2px}
