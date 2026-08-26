@@ -275,6 +275,7 @@ tbody tr:hover{background:var(--sunk)}
 input[type=search],select{font:500 15px/1 "Public Sans",sans-serif;height:38px;padding:0 14px;
   border-radius:5px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-width:0}
 input[type=search]{flex:1 1 300px;max-width:300px}
+select{flex:none;padding-right:34px}
 /* heading on the left, the two controls that drive the table on the right */
 .sechead.withctl{display:flex;align-items:flex-end;justify-content:space-between;
   gap:16px 24px;flex-wrap:wrap;padding-bottom:20px;margin-bottom:0}
@@ -404,7 +405,7 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
 /* rows on the page ground, header raised above them */
 .stick tbody tr{background:var(--paper)}
 .stick tbody tr:hover{background:var(--card)}
-.lvpanel table{table-layout:fixed}
+.lvpanel table{table-layout:fixed;min-width:1080px}
 .lvpanel th,.lvpanel td{padding-left:0;padding-right:0}
 .lvpanel th:first-child,.lvpanel td:first-child{padding-left:18px}
 .lvpanel th:last-child,.lvpanel td:last-child{padding-right:18px}
@@ -517,6 +518,27 @@ th[data-k][aria-sort]{color:var(--ink)}
    a transparent background lets the scrolling figures show through it, and the
    hairline on its right edge is what makes it read as a rail rather than a
    rendering fault. */
+@media (max-width:1420px){
+  /* the window name is the widest thing in the last column and the least
+     load-bearing — the date beside it already names the deadline */
+  .lvpanel .lvwin{display:none}
+  .lvpanel table{min-width:900px}
+}
+@media (max-width:1190px){
+  /* Below this the six fixed columns cannot fit at all, so the table falls
+     back to the phone's construction — content-sized columns and a pinned
+     club column — while the page around it stays desktop. The rail is roomier
+     here than on a phone; the 768px block narrows it again. */
+  .lvpanel table{min-width:0;table-layout:auto}
+  .lvpanel th:nth-child(n){width:auto}
+  .lvpanel .lvpips{padding-left:14px!important}
+  .stick th,.stick td{white-space:nowrap}
+  .stick th:first-child,.stick td:first-child{position:sticky;left:0;z-index:2;
+    width:220px;min-width:220px;max-width:220px;
+    background:var(--sunk);border-right:1px solid var(--line);white-space:normal}
+  .stick th:first-child{background:var(--card);z-index:3}
+  .stick tbody tr:hover td:first-child{background:var(--sunk)}
+}
 @media (max-width:768px){
   body{font-size:16px}
   .sechead h2{font-size:30px}
@@ -528,23 +550,16 @@ th[data-k][aria-sort]{color:var(--ink)}
   .brandorg{font-size:10px;letter-spacing:.11em}
   .lede{font-size:17px}
   .stick table{table-layout:auto}
-  .stick th,.stick td{white-space:nowrap}
-  .stick th:first-child,.stick td:first-child{position:sticky;left:0;z-index:2;
-    width:150px;min-width:150px;max-width:150px;padding-left:14px;
-    background:var(--sunk);border-right:1px solid var(--line);white-space:normal}
-  .stick th:first-child{background:var(--card);z-index:3}
-  .stick tbody tr:hover td:first-child{background:var(--sunk)}
+  .stick th:first-child,.stick td:first-child{width:150px;min-width:150px;
+    max-width:150px;padding-left:14px}
   .stick tbody td{height:54px;padding-top:6px;padding-bottom:6px}
   .stick .lvname{-webkit-line-clamp:2;padding-right:6px;font-size:14px}
   .stick .cname{min-width:0;font-size:14px;line-height:1.25}
   .stick .yrcell{width:72px;padding-left:10px;font-size:16px}
-  .lvpanel th:nth-child(n){width:auto}
   /* the club line already carries division and area, so the column is spare */
   .clubpanel th:nth-child(2),.clubpanel td:nth-child(2){display:none}
-  .lvpanel .lvwin{display:none}
-  .lvpanel .lvpips{padding-left:14px!important}
   .sechead.withctl{display:block}
-  .sechead.withctl .toolbar{margin-top:16px}
+  .sechead.withctl .toolbar{margin-top:16px;flex-wrap:wrap}
   input[type=search]{max-width:none}
 }
 @media (max-width:480px){
