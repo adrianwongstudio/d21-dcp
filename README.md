@@ -75,7 +75,8 @@ The masthead carries three destinations named for the task — **This year**,
 toggle demoted to a utility cluster behind a rule. The active one follows the
 section in view.
 
-Every section opens with one imperative line, at most twenty words. The
+Every section opens with one imperative line, at most twenty words, set to hold
+a single line — if it needs two it is too long to be an instruction. The
 caveats, definitions and provenance notes sit behind a **How to read this
 section** disclosure: a native `<details>`, so it works without JS, and every
 one of them opens for a print and closes again afterwards.
@@ -88,8 +89,9 @@ Distinguished long before June. **The Current Year** table lists every club with
 its score, ten goal pips, membership and next deadline, sortable from any column
 heading. Rows are 56px, which fits roughly twice as many clubs on a screen as
 the 76px rows before them. The Club Success Plan rides on the club line as a
-`no plan` flag rather than taking a column of its own, and the urgency chip
-appears only inside thirty days — colour where it decides something.
+`No Club Success Plan` flag rather than taking a column of its own, and the
+urgency chip appears only inside thirty days — colour where it decides
+something.
 
 **The Finished Years** — every club at the close of a chosen year, grouped by
 the division and area that supported it *in that year*, ranked worst-last within
@@ -186,6 +188,11 @@ compare computed colour against the nearest painted background, and require
 zero failures in each theme.
 
 There are no shadows. Elevation is `--card` against `--paper` plus a hairline.
+
+**[DESIGN.md](DESIGN.md) is the full reference** — every token in both themes,
+the type scale, the metrics, each region's construction, the contrast audit,
+and what a second district has to change. Read it before altering the layout,
+and keep it level with the stylesheet.
 
 ## Scale and headings
 

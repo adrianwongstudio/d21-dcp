@@ -15,6 +15,12 @@ data across the finished program years, plus the open year as it stands today:
 
 ## Standing it up for another district
 
+**[DESIGN.md](DESIGN.md) is the design reference** — tokens for both themes, the
+type scale, metrics, every region's construction, the contrast audit, and the
+short list of front-end strings that do not follow `config.json` yet. The design
+is district-neutral: a new district is a config edit, not a redesign. Read it
+before changing anything under `docs/`, and keep it level with the stylesheet.
+
 ### 1. Edit `config.json`
 
 Everything district-specific lives here. Nothing else should need touching.
@@ -34,6 +40,17 @@ The `site` block travels into `data.json` and is applied to the page at load
 by `applySiteConfig()` in `docs/app.js` — title, masthead, hero eyebrow,
 footer, and the spreadsheet, repo and dashboard links. The markup carries
 District 21 strings only as fallbacks.
+
+`site.eyebrow` is the programme name alone. The year span after it is derived
+from the data by `setEyebrow()` — the finished years plus the open one — so it
+is right the morning after a year rolls. Do not write a span into the config.
+
+**Three front-end strings do not follow the config yet**, and are wrong for any
+district but the first: the in-year download filename and the scoped download
+filename (both `District21_…` in `app.js`, which should read
+`output.inyear_prefix`), and the `d21-theme` localStorage key in `app.js` and
+`index.html`. The theme key matters if two districts ever share an origin —
+they would share one another's light/dark choice. DESIGN.md lists them.
 
 ### 2. Rebuild `scripts/clubs.tsv`
 
@@ -233,7 +250,9 @@ conjunctions stay lowercase unless they open the heading.
 
 Each section header is a heading row (heading + a mono context chip), one
 imperative instruction line of at most twenty words, and a `How to read this
-section` disclosure holding the caveats. The disclosure is a native
+section` disclosure holding the caveats. The instruction line is measured to
+hold **one line** — the 52ch the handoff specified broke every one of them in
+two. If a line still wraps, cut it rather than widening the measure. The disclosure is a native
 `<details>` so it needs no JS; a `beforeprint` handler opens every one and
 `afterprint` closes the ones it opened.
 
