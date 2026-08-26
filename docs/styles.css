@@ -220,7 +220,7 @@ a{color:inherit}
 .sechead h2{font-size:38px;line-height:1.1;font-weight:700;letter-spacing:-.018em}
 .sechead.sub h2{font-size:30px}
 .secchip{font:400 12px/1 "IBM Plex Mono",monospace;color:var(--muted);white-space:nowrap}
-.instruct{font-size:19px;line-height:1.5;color:var(--ink);max-width:52ch;
+.instruct{font-size:19px;line-height:1.5;color:var(--ink);max-width:88ch;
   margin:14px 0 18px;text-wrap:pretty}
 .howto>summary{display:inline-flex;align-items:center;gap:6px;width:fit-content;cursor:pointer;
   list-style:none;font:700 14px/1.4 "Public Sans",sans-serif;color:var(--maroon-ink);
@@ -466,7 +466,7 @@ th[data-k][aria-sort]{color:var(--ink)}
 .foot{border-top:1px solid var(--line);margin-top:44px;padding-block:34px;font-size:13px;color:var(--muted)}
 .foot .wrap{display:flex;gap:18px;justify-content:space-between;flex-wrap:wrap}
 .foot a{color:var(--ink2)}
-.note{font-size:12.5px;color:var(--muted);margin-top:14px;max-width:74ch}
+.note{font-size:12.5px;color:var(--muted);margin-top:14px;max-width:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 :focus-visible{outline:2px solid var(--maroon-ink);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
