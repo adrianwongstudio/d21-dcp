@@ -267,6 +267,30 @@ the table, give it an **opaque** background — a transparent sticky cell lets t
 scrolling figures show through — and a hairline on its right edge, which is what
 makes it read as a rail rather than a rendering fault.
 
+## Brand
+
+Type and colour follow the Toastmasters International Brand Manual.
+
+**Typefaces.** Gotham (headings) and Myriad Pro (body) are licensed, so the
+manual's own free alternates are used: **Montserrat** for headings and
+**Source Sans 3** for body, with Arial and Segoe UI — the manual's tertiary
+faces — behind them in the stack. IBM Plex Mono stays for tabular figures and
+club numbers; the manual does not govern monospace.
+
+**Palette** (Brand Manual p.14):
+
+| | | |
+|---|---|---|
+| True Maroon | `#772432` | primary — `--maroon`, the "act here" colour |
+| Loyal Blue | `#004165` | primary — `--ink`, all body text and headers |
+| Cool Gray | `#A9B2B1` | primary — every neutral is a tint of it |
+| Happy Yellow | `#F2DF74` | accent — `--accent`, highlights only |
+
+Happy Yellow is never a status fill. It measures 1.35:1 against a white card,
+so a yellow lamp would have no shape. Green, amber and red stay functional
+colours: the manual does not legislate status, and the board's traffic-light
+reading depends on the three staying distinct.
+
 ## Colour
 
 Tokens live in `styles.css`, with a `:root[data-theme="dark"]` branch so an

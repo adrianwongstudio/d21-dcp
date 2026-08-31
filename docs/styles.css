@@ -1,12 +1,21 @@
 :root{
-  --paper:#EDF1F4; --sunk:#E3E9ED; --card:#FFFFFF;
-  --line:#CBD6DE; --line-soft:#DCE4EA;
-  --ink:#00263A; --ink2:#33505F; --muted:#596974; --ink4:#55666F;
+  /* Toastmasters brand palette (Brand Manual p.14): True Maroon #772432,
+     Loyal Blue #004165, Cool Gray #A9B2B1, Happy Yellow #F2DF74. The neutrals
+     below are tints of Cool Gray and the ink is Loyal Blue. Happy Yellow is an
+     accent only — at 1.35:1 on white a yellow fill has no shape, so it never
+     carries a status. Green, amber and red stay functional colours: the manual
+     does not legislate status, and the board's traffic-light reading depends
+     on them staying distinct. */
+  --paper:#F6F7F7; --sunk:#F0F1F1; --card:#FFFFFF;
+  --line:#D0D5D4; --line-soft:#E5E8E8;
+  --ink:#004165; --ink2:#3B6980; --muted:#477085; --ink4:#4E7488;
+  --accent:#F2DF74; --accent-wash:rgba(242,223,116,.35);
+  --badge-green:#1B6042; --badge-amber:#684704; --badge-neutral:#366074;
   /* Maroon carries "you can act here". --maroon is the fill and always takes
      white text; --maroon-ink is the same brand read as type, dark enough to
      clear 4.5:1 on the page ground. Never write --maroon into a color:. */
-  --maroon:#8E2A3A; --maroon-ink:#8A2432;
-  --maroon-wash:rgba(138,36,50,.10); --maroon-rule:rgba(138,36,50,.45);
+  --maroon:#772432; --maroon-ink:#772432;
+  --maroon-wash:rgba(119,36,50,.10); --maroon-rule:rgba(119,36,50,.45);
   /* One hue per status across both themes; only lightness moves. Red is a
      shade under the handoff's #D2564F: white on that measured 4.08:1, and the
      lamps and badges that carry it are small bold type, not large. The fills are
@@ -22,11 +31,13 @@
   --shadow:none;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#0A141C; --sunk:#0E1A23; --card:#11202B;
-  --line:rgba(255,255,255,.09); --line-soft:rgba(255,255,255,.06);
-  --ink:#EDF3F6; --ink2:#A8BAC5; --muted:#7B8F9C; --ink4:#758997;
-  --maroon:#8E2A3A; --maroon-ink:#CB6070;
-  --maroon-wash:rgba(192,82,99,.14); --maroon-rule:rgba(192,82,99,.5);
+  --paper:#00121C; --sunk:#001622; --card:#001B2A;
+  --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06);
+  --ink:#F5F6F6; --ink2:#BEC5C4; --muted:#A9B2B1; --ink4:#A9B2B1;
+  --accent:#F2DF74; --accent-wash:rgba(242,223,116,.16);
+  --badge-green:var(--green-ink); --badge-amber:var(--amber-ink); --badge-neutral:var(--ink2);
+  --maroon:#772432; --maroon-ink:#B4878E;
+  --maroon-wash:rgba(180,135,142,.14); --maroon-rule:rgba(180,135,142,.5);
   --green:#46B583; --amber:#D9A227; --red:#CA4B44; --dead:#5C6E7A;
   --green-on:#062015; --amber-on:#1E1403; --red-on:#FFFFFF;
   --green-ink:#7FD3AB; --amber-ink:#E8BF63; --red-ink:#EE8B84;
@@ -35,11 +46,13 @@
   --shadow:none;
 }}
 :root[data-theme="dark"]{
-  --paper:#0A141C; --sunk:#0E1A23; --card:#11202B;
-  --line:rgba(255,255,255,.09); --line-soft:rgba(255,255,255,.06);
-  --ink:#EDF3F6; --ink2:#A8BAC5; --muted:#7B8F9C; --ink4:#758997;
-  --maroon:#8E2A3A; --maroon-ink:#CB6070;
-  --maroon-wash:rgba(192,82,99,.14); --maroon-rule:rgba(192,82,99,.5);
+  --paper:#00121C; --sunk:#001622; --card:#001B2A;
+  --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06);
+  --ink:#F5F6F6; --ink2:#BEC5C4; --muted:#A9B2B1; --ink4:#A9B2B1;
+  --accent:#F2DF74; --accent-wash:rgba(242,223,116,.16);
+  --badge-green:var(--green-ink); --badge-amber:var(--amber-ink); --badge-neutral:var(--ink2);
+  --maroon:#772432; --maroon-ink:#B4878E;
+  --maroon-wash:rgba(180,135,142,.14); --maroon-rule:rgba(180,135,142,.5);
   --green:#46B583; --amber:#D9A227; --red:#CA4B44; --dead:#5C6E7A;
   --green-on:#062015; --amber-on:#1E1403; --red-on:#FFFFFF;
   --green-ink:#7FD3AB; --amber-ink:#E8BF63; --red-ink:#EE8B84;
@@ -50,9 +63,9 @@
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);
-  font-family:"Public Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+  font-family:"Source Sans 3","Segoe UI",Arial,sans-serif;
   font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.08;margin:0}
+h1,h2,h3{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-weight:600;line-height:1.08;margin:0}
 a{color:inherit}
 .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(20px,2.6vw,40px)}
 
@@ -68,7 +81,7 @@ a{color:inherit}
 /* One line, baseline-aligned: the title and the organisation read as a single
    wordmark rather than an eyebrow stacked over a heading. */
 .brandtext{display:flex;align-items:baseline;gap:9px;min-width:0;flex-wrap:wrap}
-.brandname{font-family:Fraunces,Georgia,serif;font-size:19px;font-weight:700;
+.brandname{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-size:19px;font-weight:700;
   letter-spacing:-.01em;color:var(--ink);white-space:nowrap}
 .brandorg{font-size:12px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
 .mastright{display:flex;align-items:center;gap:28px;margin-left:auto;flex-wrap:wrap;min-width:0}
@@ -101,7 +114,7 @@ a{color:inherit}
   :root:not([data-theme="light"]) .themetoggle .moon{display:block}
   :root:not([data-theme="light"]) .themetoggle .sun{display:none}
 }
-.contactbtn{font:600 13px/1 "Public Sans",sans-serif;padding:0;border:none;background:none;
+.contactbtn{font:600 13px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;padding:0;border:none;background:none;
   color:var(--muted);cursor:pointer;white-space:nowrap;transition:color .15s}
 .contactbtn:hover,.contactbtn:focus-visible{color:var(--ink)}
 
@@ -120,13 +133,13 @@ a{color:inherit}
 
 .router{background:var(--card);border:1px solid var(--line);border-radius:6px;
   padding:22px 24px;align-self:start}
-.routerlab{font:800 12px/1 "Public Sans",sans-serif;letter-spacing:.13em;text-transform:uppercase;
+.routerlab{font:800 12px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;letter-spacing:.13em;text-transform:uppercase;
   color:var(--muted);padding:0 0 6px;margin:0}
 .route{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;
   padding:12px 0;border-top:1px solid var(--line-soft);text-decoration:none;color:inherit}
 .route:hover .routet b,.route:focus-visible .routet b{color:var(--maroon-ink)}
 .route:focus-visible{outline:2px solid var(--maroon-ink);outline-offset:2px}
-.routen{font-family:Fraunces,Georgia,serif;font-size:28px;font-weight:700;color:var(--maroon-ink);
+.routen{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-size:28px;font-weight:700;color:var(--maroon-ink);
   font-variant-numeric:tabular-nums;line-height:1;text-align:right;letter-spacing:-.02em}
 .routen u{font-size:14px;text-decoration:none;letter-spacing:0;color:var(--ink2)}
 .routet{font-size:13px;color:var(--muted);line-height:1.35}
@@ -138,7 +151,7 @@ a{color:inherit}
 .board{padding-bottom:22px}
 .boardhead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:20px}
 .scrub{display:flex;gap:6px;flex-wrap:wrap}
-.yr{font:600 13px/1 "Public Sans",sans-serif;padding:9px 13px;border-radius:999px;cursor:pointer;
+.yr{font:600 13px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;padding:9px 13px;border-radius:999px;cursor:pointer;
   background:transparent;color:var(--ink2);border:1px solid var(--line);transition:background .15s,color .15s,border-color .15s}
 .yr:hover{border-color:var(--maroon-ink);color:var(--maroon-ink)}
 .yr[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
@@ -150,12 +163,12 @@ a{color:inherit}
   display:flex;flex-direction:column;gap:22px}
 .divhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
   padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:14px}
-.divname{font-family:Fraunces,Georgia,serif;font-size:22px;font-weight:700;letter-spacing:-.01em}
+.divname{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-size:22px;font-weight:700;letter-spacing:-.01em}
 .divstat{font:500 12px/1 "IBM Plex Mono",monospace;color:var(--ink2);margin-left:auto;white-space:nowrap}
 /* mono carries the numbers; the word between them is set in the sans */
-.divstat .w{font-family:"Public Sans",sans-serif}
+.divstat .w{font-family:"Source Sans 3","Segoe UI",Arial,sans-serif}
 .divavg{font-weight:600}
-.scopedl{display:inline-flex;align-items:center;gap:6px;font:600 11.5px/1 "Public Sans",sans-serif;
+.scopedl{display:inline-flex;align-items:center;gap:6px;font:600 11.5px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;
   padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:var(--card);
   color:var(--ink2);cursor:pointer;white-space:nowrap;margin-left:12px}
 .scopedl:hover{border-color:var(--maroon-ink);color:var(--maroon-ink)}
@@ -204,7 +217,7 @@ a{color:inherit}
 .tally{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .tallyitem{flex:1 1 158px;background:var(--card);border:1px solid var(--line);border-radius:12px;
   padding:15px 17px 14px;box-shadow:var(--shadow)}
-.tallyn{font-family:Fraunces,Georgia,serif;font-size:33px;font-weight:600;line-height:1;
+.tallyn{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-size:33px;font-weight:600;line-height:1;
   letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 /* The label has to hold its own against a 33px numeral, so it carries weight
    and --ink2 rather than sitting back in --muted at 12px. */
@@ -223,7 +236,7 @@ a{color:inherit}
 .instruct{font-size:19px;line-height:1.5;color:var(--ink);max-width:88ch;
   margin:14px 0 18px;text-wrap:pretty}
 .howto>summary{display:inline-flex;align-items:center;gap:6px;width:fit-content;cursor:pointer;
-  list-style:none;font:700 14px/1.4 "Public Sans",sans-serif;color:var(--maroon-ink);
+  list-style:none;font:700 14px/1.4 "Source Sans 3","Segoe UI",Arial,sans-serif;color:var(--maroon-ink);
   border-bottom:1px solid var(--maroon-rule);padding-bottom:2px}
 .howto>summary::-webkit-details-marker{display:none}
 .howto>summary::after{content:"\25be";font-size:11px;line-height:1}
@@ -267,12 +280,16 @@ tbody tr:hover{background:var(--sunk)}
 .arc{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink2);white-space:nowrap}
 .badge{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:999px;
   background:var(--sunk);color:var(--ink2);white-space:nowrap}
-.badge[data-t="p"]{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--green-ink)}
-.badge[data-t="s"]{background:color-mix(in srgb,var(--amber) 22%,transparent);color:var(--amber-ink)}
-.badge[data-t="d"]{background:color-mix(in srgb,var(--ink2) 14%,transparent);color:var(--ink2)}
+/* A badge's wash sits over the Cool Gray ground, so the composite behind the
+   text is darker than the card. These tones are a shade under the shared -ink
+   values to clear 4.5:1 on that composite; the shared ones already pass
+   everywhere else and are left alone. */
+.badge[data-t="p"]{background:color-mix(in srgb,var(--green) 18%,transparent);color:var(--badge-green)}
+.badge[data-t="s"]{background:color-mix(in srgb,var(--amber) 22%,transparent);color:var(--badge-amber)}
+.badge[data-t="d"]{background:color-mix(in srgb,var(--ink2) 14%,transparent);color:var(--badge-neutral)}
 
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
-input[type=search],select{font:500 15px/1 "Public Sans",sans-serif;height:38px;padding:0 14px;
+input[type=search],select{font:500 15px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;height:38px;padding:0 14px;
   border-radius:5px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-width:0}
 input[type=search]{flex:1 1 300px;max-width:300px}
 select{flex:none;padding-right:34px}
@@ -289,7 +306,7 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
   transform:translateY(101%);transition:transform .26s cubic-bezier(.2,.8,.3,1);z-index:40;padding-bottom:22px}
 .detail.open{transform:none}
 .dactions{position:absolute;top:14px;right:18px;display:flex;gap:9px;align-items:center;z-index:2}
-.dxbtn{display:inline-flex;align-items:center;gap:7px;font:600 12.5px/1 "Public Sans",sans-serif;
+.dxbtn{display:inline-flex;align-items:center;gap:7px;font:600 12.5px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;
   padding:9px 13px;border-radius:8px;border:1px solid var(--maroon);background:var(--maroon);
   color:#fff;cursor:pointer;white-space:nowrap}
 .dxbtn:hover{filter:brightness(1.08)}
@@ -302,7 +319,7 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
 .dtop h3{font-size:26px;letter-spacing:-.015em;padding-right:150px}
 .dsub{font:400 12px/1 "IBM Plex Mono",monospace;color:var(--muted);margin-top:8px}
 .dyears{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
-.dyr{font:600 12px/1 "Public Sans",sans-serif;padding:7px 11px;border-radius:999px;cursor:pointer;
+.dyr{font:600 12px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;padding:7px 11px;border-radius:999px;cursor:pointer;
   background:transparent;color:var(--ink2);border:1px solid var(--line);white-space:nowrap;
   transition:background .15s,color .15s,border-color .15s}
 .dyr:hover{border-color:var(--maroon-ink);color:var(--maroon-ink)}
@@ -317,7 +334,7 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
 @media (min-width:1500px){.dgrid{grid-template-columns:repeat(8,1fr)}}
 .dcard{background:var(--sunk);border-radius:11px;padding:13px 15px}
 .dcard .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
-.dcard .v{font-family:Fraunces,serif;font-size:26px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+.dcard .v{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-size:26px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
 .goalwrap{padding:20px 24px 0}
 .goalrow{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
 .goalrow:last-child{border-bottom:none}
@@ -363,7 +380,7 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
   flex-wrap:wrap;margin-bottom:26px;padding:18px 22px;
   background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
 .clock{display:flex;align-items:center;gap:16px;min-width:0}
-.clockn{font-family:Fraunces,Georgia,serif;font-size:54px;font-weight:600;line-height:1;
+.clockn{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-size:54px;font-weight:600;line-height:1;
   letter-spacing:-.035em;color:var(--maroon-ink);font-variant-numeric:tabular-nums;flex:none}
 .clockl{font-size:13.5px;color:var(--ink2);max-width:34ch;line-height:1.4}
 .clockl b{color:var(--ink);display:block;font-size:14.5px;margin-bottom:1px}
@@ -389,8 +406,8 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
 .dlrow[data-u="2"] .dldays{background:color-mix(in srgb,var(--amber) 26%,transparent);color:var(--amber-ink)}
 .dlname{font-size:13.5px;color:var(--ink);line-height:1.3}
 .dlname small{display:block;font:400 11.5px/1.4 "IBM Plex Mono",monospace;color:var(--muted);margin-top:3px}
-.dlcnt{font:500 12px/1.3 "Public Sans",sans-serif;text-align:right;white-space:nowrap;color:var(--muted)}
-.dlcnt b{font-family:Fraunces,serif;font-size:19px;font-weight:600;color:var(--ink);display:block;
+.dlcnt{font:500 12px/1.3 "Source Sans 3","Segoe UI",Arial,sans-serif;text-align:right;white-space:nowrap;color:var(--muted)}
+.dlcnt b{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-size:19px;font-weight:600;color:var(--ink);display:block;
   font-variant-numeric:tabular-nums}
 
 .pips{display:inline-flex;gap:3px}
@@ -414,16 +431,16 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
   /* names wrap rather than truncate — an ellipsis hid 27 of 180 of them */
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .lvnum{font:400 11px/1.2 "IBM Plex Mono",monospace;color:var(--ink4);display:block;margin-top:1px}
-.lvplan{font:600 11px/1 "Public Sans",sans-serif;color:var(--amber-ink);
+.lvplan{font:600 11px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;color:var(--amber-ink);
   margin-left:7px;white-space:nowrap}
 /* without the indent a wrapped club name reads as touching the division letter */
 .lvdiv{font:400 14px/1 "IBM Plex Mono",monospace;color:var(--ink2);padding-left:14px!important}
 .lvscore{display:flex;align-items:baseline;justify-content:flex-end;gap:2px}
-.lvscore b{font:800 19px/1 "Public Sans",sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+.lvscore b{font:800 19px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
 .lvscore span{font:400 13px/1 "IBM Plex Mono",monospace;color:var(--ink4)}
 .lvpips{padding-left:24px!important}
 .lvmem{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;white-space:nowrap}
-.lvmem .memn{font:400 15px/1 "Public Sans",sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+.lvmem .memn{font:400 15px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
 .lvmem .memg{font:400 12px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
   width:22px;text-align:left;flex:none}
 .lvnd{display:flex;align-items:center;justify-content:flex-end;gap:10px}
@@ -434,7 +451,7 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
 .lvfoot{display:flex;justify-content:space-between;align-items:center;gap:16px;
   flex-wrap:wrap;padding-top:16px}
 .lvcount{font:400 12px/1.4 "IBM Plex Mono",monospace;color:var(--ink4);text-align:right}
-.nowg{font-family:Fraunces,serif;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.nowg{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
 th[data-k]{cursor:pointer;user-select:none;white-space:nowrap}
 th[data-k]:hover{color:var(--maroon-ink)}
 th[data-k]:focus-visible{outline:2px solid var(--maroon-ink);outline-offset:-2px}
@@ -443,7 +460,7 @@ th[data-k]:hover .ar{opacity:.45}
 /* the sorted column is the one carrying the ink, not a colour */
 th[data-k][aria-sort] .ar{opacity:1;color:var(--ink)}
 th[data-k][aria-sort]{color:var(--ink)}
-.csp{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 "Public Sans",sans-serif;white-space:nowrap}
+.csp{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;white-space:nowrap}
 .cspd{width:15px;height:15px;border-radius:50%;flex:none;display:grid;place-items:center;
   font-size:9.5px;font-weight:700;color:var(--red-on)}
 .csp[data-v="y"] .cspd{background:var(--green);color:var(--green-on)} .csp[data-v="y"]{color:var(--green-ink)}
@@ -455,7 +472,7 @@ th[data-k][aria-sort]{color:var(--ink)}
 
 .dlbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:26px 0 0;
   background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 18px;box-shadow:var(--shadow)}
-.dlbtn{display:inline-flex;align-items:center;gap:9px;font:600 13.5px/1 "Public Sans",sans-serif;
+.dlbtn{display:inline-flex;align-items:center;gap:9px;font:600 13.5px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;
   padding:11px 16px;border-radius:9px;border:1px solid var(--maroon);background:var(--maroon);
   color:#fff;text-decoration:none;cursor:pointer;white-space:nowrap}
 .dlbtn:hover{filter:brightness(1.08)}
@@ -483,9 +500,9 @@ th[data-k][aria-sort]{color:var(--ink)}
 .modalhead h3{font-size:23px;letter-spacing:-.015em}
 #contactForm{padding:16px 22px 22px;display:flex;flex-direction:column;gap:13px}
 .fld{display:flex;flex-direction:column;gap:6px}
-.fld span{font:700 10.5px/1 "Public Sans",sans-serif;letter-spacing:.12em;
+.fld span{font:700 10.5px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;letter-spacing:.12em;
   text-transform:uppercase;color:var(--muted)}
-.fld input,.fld textarea{font:400 14.5px/1.45 "Public Sans",sans-serif;padding:10px 12px;
+.fld input,.fld textarea{font:400 14.5px/1.45 "Source Sans 3","Segoe UI",Arial,sans-serif;padding:10px 12px;
   border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink);
   width:100%;resize:vertical}
 .fld input:focus,.fld textarea:focus{outline:2px solid var(--maroon-ink);outline-offset:1px;
