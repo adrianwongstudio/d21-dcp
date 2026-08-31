@@ -22,7 +22,12 @@
      shared, so a lamp is the same green on paper and on ink. The -on values are
      the text that sits ON a fill — amber never takes white — and the -ink
      values are the same status read as type against the page. */
-  --green:#46B583; --amber:#D9A227; --red:#CA4B44; --dead:#556A77;
+  /* Happy Yellow as issued. It is only 1.19:1 against a near-white track, so
+     on paper every status fill carries a hairline edge — barely there on green
+     and red, and the thing that gives the yellow a shape at all. On the ink
+     ground the fills are already 13:1, so there is no edge in dark mode. */
+  --green:#46B583; --amber:#F2DF74; --red:#CA4B44; --dead:#556A77;
+  --fill-edge:rgba(0,0,0,.45);
   --green-on:#062015; --amber-on:#1E1403; --red-on:#FFFFFF;
   --green-ink:#1F6E4C; --amber-ink:#7A5405; --red-ink:#A33128;
   --red-wash:rgba(210,86,79,.13);
@@ -38,9 +43,10 @@
   --badge-green:var(--green-ink); --badge-amber:var(--amber-ink); --badge-neutral:var(--ink2);
   --maroon:#772432; --maroon-ink:#B4878E;
   --maroon-wash:rgba(180,135,142,.14); --maroon-rule:rgba(180,135,142,.5);
-  --green:#46B583; --amber:#D9A227; --red:#CA4B44; --dead:#5C6E7A;
+  --green:#46B583; --amber:#F2DF74; --red:#CA4B44; --dead:#5C6E7A;
+  --fill-edge:transparent;
   --green-on:#062015; --amber-on:#1E1403; --red-on:#FFFFFF;
-  --green-ink:#7FD3AB; --amber-ink:#E8BF63; --red-ink:#EE8B84;
+  --green-ink:#7FD3AB; --amber-ink:#F2DF74; --red-ink:#EE8B84;
   --red-wash:rgba(210,86,79,.16);
   --lampoff:#2A3945; --pip-closed:#2A3945; --pip-open:#5C6E7A;
   --shadow:none;
@@ -53,9 +59,10 @@
   --badge-green:var(--green-ink); --badge-amber:var(--amber-ink); --badge-neutral:var(--ink2);
   --maroon:#772432; --maroon-ink:#B4878E;
   --maroon-wash:rgba(180,135,142,.14); --maroon-rule:rgba(180,135,142,.5);
-  --green:#46B583; --amber:#D9A227; --red:#CA4B44; --dead:#5C6E7A;
+  --green:#46B583; --amber:#F2DF74; --red:#CA4B44; --dead:#5C6E7A;
+  --fill-edge:transparent;
   --green-on:#062015; --amber-on:#1E1403; --red-on:#FFFFFF;
-  --green-ink:#7FD3AB; --amber-ink:#E8BF63; --red-ink:#EE8B84;
+  --green-ink:#7FD3AB; --amber-ink:#F2DF74; --red-ink:#EE8B84;
   --red-wash:rgba(210,86,79,.16);
   --lampoff:#2A3945; --pip-closed:#2A3945; --pip-open:#5C6E7A;
   --shadow:none;
@@ -202,7 +209,7 @@ a{color:inherit}
 .clubrow:focus-visible{box-shadow:0 0 0 2px var(--maroon-ink)}
 .lamp{width:20px;height:20px;flex:none;border-radius:50%;display:grid;place-items:center;
   font:800 11px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
-  background:var(--lampoff);color:var(--ink2)}
+  background:var(--lampoff);color:var(--ink2);box-shadow:inset 0 0 0 1px var(--fill-edge)}
 /* fill and ink are a pair — amber never takes white */
 .lamp[data-sig="g"]{background:var(--green);color:var(--green-on)}
 .lamp[data-sig="a"]{background:var(--amber);color:var(--amber-on)}
@@ -270,7 +277,8 @@ tbody tr:hover{background:var(--sunk)}
 .yv{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;
   font-size:15px;color:var(--ink)}
 .yv.now{font-weight:700}
-.sdot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--lampoff)}
+.sdot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--lampoff);
+  box-shadow:inset 0 0 0 1px var(--fill-edge)}
 .sdot[data-sig="g"]{background:var(--green)}
 .sdot[data-sig="a"]{background:var(--amber)}
 .sdot[data-sig="r"]{background:var(--red)}
@@ -360,13 +368,15 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
 .barrow{display:grid;grid-template-columns:minmax(150px,1.35fr) 1fr auto;gap:12px;align-items:center;font-size:13px}
 .barlab{color:var(--ink2);line-height:1.25}
 .bartrack{background:var(--sunk);border-radius:5px;height:16px;position:relative;overflow:hidden}
-.barfill{position:absolute;inset:0 auto 0 0;border-radius:5px;transition:width .5s cubic-bezier(.2,.8,.3,1)}
+.barfill{position:absolute;inset:0 auto 0 0;border-radius:5px;
+  box-shadow:inset 0 0 0 1px var(--fill-edge);transition:width .5s cubic-bezier(.2,.8,.3,1)}
 .barval{font:600 12.5px/1 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
   min-width:42px;text-align:right;color:var(--ink)}
 .ghost{position:absolute;top:50%;transform:translateY(-50%);width:2px;height:22px;background:var(--ink2);opacity:.55;border-radius:1px}
 .stack{display:flex;gap:14px;align-items:flex-end;justify-content:space-between;height:210px;margin-top:6px}
 .stackcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:0;min-width:0}
-.seg{width:100%;transition:height .5s cubic-bezier(.2,.8,.3,1);position:relative}
+.seg{width:100%;box-shadow:inset 0 0 0 1px var(--fill-edge);
+  transition:height .5s cubic-bezier(.2,.8,.3,1);position:relative}
 .seg:first-child{border-radius:5px 5px 0 0}
 .seg:last-child{border-radius:0 0 5px 5px}
 .segn{font:600 11px/1 "IBM Plex Mono",monospace;position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
@@ -412,7 +422,8 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
 
 .pips{display:inline-flex;gap:3px}
 .pip{width:13px;height:13px;border-radius:2px;box-sizing:border-box;flex:none;
-  background:var(--pip-closed);border:1px solid transparent}
+  background:var(--pip-closed);border:1px solid transparent;
+  box-shadow:inset 0 0 0 1px var(--fill-edge)}
 .pip[data-s="m"]{background:var(--green)}
 .pip[data-s="o"]{background:transparent;border-color:var(--pip-open)}
 .pip[data-s="d"]{background:var(--pip-closed)}

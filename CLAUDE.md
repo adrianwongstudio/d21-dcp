@@ -286,10 +286,16 @@ club numbers; the manual does not govern monospace.
 | Cool Gray | `#A9B2B1` | primary — every neutral is a tint of it |
 | Happy Yellow | `#F2DF74` | accent — `--accent`, highlights only |
 
-Happy Yellow is never a status fill. It measures 1.35:1 against a white card,
-so a yellow lamp would have no shape. Green, amber and red stay functional
-colours: the manual does not legislate status, and the board's traffic-light
-reading depends on the three staying distinct.
+Amber **is** Happy Yellow, as issued. It measures only 1.19:1 against the bar
+track, so on paper every status fill carries a hairline `--fill-edge` — barely
+visible on green and red, and the thing that gives the yellow a shape at all.
+A bounded component satisfies WCAG 1.4.11 through its boundary: the edge
+measures 3.2:1 against the yellow and 3.8:1 against the track. Dark mode needs
+no edge, where the same yellow sits at 13.7:1 on the ink ground.
+
+Green and red stay functional colours. The manual does not legislate status,
+and the board's traffic-light reading depends on the three staying distinct
+from each other and from True Maroon.
 
 ## Colour
 
