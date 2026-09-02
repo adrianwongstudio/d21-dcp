@@ -351,7 +351,6 @@ const daysTo=iso=>{if(!iso)return null;
 
 function drawLive(){
   const L=S.l,a=L.agg;
-  $('lvDays').textContent=L.days;
   $('lvPy').textContent=shortYr(L.py);
   $('lvUpd').textContent=L.asof||'—';
 
@@ -418,9 +417,12 @@ function cspMark(v,closed){
     y?'Submitted':(closed?'Not submitted':'Not yet')}</span>`;
 }
 function drawLiveTable(){
-  const L=S.l,q=$('lq').value.trim().toLowerCase(),dv=$('lfdiv').value;
+  const L=S.l,q=$('lq').value.trim().toLowerCase(),dv=$('lfdiv').value,noplan=$('lfcsp').checked;
   let list=L.clubs.filter(c=>{
     if(dv&&c.d!==dv) return false;
+    // rank 1 is "recorded, and not met" — a club the dashboard has no plan for.
+    // Unknown (rank 2) is not the same claim, so it stays out of the filter.
+    if(noplan&&cspRank(c.csp)!==1) return false;
     if(q&&!(c.m.toLowerCase().includes(q)||String(Number(c.n)).includes(q))) return false;
     return true;});
   const byName=(x,y)=>x.m.localeCompare(y.m);
@@ -981,6 +983,7 @@ fetch(assetUrl('live.json')).then(r=>r.ok?r.json():Promise.reject(new Error(r.st
   $('lfdiv').innerHTML='<option value="">All divisions</option>'+
     divs.map(x=>`<option value="${x}">Division ${x}</option>`).join('');
   $('lq').oninput=drawLiveTable;$('lfdiv').onchange=drawLiveTable;
+  $('lfcsp').onchange=drawLiveTable;
   drawLive();
   const rd=$('rDays'); if(rd) rd.textContent=L.days;
   setEyebrow();

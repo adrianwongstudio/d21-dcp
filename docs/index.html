@@ -10,12 +10,12 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=d141907537">
+<link rel="stylesheet" href="styles.css?v=a5e6e9a77d">
 <!-- Without these the fetches inside app.js cannot start until the script has
      downloaded and run. Preloading lets the data travel alongside it. -->
 <link rel="preload" href="data.json?v=5744ca057e" as="fetch" type="application/json" crossorigin>
 <link rel="preload" href="live.json?v=40a9d57a9b" as="fetch" type="application/json" crossorigin>
-<script>window.__ASSETS__={"styles.css":"styles.css?v=d141907537","app.js":"app.js?v=aef7d9becc","data.json":"data.json?v=5744ca057e","live.json":"live.json?v=40a9d57a9b"};</script>
+<script>window.__ASSETS__={"styles.css":"styles.css?v=a5e6e9a77d","app.js":"app.js?v=06b365f0a6","data.json":"data.json?v=5744ca057e","live.json":"live.json?v=40a9d57a9b"};</script>
 </head>
 <body>
 
@@ -98,13 +98,6 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
       </div></details>
   </div>
 
-  <div class="liveband">
-    <div class="clock">
-      <div class="clockn" id="lvDays">&mdash;</div>
-      <div class="clockl"><b>days left in the program year</b>Scores become permanent on 30 June.</div>
-    </div>
-  </div>
-
   <div class="tally" id="lvTally" style="margin-bottom:26px"></div>
 
   <div class="livegrid">
@@ -144,12 +137,16 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
           <p>Figures follow the dashboard's own count, in which the two officer-training rows earn a
           single goal, as do the two administrative rows. Select any row for the club's full record,
           including its Club Success Plan and the best result still open to it.</p>
+          <p><b>No Success Plan</b> narrows the table to clubs the dashboard has not yet recorded a
+          Club Success Plan for. It is a prerequisite for every recognition level, so a club without
+          one cannot be Distinguished however many goals it meets.</p>
         </div></details>
     </div>
     <div class="toolbar">
       <label class="sr" for="lq">Search clubs</label>
       <input type="search" id="lq" placeholder="Search club name or number">
       <label class="sr" for="lfdiv">Division</label><select id="lfdiv"></select>
+      <label class="lvtog"><input type="checkbox" id="lfcsp">No Success Plan</label>
     </div>
   </div>
   <div class="panel lvpanel stick"><div class="scroller" style="max-height:640px">
@@ -356,6 +353,6 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
   <a href="https://github.com/adrianwongstudio/d21-dcp" id="footRepo">Source</a></div>
 </div></footer>
 
-<script src="app.js?v=aef7d9becc" defer></script>
+<script src="app.js?v=06b365f0a6" defer></script>
 </body>
 </html>

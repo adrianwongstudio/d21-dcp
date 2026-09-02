@@ -307,8 +307,21 @@ select{flex:none;padding-right:34px}
 .sechead.withctl{display:flex;align-items:flex-end;justify-content:space-between;
   gap:16px 24px;flex-wrap:wrap;padding-bottom:20px;margin-bottom:0}
 .sechead.withctl .instruct{font-size:16px;color:var(--ink2);max-width:56ch;margin-bottom:0}
-.sechead.withctl .toolbar{margin-bottom:0;flex-wrap:nowrap}
+.sechead.withctl .toolbar{margin-bottom:0;flex-wrap:nowrap;justify-content:flex-end}
+/* Three controls do not fit beside the heading on a narrow screen, and the
+   search would otherwise be crushed to nothing rather than moving down. */
+.sechead.withctl input[type=search]{min-width:170px}
+@media (max-width:1080px){.sechead.withctl .toolbar{flex-wrap:wrap}}
 input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outline-offset:1px}
+/* A third control on the toolbar, sized to match the search and the select.
+   Maroon is the interactive colour, so a checked toggle takes the maroon rule
+   and maroon-ink type — never --maroon in a color:. */
+.lvtog{display:inline-flex;align-items:center;gap:8px;flex:none;height:38px;padding:0 14px;
+  border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--ink2);
+  font:600 13.5px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;white-space:nowrap;cursor:pointer}
+.lvtog input{accent-color:var(--maroon);width:15px;height:15px;margin:0;flex:none;cursor:pointer}
+.lvtog:has(:checked){border-color:var(--maroon);color:var(--maroon-ink)}
+.lvtog:has(:focus-visible){outline:2px solid var(--maroon-ink);outline-offset:1px}
 
 /* ---------- detail ---------- */
 .detail{position:fixed;inset:auto 0 0 0;max-height:82vh;overflow-y:auto;background:var(--card);
@@ -388,18 +401,6 @@ input[type=search]:focus,select:focus{outline:2px solid var(--maroon-ink);outlin
 
 /* ---------- in-year / live ---------- */
 .live{padding-block:46px;border-top:1px solid var(--line);margin-top:8px}
-.liveband{display:flex;align-items:center;justify-content:space-between;gap:26px 34px;
-  flex-wrap:wrap;margin-bottom:26px;padding:18px 22px;
-  background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
-.clock{display:flex;align-items:center;gap:16px;min-width:0}
-.clockn{font-family:Montserrat,"Segoe UI",Arial,sans-serif;font-size:54px;font-weight:600;line-height:1;
-  letter-spacing:-.035em;color:var(--maroon-ink);font-variant-numeric:tabular-nums;flex:none}
-.clockl{font-size:13.5px;color:var(--ink2);max-width:34ch;line-height:1.4}
-.clockl b{color:var(--ink);display:block;font-size:14.5px;margin-bottom:1px}
-@media (max-width:700px){
-  .liveband{padding:16px 18px}
-  .clockn{font-size:44px}
-}
 .livegrid{display:grid;grid-template-columns:1.02fr .98fr;gap:22px;align-items:start}
 @media (max-width:940px){.livegrid{grid-template-columns:1fr}}
 
