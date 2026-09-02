@@ -353,8 +353,7 @@ function drawLive(){
   const L=S.l,a=L.agg;
   $('lvDays').textContent=L.days;
   $('lvPy').textContent=shortYr(L.py);
-  $('lvAsof').innerHTML='<b>dashboard snapshot '+esc(L.asof||'—')+'</b>'+
-    a.clubs+' clubs · built '+esc(L.generated);
+  $('lvUpd').textContent=L.asof||'—';
 
   $('lvTally').innerHTML=[
     ['Distinguished already',a.dist_now,a.dist_now?'var(--green)':'var(--muted)'],

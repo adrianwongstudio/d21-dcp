@@ -10,7 +10,7 @@ name: Close finished year
 # why it keeps checking rather than firing once.
 on:
   schedule:
-    - cron: "30 16 1,15 * *"   # half an hour after the in-year refresh
+    - cron: "30 16 * * 0"      # half an hour after the in-year refresh
   workflow_dispatch:
     inputs:
       year:

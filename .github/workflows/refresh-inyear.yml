@@ -1,12 +1,12 @@
 name: Refresh in-year data
 
 # The finished years never change, so only the open program year is refreshed here.
-# Runs on the 1st and the 15th. The dashboard posts its snapshots a week or two
-# behind, so the 1st catches the month just gone settling and the 15th catches
-# it once it has.
+# Runs every Sunday. The dashboard publishes a new snapshot daily for the open
+# year, so a weekly pull keeps the site at most six days behind the source and
+# still catches the month just gone once it has settled.
 on:
   schedule:
-    - cron: "0 16 1,15 * *"   # 16:00 UTC = 09:00 Pacific, 1st and 15th
+    - cron: "0 16 * * 0"      # 16:00 UTC Sunday = 09:00 Pacific
   workflow_dispatch:          # and on demand, from the Actions tab
 
 concurrency:
