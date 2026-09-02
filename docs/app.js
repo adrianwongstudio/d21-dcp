@@ -67,6 +67,11 @@ function drawBoard(){
     const acol=ca==null?'var(--muted)':ca>=5?'var(--green)':ca>=3?'var(--amber)':'var(--red)';
     const body=areas.map(a=>{
       const sorted=divs[dv][a].slice().sort((x,y)=>{
+        // clubs the district no longer has drop to the foot of the area, whatever
+        // they scored: the list is read top-down for who to call, and there is no
+        // one left to call at a club that has gone
+        const gx=goneFromRoster(x.c.n),gy=goneFromRoster(y.c.n);
+        if(gx!==gy) return gx?1:-1;
         const fx=(x.c.y[S.year]||{}).f,fy=(y.c.y[S.year]||{}).f;
         if(fx==null&&fy==null) return x.c.m.localeCompare(y.c.m);
         if(fx==null) return 1; if(fy==null) return -1;
