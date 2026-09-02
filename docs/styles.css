@@ -242,6 +242,8 @@ a{color:inherit}
 .secchip{font:400 12px/1 "IBM Plex Mono",monospace;color:var(--muted);white-space:nowrap}
 .updated{font-size:17px;font-weight:400;color:var(--ink2);letter-spacing:0;white-space:nowrap}
 .updated b{font:500 17px/1 "IBM Plex Mono",monospace;color:var(--red-ink)}
+/* the same date in the instruction line, sized to the sentence around it */
+#cyAsof{font-family:"IBM Plex Mono",monospace;font-weight:500;color:var(--ink)}
 .instruct{font-size:19px;line-height:1.5;color:var(--ink);max-width:88ch;
   margin:14px 0 18px;text-wrap:pretty}
 .howto>summary{display:inline-flex;align-items:center;gap:6px;width:fit-content;cursor:pointer;

@@ -10,12 +10,12 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=a5e6e9a77d">
+<link rel="stylesheet" href="styles.css?v=761b4055f5">
 <!-- Without these the fetches inside app.js cannot start until the script has
      downloaded and run. Preloading lets the data travel alongside it. -->
 <link rel="preload" href="data.json?v=5744ca057e" as="fetch" type="application/json" crossorigin>
 <link rel="preload" href="live.json?v=40a9d57a9b" as="fetch" type="application/json" crossorigin>
-<script>window.__ASSETS__={"styles.css":"styles.css?v=a5e6e9a77d","app.js":"app.js?v=06b365f0a6","data.json":"data.json?v=5744ca057e","live.json":"live.json?v=40a9d57a9b"};</script>
+<script>window.__ASSETS__={"styles.css":"styles.css?v=761b4055f5","app.js":"app.js?v=5e3557382b","data.json":"data.json?v=5744ca057e","live.json":"live.json?v=40a9d57a9b"};</script>
 </head>
 <body>
 
@@ -128,8 +128,9 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
   <div class="sechead sub withctl" style="margin-top:44px">
     <div>
-      <div class="secheadrow"><h2>The Current Year</h2></div>
-      <p class="instruct">Every club as the dashboard reports it today. Sorted by score, lowest last.</p>
+      <div class="secheadrow"><h2>The Current Year <span class="updated">(updated:
+        <b id="cyUpd">&mdash;</b>)</span></h2></div>
+      <p class="instruct">Every club as of <b id="cyAsof">&mdash;</b>. Sorted by score, lowest last.</p>
       <details class="howto"><summary>How to read this section</summary>
         <div class="howtobody">
           <p>Ten squares per club, one per DCP goal: filled means achieved, outlined means still
@@ -353,6 +354,6 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
   <a href="https://github.com/adrianwongstudio/d21-dcp" id="footRepo">Source</a></div>
 </div></footer>
 
-<script src="app.js?v=06b365f0a6" defer></script>
+<script src="app.js?v=5e3557382b" defer></script>
 </body>
 </html>

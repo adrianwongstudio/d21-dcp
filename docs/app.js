@@ -352,7 +352,10 @@ const daysTo=iso=>{if(!iso)return null;
 function drawLive(){
   const L=S.l,a=L.agg;
   $('lvPy').textContent=shortYr(L.py);
-  $('lvUpd').textContent=L.asof||'—';
+  // the snapshot date leads both in-year headings: it is the first thing an
+  // area director needs before trusting a figure on either
+  ['lvUpd','cyUpd'].forEach(id=>{$(id).textContent=L.asof||'—';});
+  $('cyAsof').textContent=L.asof||'—';
 
   $('lvTally').innerHTML=[
     ['Distinguished already',a.dist_now,a.dist_now?'var(--green)':'var(--muted)'],
