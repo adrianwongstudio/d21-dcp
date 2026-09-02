@@ -74,10 +74,14 @@ function drawBoard(){
       });
       const rows=sorted.map(({c,i})=>{
         const f=(c.y[S.year]||{}).f??null,sg=sig(f);n[sg]++;if(f===10)n.ten++;
-        const lbl=`${c.m} — ${f==null?'no data for '+S.year:f+' of 10 goals in '+S.year}`;
+        // the year's result still stands, so only the name is struck: the lamp
+        // is history and stays exactly as it was
+        const gone=goneFromRoster(c.n);
+        const lbl=`${c.m} — ${f==null?'no data for '+S.year:f+' of 10 goals in '+S.year}${
+          gone?' — '+GONE:''}`;
         return `<button class="clubrow" data-i="${i}" title="${esc(lbl)}" aria-label="${esc(lbl)}">
           <span class="lamp" data-sig="${sg}" aria-hidden="true">${f==null?'\u00b7':f}</span>
-          <span class="cn">${esc(c.m)}</span></button>`;
+          <span class="cn${gone?' gone':''}">${esc(c.m)}</span></button>`;
       }).join('');
       return `<div class="areagrp"><div class="arealab">Area ${esc(a)}
         <button class="scopedl mini" data-kind="Area" data-label="${esc(a)}" data-div="${esc(dv)}"
@@ -171,7 +175,9 @@ function drawClubs(){
         now?`<i class="sdot" data-sig="${sig(f)}"></i>`:''}${f}</span></td>`;}).join('');
     const i=S.d.clubs.indexOf(c);
     return `<tr data-i="${i}" tabindex="0" role="button" style="cursor:pointer">
-      <td class="cname">${esc(c.m)}<span class="cmeta">${esc(c.d)}/${esc(c.a)} · ${esc(c.n)}</span></td>
+      <td class="cname"><span class="${goneFromRoster(c.n)?'gone':''}">${esc(c.m)}</span>${
+        goneFromRoster(c.n)?`<span class="cgone" title="${GONE}">off roster</span>`:''
+      }<span class="cmeta">${esc(c.d)}/${esc(c.a)} · ${esc(c.n)}</span></td>
       <td class="num">${esc(c.d)}/${esc(c.a)}</td>${cells}
       <td>${spark(Y.map(y=>(c.y[y]||{}).f??null))}</td></tr>`;}).join('');
   $('clubtb').querySelectorAll('tr').forEach(tr=>{
@@ -389,6 +395,18 @@ function drawLive(){
   $('lvXlsxMeta').textContent=`Excel workbook · ${a.clubs} clubs · snapshot ${L.asof||'—'}`;
   drawLiveTable();
 }
+
+/* The board and the five-year table both list clubs the district has since
+   lost. live.json carries today's roster, so a club absent from it is no
+   longer the district's — closed, merged or moved out. The two files are
+   fetched independently, so until live.json lands nothing is marked: an
+   unmarked club is never a wrong claim, a marked one would be. */
+function goneFromRoster(n){
+  if(!S.l||!S.l.clubs) return false;
+  if(!S.roster) S.roster=new Set(S.l.clubs.map(c=>c.n));
+  return !S.roster.has(n);
+}
+const GONE='no longer in the district roster';
 
 // submitted sorts above not-submitted; unknown last
 function cspRank(v){
@@ -991,6 +1009,9 @@ fetch(assetUrl('live.json')).then(r=>r.ok?r.json():Promise.reject(new Error(r.st
   const rd=$('rDays'); if(rd) rd.textContent=L.days;
   setEyebrow();
   const hc=$('hClubs'); if(hc && L.clubs) hc.textContent=L.clubs.length;
+  // the two files race; if the history drew first it drew before it could know
+  // which clubs the district still has, so give it the roster now
+  if(S.d){drawBoard();drawClubs();}
 }).catch(e=>{
   $('inyear').innerHTML='<p style="color:var(--muted);padding:20px 0">The in-year view could not load '+
     '(live.json: '+esc(e.message)+'). The Finished Years section below is unaffected.</p>';

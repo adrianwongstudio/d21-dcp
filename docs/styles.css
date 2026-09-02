@@ -217,6 +217,15 @@ a{color:inherit}
 .lamp[data-sig="x"]{background:var(--lampoff);opacity:.55;color:var(--muted)}
 .cn{font-size:13px;line-height:1.28;color:var(--ink);overflow-wrap:anywhere}
 .clubrow:hover .cn{color:var(--maroon-ink)}
+/* A club the district no longer has. The rule is drawn a shade lighter than
+   the name so it reads as a mark over the text rather than part of it, and the
+   name steps back a tier — struck-through is the signal, not colour, so it
+   survives greyscale and a colour-blind reader alike. */
+.gone{text-decoration:line-through;text-decoration-thickness:1px;
+  text-decoration-color:var(--ink4);color:var(--ink2)}
+.clubrow:hover .gone{color:var(--maroon-ink)}
+.cgone{margin-left:7px;font:600 10px/1 "Source Sans 3","Segoe UI",Arial,sans-serif;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--muted);vertical-align:1px}
 @media (max-width:600px){
   .grid{padding:14px;border-radius:12px;gap:18px}
   .cn{font-size:13px}
