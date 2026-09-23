@@ -91,7 +91,7 @@ Scripts resolve paths from the repo root, so the working directory is free.
 gh api -X PUT repos/<owner>/<repo>/pages -f "source[branch]=main" -f "source[path]=/docs"
 ```
 
-Two workflows keep it current, both on the **1st and 15th**:
+Two workflows keep it current, both **every Sunday** (16:00 UTC = 09:00 Pacific):
 
 - `refresh-inyear.yml` re-runs the open-year scripts and commits `live.json`
   and `inyear.xlsx`. Refuses to commit a run returning under fifty clubs.

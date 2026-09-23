@@ -31,7 +31,7 @@ Published at **https://adrianwongstudio.github.io/d21-dcp/**
 
 ## It keeps itself current
 
-Two GitHub Actions run on the **1st and 15th** of each month:
+Two GitHub Actions run **every Sunday** at 09:00 Pacific:
 
 - **Refresh in-year data** re-pulls the open year and commits `live.json` and
   `inyear.xlsx`. It refuses to commit a run returning fewer than fifty clubs.
@@ -89,13 +89,20 @@ Distinguished long before June. **The Current Year** table lists every club with
 its score, ten goal pips, membership and next deadline, sortable from any column
 heading. Rows are 56px, which fits roughly twice as many clubs on a screen as
 the 76px rows before them. The Club Success Plan rides on the club line as a
-`No Club Success Plan` flag rather than taking a column of its own, and the
-urgency chip appears only inside thirty days — colour where it decides
-something.
+`No Club Success Plan` flag rather than taking a column of its own, with a
+**No Success Plan** filter in the toolbar for the clubs that are missing one —
+it is a prerequisite for every recognition level, so a club without one cannot
+be Distinguished whatever it scores. The urgency chip appears only inside
+thirty days — colour where it decides something. The snapshot date rides in the
+section heading, because the first question asked of a live board is how old it
+is.
 
 **The Finished Years** — every club at the close of a chosen year, grouped by
 the division and area that supported it *in that year*, ranked worst-last within
-each area.
+each area. A club the district no longer has — closed, merged or moved out since
+— keeps its score and is still counted, but its name is struck through and it
+sinks to the foot of its area: the list is read top-down for who to call, and
+there is nobody left to call there.
 
 **Where the Goals Are Going Missing** — goal completion district-wide, the
 five-year trajectory, and division standings against the prior year.
